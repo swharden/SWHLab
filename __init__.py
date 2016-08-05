@@ -1,19 +1,11 @@
 """
 SWHLab4 - ABF analysis in Python by Scott Harden (SWHarden.com)
-##############################################################################
-extremely limited functionality, designed only to support file formats,
-protocols, we equipment we use. None of this software is not intended for use
-by anyone outside the Frazier laboratory. Code is for educational value only.
-##############################################################################
 
 Usage:
  >>> import swhlab
  >>> abf=swhlab.ABF('./path/to/some.abf')
  >>> swhlab.plot.sweep(abf,'all')
  >>> swhlab.plot.show(abf)
- 
-# I'm adding this line just to see what github does.
-
 """
 
 import os
