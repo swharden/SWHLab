@@ -11,6 +11,9 @@ Usage:
  >>> abf=swhlab.ABF('./path/to/some.abf')
  >>> swhlab.plot.sweep(abf,'all')
  >>> swhlab.plot.show(abf)
+ 
+# I'm adding this line just to see what github does.
+
 """
 
 import os
