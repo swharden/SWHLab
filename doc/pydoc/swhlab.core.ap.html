@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module ap</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>ap</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:c%3A%5Capps%5Cpythonmodules%5Cswhlab%5Ccore%5Cap.py">c:\apps\pythonmodules\swhlab\core\ap.py</a></font></td></tr></table>
+    <p><tt>Event&nbsp;detection&nbsp;routines&nbsp;related&nbsp;to&nbsp;whole-cell&nbsp;action&nbsp;potentials.<br>
+&nbsp;<br>
+The&nbsp;sequence&nbsp;is&nbsp;generally:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<a href="#-detect">detect</a>()&nbsp;-&nbsp;analyzeAP&nbsp;is&nbsp;called&nbsp;automatically<br>
+&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<a href="#-check_sweep">check_sweep</a>()&nbsp;-&nbsp;optionally<br>
+&nbsp;<br>
+Assigns&nbsp;the&nbsp;following&nbsp;to&nbsp;the&nbsp;ABF&nbsp;class:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;abf.APs[sweep]=[{},{},{},{}]&nbsp;#&nbsp;each&nbsp;sweep&nbsp;has&nbsp;a&nbsp;list&nbsp;of&nbsp;dicts&nbsp;(1&nbsp;per&nbsp;AP)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;abf.SAP[sweep]={}&nbsp;#&nbsp;each&nbsp;sweep&nbsp;1&nbsp;dict&nbsp;for&nbsp;sweep&nbsp;AP&nbsp;stats<br>
+&nbsp;<br>
+Example&nbsp;usage:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;abf=swhlab.ABF('../abfs/aps.abf')&nbsp;#load&nbsp;the&nbsp;ABF<br>
+&nbsp;&nbsp;&nbsp;&nbsp;swhlab.ap.<a href="#-detect">detect</a>(abf)&nbsp;#this&nbsp;creates&nbsp;abf.APs&nbsp;(list&nbsp;of&nbsp;list&nbsp;of&nbsp;dicts)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;swhlab.ap.<a href="#-check_sweep">check_sweep</a>(abf)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;downslopes=cm.dictVals(cm.dictFlat(abf.APs),"downslope")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;print("Found&nbsp;%d&nbsp;APs."%len(downslopes))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;print("Avg&nbsp;downslope:&nbsp;%.02f&nbsp;V/S"%np.average(downslopes))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pylab.show()</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="swhlab.core.common.html">swhlab.core.common</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+<a href="pylab.html">pylab</a><br>
+</td><td width="25%" valign=top><a href="swhlab.html">swhlab</a><br>
+<a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top><a href="time.html">time</a><br>
+<a href="traceback.html">traceback</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-analyzeAP"><strong>analyzeAP</strong></a>(Y, dY, I, rate, verbose=False)</dt><dd><tt>given&nbsp;a&nbsp;sweep&nbsp;and&nbsp;a&nbsp;time&nbsp;point,&nbsp;return&nbsp;the&nbsp;AP&nbsp;array&nbsp;for&nbsp;that&nbsp;AP.<br>
+APs&nbsp;will&nbsp;be&nbsp;centered&nbsp;in&nbsp;time&nbsp;by&nbsp;their&nbsp;maximum&nbsp;upslope.</tt></dd></dl>
+ <dl><dt><a name="-analyzeAPgroup"><strong>analyzeAPgroup</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025DBFFD0&gt;, T1=None, T2=None, plotToo=False)</dt><dd><tt>On&nbsp;the&nbsp;current&nbsp;(setSweep())&nbsp;sweep,&nbsp;calculate&nbsp;things&nbsp;like&nbsp;accomodation.<br>
+Only&nbsp;call&nbsp;directly&nbsp;just&nbsp;for&nbsp;demonstrating&nbsp;how&nbsp;it&nbsp;works&nbsp;by&nbsp;making&nbsp;a&nbsp;graph.<br>
+Or&nbsp;call&nbsp;this&nbsp;if&nbsp;you&nbsp;want&nbsp;really&nbsp;custom&nbsp;T1&nbsp;and&nbsp;T2&nbsp;(multiple&nbsp;per&nbsp;sweep)<br>
+&nbsp;&nbsp;This&nbsp;is&nbsp;called&nbsp;by&nbsp;default&nbsp;with&nbsp;default&nbsp;T1&nbsp;and&nbsp;T2.<br>
+&nbsp;&nbsp;Manually&nbsp;call&nbsp;it&nbsp;again&nbsp;for&nbsp;custom.</tt></dd></dl>
+ <dl><dt><a name="-check_AP_deriv"><strong>check_AP_deriv</strong></a>(abf, n=10)</dt><dd><tt>X</tt></dd></dl>
+ <dl><dt><a name="-check_AP_group"><strong>check_AP_group</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025DBFFD0&gt;, sweep=0)</dt><dd><tt>after&nbsp;running&nbsp;<a href="#-detect">detect</a>()&nbsp;and&nbsp;abf.SAP&nbsp;is&nbsp;populated,&nbsp;this&nbsp;checks&nbsp;it.</tt></dd></dl>
+ <dl><dt><a name="-check_AP_phase"><strong>check_AP_phase</strong></a>(abf, n=10)</dt><dd><tt>X</tt></dd></dl>
+ <dl><dt><a name="-check_AP_raw"><strong>check_AP_raw</strong></a>(abf, n=10)</dt><dd><tt>X</tt></dd></dl>
+ <dl><dt><a name="-check_sweep"><strong>check_sweep</strong></a>(abf, sweep=None, dT=0.1)</dt><dd><tt>Plotting&nbsp;for&nbsp;an&nbsp;eyeball&nbsp;check&nbsp;of&nbsp;AP&nbsp;detection&nbsp;in&nbsp;the&nbsp;given&nbsp;sweep.</tt></dd></dl>
+ <dl><dt><a name="-detect"><strong>detect</strong></a>(abf, sweep=None, threshold_upslope=50, dT=0.1, saveToo=True)</dt><dd><tt>An&nbsp;AP&nbsp;will&nbsp;be&nbsp;detected&nbsp;by&nbsp;a&nbsp;upslope&nbsp;that&nbsp;exceeds&nbsp;50V/s.&nbsp;Analyzed&nbsp;too.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;type(sweep)&nbsp;is&nbsp;int,&nbsp;graph&nbsp;int(sweep)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;sweep==None,&nbsp;process&nbsp;all&nbsp;sweeps&nbsp;sweep.</tt></dd></dl>
+ <dl><dt><a name="-getAvgBySweep"><strong>getAvgBySweep</strong></a>(abf, feature, T0=None, T1=None)</dt><dd><tt>return&nbsp;average&nbsp;of&nbsp;a&nbsp;feature&nbsp;divided&nbsp;by&nbsp;sweep.</tt></dd></dl>
+ <dl><dt><a name="-get_AP_timepoints"><strong>get_AP_timepoints</strong></a>(abf)</dt><dd><tt>return&nbsp;list&nbsp;of&nbsp;time&nbsp;points&nbsp;(sec)&nbsp;of&nbsp;all&nbsp;AP&nbsp;events&nbsp;in&nbsp;experiment.</tt></dd></dl>
+ <dl><dt><a name="-get_values"><strong>get_values</strong></a>(abf, key='freq', continuous=False)</dt><dd><tt>returns&nbsp;Xs,&nbsp;Ys&nbsp;(the&nbsp;key),&nbsp;and&nbsp;sweep&nbsp;#s&nbsp;for&nbsp;every&nbsp;AP&nbsp;found.</tt></dd></dl>
+ <dl><dt><a name="-plot_values"><strong>plot_values</strong></a>(abf, key='freq', continuous=False)</dt></dl>
+ <dl><dt><a name="-stats_first"><strong>stats_first</strong></a>(abf)</dt><dd><tt>provide&nbsp;all&nbsp;stats&nbsp;on&nbsp;the&nbsp;first&nbsp;AP.</tt></dd></dl>
+ <dl><dt><a name="-test"><strong>test</strong></a>()</dt></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>exampleABF</strong> = &lt;swhlab.core.abf.ABF object&gt;</td></tr></table>
+</body></html>

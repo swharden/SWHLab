@@ -1,0 +1,62 @@
+<html>
+<head>
+<style>
+.origin{
+	font-family: "Lucida Console", Monaco, monospace; 
+	color: blue; 
+	background-color: #EEE; 
+	border: 1px solid #CCC;
+	display: block;
+	padding: 2 5 2 5;
+	}
+.desc {
+	font-style: italic;
+	}
+	
+.action{
+	font-family: "Lucida Console", Monaco, monospace; 
+	color: green; 
+	background-color: #EEE; 
+	border: 1px solid #CCC;
+	display: block;
+	padding: 2 5 2 5;
+	}
+	
+</style>
+</head>
+<body>
+
+<h1>AP Gain</h1>
+
+<span class="origin">>> sc fsi</span>
+<span class="desc">loads an example ABF from a fast-spiking interneuron</span>
+<br><br>
+
+<span class="action">enable event detection with settings to detect APs.</span>
+<br><br>
+
+<span class="origin">>> sc auto</span>
+<span class="desc">automatically determine how to analyze this file and do it.
+In this case, it's a gain function, so a single output workbook will be made or added to.
+Any gain-related analysis will be added to this workbook.<br><br>
+
+Note that sheet names are PARENT_ABF_STEP. No sheet of this workbook should ever be manually edited.<br><br>
+
+Note also that re-running the same "sc auto" analysis is fine. The sheet will be overwritten, and all is well. <br><br>
+</span>
+
+<span class="origin">>> sc fsi 1; sc auto; sc fsi 2; sc auto; sc fsi 3; sc auto; sc fsi 4; sc auto; sc fsi 5; sc auto;
+ sc fsi 6; sc auto; sc fsi 7; sc auto; sc fsi 8; sc auto; sc fsi 9; sc auto; sc fsi 10; sc auto;
+ sc fsi 11; sc auto; sc fsi 12; sc auto; sc fsi 13; sc auto; sc fsi 14; sc auto; sc fsi 15; sc auto;</span>
+<span class="desc">Let's do the same thing a bunch of times in a row.</span>
+<br><br>
+
+<span class="origin">>> sc replace nan 0</span>
+<span class="desc">force sweeps with no APs to report 0. This is good for Steady State Freq. This is not desired for AvgAmp (for example).</span>
+<br><br>
+
+
+
+
+</body>
+</html>

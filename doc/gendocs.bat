@@ -1,0 +1,2 @@
+python gendocs.py
+pause

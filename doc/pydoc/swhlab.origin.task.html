@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module task</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>task</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:c%3A%5Capps%5Cpythonmodules%5Cswhlab%5Corigin%5Ctask.py">c:\apps\pythonmodules\swhlab\origin\task.py</a></font></td></tr></table>
+    <p><tt>standalone&nbsp;common&nbsp;tasks&nbsp;in&nbsp;Origin.<br>
+Some&nbsp;tasks&nbsp;are&nbsp;specific&nbsp;to&nbsp;CJFLab.<br>
+Many&nbsp;are&nbsp;not.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="swhlab.core.common.html">swhlab.core.common</a><br>
+<a href="glob.html">glob</a><br>
+<a href="imp.html">imp</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+<a href="os.html">os</a><br>
+<a href="subprocess.html">subprocess</a><br>
+</td><td width="25%" valign=top><a href="swhlab.html">swhlab</a><br>
+<a href="sys.html">sys</a><br>
+<a href="tempfile.html">tempfile</a><br>
+</td><td width="25%" valign=top><a href="time.html">time</a><br>
+<a href="traceback.html">traceback</a><br>
+<a href="webbrowser.html">webbrowser</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-LT"><strong>LT</strong></a>(cmd, silent=False)</dt><dd><tt>execute&nbsp;a&nbsp;labtalk&nbsp;command.</tt></dd></dl>
+ <dl><dt><a name="-book_close"><strong>book_close</strong></a>(book)</dt><dd><tt>close&nbsp;the&nbsp;given&nbsp;book,&nbsp;delete&nbsp;data</tt></dd></dl>
+ <dl><dt><a name="-book_dictInfo"><strong>book_dictInfo</strong></a>(d)</dt><dd><tt>print&nbsp;stats&nbsp;about&nbsp;a&nbsp;workbook&nbsp;dictionary.</tt></dd></dl>
+ <dl><dt><a name="-book_fromDict"><strong>book_fromDict</strong></a>(bookName='ABFBook')</dt></dl>
+ <dl><dt><a name="-book_getActive"><strong>book_getActive</strong></a>()</dt><dd><tt>returns&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;selected&nbsp;book.</tt></dd></dl>
+ <dl><dt><a name="-book_getNames"><strong>book_getNames</strong></a>()</dt><dd><tt>return&nbsp;list&nbsp;of&nbsp;names&nbsp;for&nbsp;all&nbsp;books.</tt></dd></dl>
+ <dl><dt><a name="-book_getSheetNames"><strong>book_getSheetNames</strong></a>()</dt><dd><tt>return&nbsp;list&nbsp;of&nbsp;sheet&nbsp;names&nbsp;in&nbsp;the&nbsp;current&nbsp;workbook.</tt></dd></dl>
+ <dl><dt><a name="-book_new"><strong>book_new</strong></a>(book, sheet=False)</dt></dl>
+ <dl><dt><a name="-book_rename"><strong>book_rename</strong></a>(newname, workbook=None)</dt><dd><tt>rename&nbsp;the&nbsp;currently&nbsp;selected&nbsp;workbook&nbsp;to&nbsp;something&nbsp;(spaces&nbsp;OK)</tt></dd></dl>
+ <dl><dt><a name="-book_select"><strong>book_select</strong></a>(book, sheet=False)</dt><dd><tt>select&nbsp;the&nbsp;given&nbsp;workbook.</tt></dd></dl>
+ <dl><dt><a name="-book_setHidden"><strong>book_setHidden</strong></a>(book=None, hidden=1)</dt><dd><tt>sets&nbsp;hidden&nbsp;state&nbsp;of&nbsp;the&nbsp;currently&nbsp;active&nbsp;book.</tt></dd></dl>
+ <dl><dt><a name="-book_toDict"><strong>book_toDict</strong></a>(bookName='ABFBook')</dt><dd><tt>given&nbsp;the&nbsp;name&nbsp;of&nbsp;a&nbsp;workbook,&nbsp;return&nbsp;all&nbsp;its&nbsp;contents&nbsp;as&nbsp;a&nbsp;dict</tt></dd></dl>
+ <dl><dt><a name="-cjf_eventsOn"><strong>cjf_eventsOn</strong></a>()</dt><dd><tt>forcably&nbsp;enables&nbsp;event&nbsp;detection.</tt></dd></dl>
+ <dl><dt><a name="-cjf_getLast"><strong>cjf_getLast</strong></a>()</dt><dd><tt>Return&nbsp;the&nbsp;most&nbsp;recently&nbsp;created&nbsp;[book,sheet]&nbsp;from&nbsp;pyvals</tt></dd></dl>
+ <dl><dt><a name="-cjf_noteGet"><strong>cjf_noteGet</strong></a>()</dt><dd><tt>get&nbsp;contents&nbsp;of&nbsp;a&nbsp;worksheet&nbsp;note.</tt></dd></dl>
+ <dl><dt><a name="-cjf_noteSet"><strong>cjf_noteSet</strong></a>(s)</dt><dd><tt>set&nbsp;contents&nbsp;of&nbsp;a&nbsp;worksheet&nbsp;note.</tt></dd></dl>
+ <dl><dt><a name="-cjf_selectAbfGraph"><strong>cjf_selectAbfGraph</strong></a>()</dt><dd><tt>force&nbsp;the&nbsp;ABFGraph&nbsp;to&nbsp;be&nbsp;selected.</tt></dd></dl>
+ <dl><dt><a name="-cjf_selectLast"><strong>cjf_selectLast</strong></a>()</dt><dd><tt>force&nbsp;active&nbsp;of&nbsp;the&nbsp;last&nbsp;made&nbsp;worksheet.</tt></dd></dl>
+ <dl><dt><a name="-cjf_setpath"><strong>cjf_setpath</strong></a>(fname)</dt></dl>
+ <dl><dt><a name="-clearProject"><strong>clearProject</strong></a>()</dt><dd><tt>clear&nbsp;origin&nbsp;project&nbsp;(with&nbsp;dialog&nbsp;asking&nbsp;about&nbsp;saving)</tt></dd></dl>
+ <dl><dt><a name="-collectCols"><strong>collectCols</strong></a>(cols=['command', 'Freq'], book=None, newBook='collected', matching=False)</dt><dd><tt>assume&nbsp;each&nbsp;sheet&nbsp;is&nbsp;a&nbsp;cell&nbsp;and&nbsp;grab&nbsp;a&nbsp;column&nbsp;(or&nbsp;columns)&nbsp;to&nbsp;combine<br>
+into&nbsp;a&nbsp;new&nbsp;workbook/worksheet.&nbsp;Columns&nbsp;can&nbsp;be&nbsp;in&nbsp;index&nbsp;values&nbsp;(starting<br>
+at&nbsp;0)&nbsp;or&nbsp;names&nbsp;(for&nbsp;partial&nbsp;match).&nbsp;Columns&nbsp;can&nbsp;be&nbsp;single&nbsp;or&nbsp;multiple<br>
+(for&nbsp;X,Y,Y,Y&nbsp;sets).<br>
+If&nbsp;matching&nbsp;is&nbsp;given,&nbsp;only&nbsp;return&nbsp;data&nbsp;from&nbsp;sheets&nbsp;with&nbsp;that&nbsp;string&nbsp;in&nbsp;it.<br>
+&nbsp;<br>
+Examples:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#-collectCols">collectCols</a>(3)&nbsp;#&nbsp;move&nbsp;all&nbsp;of&nbsp;the&nbsp;4th&nbsp;column&nbsp;to&nbsp;a&nbsp;new&nbsp;book<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#-collectCols">collectCols</a>([0,3])&nbsp;#&nbsp;same&nbsp;thing,&nbsp;but&nbsp;for&nbsp;X,Y&nbsp;pairs<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#-collectCols">collectCols</a>([0,"Freq"])&nbsp;#&nbsp;partial&nbsp;string&nbsp;matches&nbsp;also&nbsp;work<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#-collectCols">collectCols</a>(["Freq"],matching="_step1")&nbsp;#&nbsp;string&nbsp;matching</tt></dd></dl>
+ <dl><dt><a name="-getSelectedBookAndSheet"><strong>getSelectedBookAndSheet</strong></a>()</dt><dd><tt>return&nbsp;names&nbsp;of&nbsp;the&nbsp;selected&nbsp;[book,sheet].</tt></dd></dl>
+ <dl><dt><a name="-note_append"><strong>note_append</strong></a>(text, pre='\n')</dt><dd><tt>append&nbsp;text&nbsp;to&nbsp;the&nbsp;active&nbsp;notes&nbsp;page.</tt></dd></dl>
+ <dl><dt><a name="-note_new"><strong>note_new</strong></a>(name='note')</dt><dd><tt>make&nbsp;a&nbsp;new&nbsp;notes&nbsp;window.</tt></dd></dl>
+ <dl><dt><a name="-note_read"><strong>note_read</strong></a>()</dt><dd><tt>return&nbsp;contents&nbsp;of&nbsp;the&nbsp;active&nbsp;notes&nbsp;page.</tt></dd></dl>
+ <dl><dt><a name="-note_select"><strong>note_select</strong></a>(name)</dt><dd><tt>select&nbsp;a&nbsp;note&nbsp;window.</tt></dd></dl>
+ <dl><dt><a name="-note_set"><strong>note_set</strong></a>(text)</dt><dd><tt>set&nbsp;contents&nbsp;of&nbsp;the&nbsp;active&nbsp;notes&nbsp;page.</tt></dd></dl>
+ <dl><dt><a name="-redraw"><strong>redraw</strong></a>()</dt><dd><tt>force&nbsp;redraw&nbsp;of&nbsp;the&nbsp;selected&nbsp;graph&nbsp;or&nbsp;workbook</tt></dd></dl>
+ <dl><dt><a name="-sheet_addCol"><strong>sheet_addCol</strong></a>()</dt><dd><tt>add&nbsp;a&nbsp;column&nbsp;to&nbsp;the&nbsp;current&nbsp;sheet</tt></dd></dl>
+ <dl><dt><a name="-sheet_delete"><strong>sheet_delete</strong></a>(title)</dt><dd><tt>delete&nbsp;the&nbsp;given&nbsp;sheet&nbsp;in&nbsp;the&nbsp;active&nbsp;book.</tt></dd></dl>
+ <dl><dt><a name="-sheet_fillCol"><strong>sheet_fillCol</strong></a>(data=None, index=-1, name='', units='', comments='', coltype='Y', addcol=False)</dt><dd><tt>fill&nbsp;a&nbsp;column&nbsp;of&nbsp;the&nbsp;the&nbsp;selected&nbsp;worksheet&nbsp;with&nbsp;data.<br>
+If&nbsp;index&nbsp;is&nbsp;0,&nbsp;the&nbsp;first&nbsp;column&nbsp;will&nbsp;be&nbsp;filled.<br>
+If&nbsp;it's&nbsp;negative,&nbsp;it&nbsp;counts&nbsp;from&nbsp;the&nbsp;end.<br>
+If&nbsp;no&nbsp;data&nbsp;is&nbsp;given,&nbsp;fill&nbsp;it&nbsp;with&nbsp;row&nbsp;numbers.<br>
+if&nbsp;addcol,&nbsp;it'll&nbsp;add&nbsp;a&nbsp;new&nbsp;column&nbsp;for&nbsp;this&nbsp;data&nbsp;(and&nbsp;index&nbsp;is&nbsp;ignored).<br>
+If&nbsp;data&nbsp;is&nbsp;a&nbsp;single&nbsp;number&nbsp;(int&nbsp;or&nbsp;float),&nbsp;all&nbsp;cells&nbsp;will&nbsp;be&nbsp;that&nbsp;number.</tt></dd></dl>
+ <dl><dt><a name="-sheet_findReplace"><strong>sheet_findReplace</strong></a>(find='nan', replace=0)</dt><dd><tt>in&nbsp;the&nbsp;currently&nbsp;selected&nbsp;workbook,&nbsp;find/replace.</tt></dd></dl>
+ <dl><dt><a name="-sheet_fromDict"><strong>sheet_fromDict</strong></a>(d={})</dt></dl>
+ <dl><dt><a name="-sheet_getActive"><strong>sheet_getActive</strong></a>()</dt><dd><tt>returns&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;active&nbsp;sheet.</tt></dd></dl>
+ <dl><dt><a name="-sheet_getColData"><strong>sheet_getColData</strong></a>(col=0)</dt><dd><tt>return&nbsp;[data,colname]&nbsp;from&nbsp;column&nbsp;(index&nbsp;or&nbsp;matching&nbsp;string)</tt></dd></dl>
+ <dl><dt><a name="-sheet_getColNames"><strong>sheet_getColNames</strong></a>()</dt><dd><tt>return&nbsp;a&nbsp;list&nbsp;of&nbsp;the&nbsp;long&nbsp;names&nbsp;of&nbsp;each&nbsp;column&nbsp;in&nbsp;a&nbsp;sheet.</tt></dd></dl>
+ <dl><dt><a name="-sheet_move"><strong>sheet_move</strong></a>(toBook, fromBook=None, fromSheet=None, deleteOldBook=False)</dt><dd><tt>Move&nbsp;a&nbsp;given&nbsp;worksheet&nbsp;into&nbsp;the&nbsp;given&nbsp;workbook.<br>
+if&nbsp;no&nbsp;fromBook&nbsp;is&nbsp;given,&nbsp;the&nbsp;active&nbsp;book&nbsp;will&nbsp;be&nbsp;used.<br>
+if&nbsp;no&nbsp;fromSheet&nbsp;is&nbsp;given,&nbsp;the&nbsp;active&nbsp;sheet&nbsp;of&nbsp;fromBook&nbsp;will&nbsp;be&nbsp;used.<br>
+if&nbsp;no&nbsp;toSheet&nbsp;is&nbsp;given,&nbsp;it&nbsp;will&nbsp;keep&nbsp;its&nbsp;same&nbsp;name.<br>
+it&nbsp;the&nbsp;toBook&nbsp;doesn't&nbsp;exist,&nbsp;it&nbsp;will&nbsp;be&nbsp;created.</tt></dd></dl>
+ <dl><dt><a name="-sheet_new"><strong>sheet_new</strong></a>(sheet)</dt><dd><tt>makes&nbsp;the&nbsp;sheet,&nbsp;or&nbsp;selects&nbsp;it&nbsp;if&nbsp;already&nbsp;there.</tt></dd></dl>
+ <dl><dt><a name="-sheet_rename"><strong>sheet_rename</strong></a>(newname)</dt><dd><tt>rename&nbsp;the&nbsp;currently&nbsp;selected&nbsp;sheet&nbsp;to&nbsp;something&nbsp;(spaces&nbsp;OK)</tt></dd></dl>
+ <dl><dt><a name="-sheet_select"><strong>sheet_select</strong></a>(sheet=None)</dt><dd><tt>select&nbsp;the&nbsp;sheet&nbsp;in&nbsp;the&nbsp;current&nbsp;book.&nbsp;Return&nbsp;False&nbsp;if&nbsp;doesnt&nbsp;exist.</tt></dd></dl>
+ <dl><dt><a name="-sheet_toDict"><strong>sheet_toDict</strong></a>()</dt></dl>
+ <dl><dt><a name="-treeToDict"><strong>treeToDict</strong></a>(s, verbose=False)</dt><dd><tt>given&nbsp;a&nbsp;str(PyOrigin.tree),&nbsp;return&nbsp;a&nbsp;dictionary&nbsp;of&nbsp;dictionaries.<br>
+This&nbsp;is&nbsp;done&nbsp;by&nbsp;dynamically&nbsp;generating&nbsp;python&nbsp;scipt&nbsp;to&nbsp;populate&nbsp;the<br>
+dictionary&nbsp;pyvals{},&nbsp;then&nbsp;return&nbsp;it.&nbsp;Technically&nbsp;malicious&nbsp;code<br>
+could&nbsp;be&nbsp;inserted&nbsp;in&nbsp;strings&nbsp;in&nbsp;the&nbsp;pyvals,&nbsp;and&nbsp;it&nbsp;will&nbsp;be&nbsp;evaluated.</tt></dd></dl>
+ <dl><dt><a name="-window_minimize"><strong>window_minimize</strong></a>()</dt><dd><tt>minimize&nbsp;the&nbsp;active&nbsp;window.</tt></dd></dl>
+</td></tr></table>
+</body></html>

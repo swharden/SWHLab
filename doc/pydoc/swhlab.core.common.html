@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module common</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>common</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:c%3A%5Capps%5Cpythonmodules%5Cswhlab%5Ccore%5Ccommon.py">c:\apps\pythonmodules\swhlab\core\common.py</a></font></td></tr></table>
+    <p><tt>Just&nbsp;stuff&nbsp;Scott&nbsp;likes&nbsp;to&nbsp;use&nbsp;a&nbsp;lot.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="IPython.html">IPython</a><br>
+<a href="PIL.Image.html">PIL.Image</a><br>
+<a href="PIL.ImageDraw.html">PIL.ImageDraw</a><br>
+<a href="PIL.ImageFont.html">PIL.ImageFont</a><br>
+<a href="datetime.html">datetime</a><br>
+</td><td width="25%" valign=top><a href="ftplib.html">ftplib</a><br>
+<a href="glob.html">glob</a><br>
+<a href="numpy.html">numpy</a><br>
+<a href="os.html">os</a><br>
+<a href="pickle.html">pickle</a><br>
+</td><td width="25%" valign=top><a href="pylab.html">pylab</a><br>
+<a href="scipy.html">scipy</a><br>
+<a href="swhlab.html">swhlab</a><br>
+<a href="sys.html">sys</a><br>
+<a href="tempfile.html">tempfile</a><br>
+</td><td width="25%" valign=top><a href="time.html">time</a><br>
+<a href="tkinter.html">tkinter</a><br>
+<a href="urllib.html">urllib</a><br>
+<a href="webbrowser.html">webbrowser</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-TK_ask"><strong>TK_ask</strong></a>(title, msg)</dt><dd><tt>use&nbsp;the&nbsp;GUI&nbsp;to&nbsp;ask&nbsp;YES&nbsp;or&nbsp;NO.</tt></dd></dl>
+ <dl><dt><a name="-TK_askPassword"><strong>TK_askPassword</strong></a>(title='input', msg='type here:')</dt><dd><tt>use&nbsp;the&nbsp;GUI&nbsp;to&nbsp;ask&nbsp;for&nbsp;a&nbsp;string.</tt></dd></dl>
+ <dl><dt><a name="-TK_message"><strong>TK_message</strong></a>(title, msg)</dt><dd><tt>use&nbsp;the&nbsp;GUI&nbsp;to&nbsp;pop&nbsp;up&nbsp;a&nbsp;message.</tt></dd></dl>
+ <dl><dt><a name="-algo_exp"><strong>algo_exp</strong></a>(x, m, t, b)</dt><dd><tt>mono-exponential&nbsp;curve.</tt></dd></dl>
+ <dl><dt><a name="-checkOut"><strong>checkOut</strong></a>(thing, html=True)</dt><dd><tt>show&nbsp;everything&nbsp;we&nbsp;can&nbsp;about&nbsp;an&nbsp;object's&nbsp;projects&nbsp;and&nbsp;methods.</tt></dd></dl>
+ <dl><dt><a name="-datetimeToString"><strong>datetimeToString</strong></a>(dt)</dt></dl>
+ <dl><dt><a name="-determineProtocol"><strong>determineProtocol</strong></a>(fname)</dt><dd><tt>determine&nbsp;the&nbsp;comment&nbsp;cooked&nbsp;in&nbsp;the&nbsp;protocol.</tt></dd></dl>
+ <dl><dt><a name="-dictAvg"><strong>dictAvg</strong></a>(listOfDicts, key, stdErr=False)</dt><dd><tt>Given&nbsp;a&nbsp;list&nbsp;(l)&nbsp;of&nbsp;dicts&nbsp;(d),&nbsp;return&nbsp;AV&nbsp;and&nbsp;SD.</tt></dd></dl>
+ <dl><dt><a name="-dictFlat"><strong>dictFlat</strong></a>(l)</dt><dd><tt>Given&nbsp;a&nbsp;list&nbsp;of&nbsp;list&nbsp;of&nbsp;dicts,&nbsp;return&nbsp;just&nbsp;the&nbsp;dicts.</tt></dd></dl>
+ <dl><dt><a name="-dictVals"><strong>dictVals</strong></a>(l, key)</dt><dd><tt>Return&nbsp;all&nbsp;'key'&nbsp;from&nbsp;a&nbsp;list&nbsp;of&nbsp;dicts.&nbsp;(or&nbsp;list&nbsp;of&nbsp;list&nbsp;of&nbsp;dicts)</tt></dd></dl>
+ <dl><dt><a name="-download"><strong>download</strong></a>(url, saveAs=False)</dt></dl>
+ <dl><dt><a name="-dummyListOfDicts"><strong>dummyListOfDicts</strong></a>(size=100)</dt><dd><tt>returns&nbsp;a&nbsp;list&nbsp;(of&nbsp;the&nbsp;given&nbsp;size)&nbsp;of&nbsp;dicts&nbsp;with&nbsp;fake&nbsp;data.<br>
+some&nbsp;dictionary&nbsp;keys&nbsp;are&nbsp;missing&nbsp;for&nbsp;some&nbsp;of&nbsp;the&nbsp;items.</tt></dd></dl>
+ <dl><dt><a name="-epochToDatetime"><strong>epochToDatetime</strong></a>(epoch=1470410179.4660866)</dt></dl>
+ <dl><dt><a name="-epochToString"><strong>epochToString</strong></a>(epoch)</dt></dl>
+ <dl><dt><a name="-filter_gaussian"><strong>filter_gaussian</strong></a>(Ys, sigma, plotToo=False)</dt><dd><tt>simple&nbsp;gaussian&nbsp;convolution.&nbsp;Returns&nbsp;same&nbsp;#&nbsp;of&nbsp;points&nbsp;as&nbsp;gotten.</tt></dd></dl>
+ <dl><dt><a name="-findRelevantData"><strong>findRelevantData</strong></a>(fileList, abfs)</dt><dd><tt>return&nbsp;an&nbsp;abf&nbsp;of&nbsp;the&nbsp;*FIRST*&nbsp;of&nbsp;every&nbsp;type&nbsp;of&nbsp;thing.</tt></dd></dl>
+ <dl><dt><a name="-fit_exp"><strong>fit_exp</strong></a>(y, graphToo=False)</dt><dd><tt>Exponential&nbsp;fit.&nbsp;Returns&nbsp;[multiplier,&nbsp;t,&nbsp;offset,&nbsp;time&nbsp;constant]</tt></dd></dl>
+ <dl><dt><a name="-forwardSlash"><strong>forwardSlash</strong></a>(listOfFiles)</dt><dd><tt>convert&nbsp;silly&nbsp;C:\names\like\this.txt&nbsp;to&nbsp;c:/names/like/this.txt</tt></dd></dl>
+ <dl><dt><a name="-ftp_folder_match"><strong>ftp_folder_match</strong></a>(ftp, localFolder, deleteStuff=True)</dt><dd><tt>upload&nbsp;everything&nbsp;from&nbsp;localFolder&nbsp;into&nbsp;the&nbsp;current&nbsp;FTP&nbsp;folder.</tt></dd></dl>
+ <dl><dt><a name="-ftp_login"><strong>ftp_login</strong></a>(folder=None)</dt><dd><tt>return&nbsp;an&nbsp;"FTP"&nbsp;object&nbsp;after&nbsp;logging&nbsp;in.</tt></dd></dl>
+ <dl><dt><a name="-ftp_upload"><strong>ftp_upload</strong></a>(ftp, localFname, ftpFname=None)</dt></dl>
+ <dl><dt><a name="-getABFgroups"><strong>getABFgroups</strong></a>(files)</dt><dd><tt>given&nbsp;a&nbsp;list&nbsp;of&nbsp;files,&nbsp;return&nbsp;a&nbsp;dict[ID]=[ID,ID,ID].<br>
+Parents&nbsp;are&nbsp;determined&nbsp;if&nbsp;a&nbsp;.abf&nbsp;matches&nbsp;a&nbsp;.TIF.<br>
+This&nbsp;is&nbsp;made&nbsp;to&nbsp;assign&nbsp;children&nbsp;files&nbsp;to&nbsp;parent&nbsp;ABF&nbsp;IDs.</tt></dd></dl>
+ <dl><dt><a name="-getIDfileDict"><strong>getIDfileDict</strong></a>(files)</dt><dd><tt>given&nbsp;a&nbsp;list&nbsp;of&nbsp;files,&nbsp;return&nbsp;a&nbsp;dict[ID]=[files].<br>
+This&nbsp;is&nbsp;made&nbsp;to&nbsp;assign&nbsp;children&nbsp;files&nbsp;to&nbsp;parent&nbsp;ABF&nbsp;IDs.</tt></dd></dl>
+ <dl><dt><a name="-getIDsFromFiles"><strong>getIDsFromFiles</strong></a>(files)</dt><dd><tt>given&nbsp;a&nbsp;path&nbsp;or&nbsp;list&nbsp;of&nbsp;files,&nbsp;return&nbsp;ABF&nbsp;IDs.</tt></dd></dl>
+ <dl><dt><a name="-getNotesForABF"><strong>getNotesForABF</strong></a>(abfFile)</dt><dd><tt>given&nbsp;an&nbsp;ABF,&nbsp;find&nbsp;the&nbsp;parent,&nbsp;return&nbsp;that&nbsp;line&nbsp;of&nbsp;experiments.txt</tt></dd></dl>
+ <dl><dt><a name="-getParent"><strong>getParent</strong></a>(abfFname)</dt><dd><tt>given&nbsp;an&nbsp;ABF&nbsp;file&nbsp;name,&nbsp;return&nbsp;the&nbsp;ABF&nbsp;of&nbsp;its&nbsp;parent.</tt></dd></dl>
+ <dl><dt><a name="-getPkl"><strong>getPkl</strong></a>(fname)</dt><dd><tt>return&nbsp;the&nbsp;contents&nbsp;of&nbsp;a&nbsp;pickle&nbsp;file</tt></dd></dl>
+ <dl><dt><a name="-getUnit"><strong>getUnit</strong></a>(name)</dt><dd><tt>given&nbsp;a&nbsp;column&nbsp;name,&nbsp;return&nbsp;the&nbsp;best&nbsp;guess&nbsp;unit.</tt></dd></dl>
+ <dl><dt><a name="-groupsFromKey"><strong>groupsFromKey</strong></a>(keyFile='./key.txt')</dt><dd><tt>given&nbsp;a&nbsp;groups&nbsp;file,&nbsp;return&nbsp;a&nbsp;dict&nbsp;of&nbsp;groups.<br>
+Example:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;###&nbsp;GROUP:&nbsp;TR<br>
+&nbsp;&nbsp;&nbsp;&nbsp;16602083<br>
+&nbsp;&nbsp;&nbsp;&nbsp;16608059<br>
+&nbsp;&nbsp;&nbsp;&nbsp;###&nbsp;GROUP:&nbsp;TU<br>
+&nbsp;&nbsp;&nbsp;&nbsp;16504000<br>
+&nbsp;&nbsp;&nbsp;&nbsp;16507011</tt></dd></dl>
+ <dl><dt><a name="-htmlListToTR"><strong>htmlListToTR</strong></a>(l, trClass=None, tdClass=None, td1Class=None)</dt><dd><tt>turns&nbsp;a&nbsp;list&nbsp;into&nbsp;a&nbsp;&lt;tr&gt;&lt;td&gt;something&lt;/td&gt;&lt;/tr&gt;<br>
+call&nbsp;this&nbsp;when&nbsp;generating&nbsp;HTML&nbsp;tables&nbsp;dynamically.</tt></dd></dl>
+ <dl><dt><a name="-image_convert"><strong>image_convert</strong></a>(fname, saveAs=True, showToo=False)</dt><dd><tt>Convert&nbsp;weird&nbsp;TIF&nbsp;files&nbsp;into&nbsp;web-friendly&nbsp;versions.<br>
+Auto&nbsp;contrast&nbsp;is&nbsp;applied&nbsp;(saturating&nbsp;lower&nbsp;and&nbsp;upper&nbsp;0.1%).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;make&nbsp;saveAs&nbsp;True&nbsp;to&nbsp;save&nbsp;as&nbsp;.TIF.png<br>
+&nbsp;&nbsp;&nbsp;&nbsp;make&nbsp;saveAs&nbsp;False&nbsp;and&nbsp;it&nbsp;won't&nbsp;save&nbsp;at&nbsp;all<br>
+&nbsp;&nbsp;&nbsp;&nbsp;make&nbsp;saveAs&nbsp;"someFile.jpg"&nbsp;to&nbsp;save&nbsp;it&nbsp;as&nbsp;a&nbsp;different&nbsp;path/format</tt></dd></dl>
+ <dl><dt><a name="-inspectABF"><strong>inspectABF</strong></a>(abf=None, saveToo=False, justPlot=False)</dt><dd><tt>May&nbsp;be&nbsp;given&nbsp;an&nbsp;ABF&nbsp;object&nbsp;or&nbsp;filename.</tt></dd></dl>
+ <dl><dt><a name="-inspectFolder"><strong>inspectFolder</strong></a>(folder, saveToo=False)</dt></dl>
+ <dl><dt><a name="-listCount"><strong>listCount</strong></a>(l)</dt><dd><tt>returns&nbsp;len()&nbsp;of&nbsp;each&nbsp;item&nbsp;in&nbsp;a&nbsp;list,&nbsp;as&nbsp;a&nbsp;list.</tt></dd></dl>
+ <dl><dt><a name="-log_crash"><strong>log_crash</strong></a>(msg)</dt><dd><tt>###&nbsp;LOGGING&nbsp;###</tt></dd></dl>
+ <dl><dt><a name="-matrixToDicts"><strong>matrixToDicts</strong></a>(data)</dt><dd><tt>given&nbsp;a&nbsp;recarray,&nbsp;return&nbsp;it&nbsp;as&nbsp;a&nbsp;list&nbsp;of&nbsp;dicts.</tt></dd></dl>
+ <dl><dt><a name="-matrixToHTML"><strong>matrixToHTML</strong></a>(data, names=None, units=None, bookName=None, sheetName=None, xCol=None)</dt><dd><tt>Put&nbsp;2d&nbsp;numpy&nbsp;data&nbsp;into&nbsp;a&nbsp;temporary&nbsp;HTML&nbsp;file.</tt></dd></dl>
+ <dl><dt><a name="-matrixToWks"><strong>matrixToWks</strong></a>(data, names=None, units=None, bookName=None, sheetName=' ', xCol=None)</dt><dd><tt>Put&nbsp;2d&nbsp;numpy&nbsp;data&nbsp;into&nbsp;an&nbsp;Origin&nbsp;worksheet.<br>
+If&nbsp;bookname&nbsp;and&nbsp;sheetname&nbsp;are&nbsp;given&nbsp;try&nbsp;to&nbsp;load&nbsp;data&nbsp;into&nbsp;that&nbsp;book/sheet.<br>
+If&nbsp;the&nbsp;book/sheet&nbsp;doesn't&nbsp;exist,&nbsp;create&nbsp;it.</tt></dd></dl>
+ <dl><dt><a name="-matrixValues"><strong>matrixValues</strong></a>(matrix, key)</dt><dd><tt>given&nbsp;a&nbsp;key,&nbsp;return&nbsp;a&nbsp;list&nbsp;of&nbsp;values&nbsp;from&nbsp;the&nbsp;matrix&nbsp;with&nbsp;that&nbsp;key.</tt></dd></dl>
+ <dl><dt><a name="-matrixfromDicts"><strong>matrixfromDicts</strong></a>(dicts)</dt><dd><tt>Give&nbsp;a&nbsp;list&nbsp;of&nbsp;dicts&nbsp;(or&nbsp;list&nbsp;of&nbsp;list&nbsp;of&nbsp;dicts)&nbsp;return&nbsp;a&nbsp;structured&nbsp;array.<br>
+Headings&nbsp;will&nbsp;be&nbsp;sorted&nbsp;in&nbsp;alphabetical&nbsp;order.</tt></dd></dl>
+ <dl><dt><a name="-msgDict"><strong>msgDict</strong></a>(d, matching=None, sep1='=', sep2='\n', sort=True, cantEndWith=None)</dt><dd><tt>convert&nbsp;a&nbsp;dictionary&nbsp;to&nbsp;a&nbsp;pretty&nbsp;formatted&nbsp;string.</tt></dd></dl>
+ <dl><dt><a name="-originFormat"><strong>originFormat</strong></a>(thing)</dt><dd><tt>Try&nbsp;to&nbsp;format&nbsp;anything&nbsp;as&nbsp;a&nbsp;2D&nbsp;matrix&nbsp;with&nbsp;column&nbsp;names.</tt></dd></dl>
+ <dl><dt><a name="-originFormat_listOfDicts"><strong>originFormat_listOfDicts</strong></a>(l)</dt><dd><tt>Return&nbsp;[{},{},{}]&nbsp;as&nbsp;a&nbsp;2d&nbsp;matrix.</tt></dd></dl>
+ <dl><dt><a name="-pickle_load"><strong>pickle_load</strong></a>(fname)</dt><dd><tt>return&nbsp;the&nbsp;contents&nbsp;of&nbsp;a&nbsp;pickle&nbsp;file</tt></dd></dl>
+ <dl><dt><a name="-pickle_save"><strong>pickle_save</strong></a>(thing, fname)</dt><dd><tt>save&nbsp;something&nbsp;to&nbsp;a&nbsp;pickle&nbsp;file</tt></dd></dl>
+ <dl><dt><a name="-scanABFfolder"><strong>scanABFfolder</strong></a>(abfFolder)</dt><dd><tt>scan&nbsp;an&nbsp;ABF&nbsp;directory&nbsp;and&nbsp;subdirectory.&nbsp;Try&nbsp;to&nbsp;do&nbsp;this&nbsp;just&nbsp;once.<br>
+Returns&nbsp;ABF&nbsp;files,&nbsp;SWHLab&nbsp;files,&nbsp;and&nbsp;groups.</tt></dd></dl>
+ <dl><dt><a name="-show"><strong>show</strong></a>(closeToo=False)</dt><dd><tt>alternative&nbsp;to&nbsp;pylab.<a href="#-show">show</a>()&nbsp;that&nbsp;updates&nbsp;IPython&nbsp;window.</tt></dd></dl>
+ <dl><dt><a name="-showDict"><strong>showDict</strong></a>(d, title)</dt></dl>
+ <dl><dt><a name="-timethis"><strong>timethis</strong></a>(t=0)</dt></dl>
+ <dl><dt><a name="-version_upload"><strong>version_upload</strong></a>(fname, username='nibjb')</dt><dd><tt>Only&nbsp;scott&nbsp;should&nbsp;do&nbsp;this.&nbsp;Upload&nbsp;new&nbsp;version&nbsp;to&nbsp;site.</tt></dd></dl>
+ <dl><dt><a name="-where_cross"><strong>where_cross</strong></a>(data, threshold)</dt><dd><tt>return&nbsp;a&nbsp;list&nbsp;of&nbsp;Is&nbsp;where&nbsp;the&nbsp;data&nbsp;first&nbsp;crosses&nbsp;above&nbsp;threshold.</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>UNITS</strong> = {'AHP': 'mV', 'AHPI': 'points', 'AHPheight': 'mV', 'AHPreturn': 'mV', 'AHPreturnFullI': 'points', 'AHPreturnI': 'points', 'AHPrisetime': 'ms', 'AHPupslope': 'mV/ms', 'Ih': 'pA', 'Ra': 'MOhm', ...}<br>
+<strong>exampleABF</strong> = None<br>
+<strong>key</strong> = 'upslope'</td></tr></table>
+</body></html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module standard</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>standard</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:c%3A%5Capps%5Cpythonmodules%5Cswhlab%5Cindexing%5Cstandard.py">c:\apps\pythonmodules\swhlab\indexing\standard.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;is&nbsp;somewhat&nbsp;experiment&nbsp;specific.<br>
+The&nbsp;idea&nbsp;is&nbsp;to&nbsp;match&nbsp;protocols&nbsp;(defined&nbsp;by&nbsp;comments)&nbsp;to&nbsp;analysis&nbsp;routines.<br>
+This&nbsp;is&nbsp;specific&nbsp;to&nbsp;Scott's&nbsp;current&nbsp;set&nbsp;of&nbsp;experiments.<br>
+Probably&nbsp;this&nbsp;doesn't&nbsp;belong&nbsp;in&nbsp;the&nbsp;module&nbsp;at&nbsp;all...</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="swhlab.core.common.html">swhlab.core.common</a><br>
+<a href="glob.html">glob</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="pylab.html">pylab</a><br>
+<a href="swhlab.html">swhlab</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+<a href="traceback.html">traceback</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-autoABF"><strong>autoABF</strong></a>(fname)</dt></dl>
+ <dl><dt><a name="-autoFolder"><strong>autoFolder</strong></a>(folder, startAt=None, limit=None, matching=None)</dt></dl>
+ <dl><dt><a name="-indexImages"><strong>indexImages</strong></a>(folder, fname='index.html')</dt><dd><tt>OBSOLETE&nbsp;WAY&nbsp;TO&nbsp;INDEX&nbsp;A&nbsp;FOLDER.</tt></dd></dl>
+ <dl><dt><a name="-proto_00_01_gf"><strong>proto_00_01_gf</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt><dd><tt>gap&nbsp;free&nbsp;recording</tt></dd></dl>
+ <dl><dt><a name="-proto_00_02_egf"><strong>proto_00_02_egf</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt><dd><tt>episodic&nbsp;with&nbsp;no&nbsp;epochs&nbsp;(virtually&nbsp;gap&nbsp;free)</tt></dd></dl>
+ <dl><dt><a name="-proto_01_01_HP010"><strong>proto_01_01_HP010</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt><dd><tt>hyperpolarization&nbsp;step.&nbsp;Use&nbsp;to&nbsp;calculate&nbsp;tau&nbsp;and&nbsp;stuff.</tt></dd></dl>
+ <dl><dt><a name="-proto_01_11_rampStep"><strong>proto_01_11_rampStep</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt><dd><tt>each&nbsp;sweep&nbsp;is&nbsp;a&nbsp;ramp&nbsp;(of&nbsp;set&nbsp;size)&nbsp;which&nbsp;builds&nbsp;on&nbsp;the&nbsp;last&nbsp;sweep.<br>
+Used&nbsp;for&nbsp;detection&nbsp;of&nbsp;AP&nbsp;properties&nbsp;from&nbsp;first&nbsp;few&nbsp;APs.</tt></dd></dl>
+ <dl><dt><a name="-proto_01_12_steps025"><strong>proto_01_12_steps025</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt><dd><tt>IC&nbsp;steps.&nbsp;Use&nbsp;to&nbsp;determine&nbsp;gain&nbsp;function.</tt></dd></dl>
+ <dl><dt><a name="-proto_01_13_steps025dual"><strong>proto_01_13_steps025dual</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt><dd><tt>IC&nbsp;steps.&nbsp;See&nbsp;how&nbsp;hyperpol.&nbsp;step&nbsp;affects&nbsp;things.</tt></dd></dl>
+ <dl><dt><a name="-proto_01_13_steps100dual"><strong>proto_01_13_steps100dual</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt></dl>
+ <dl><dt><a name="-proto_02_01_MT70"><strong>proto_02_01_MT70</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt><dd><tt>repeated&nbsp;membrane&nbsp;tests.</tt></dd></dl>
+ <dl><dt><a name="-proto_02_02_IVdual"><strong>proto_02_02_IVdual</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt><dd><tt>dual&nbsp;I/V&nbsp;steps&nbsp;in&nbsp;VC&nbsp;mode,&nbsp;one&nbsp;from&nbsp;-70&nbsp;and&nbsp;one&nbsp;-50.</tt></dd></dl>
+ <dl><dt><a name="-proto_02_03_IVfast"><strong>proto_02_03_IVfast</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt><dd><tt>fast&nbsp;sweeps,&nbsp;1&nbsp;step&nbsp;per&nbsp;sweep,&nbsp;for&nbsp;clean&nbsp;IV&nbsp;without&nbsp;fast&nbsp;currents.</tt></dd></dl>
+ <dl><dt><a name="-proto_03_01_0s2"><strong>proto_03_01_0s2</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt><dd><tt>repeated&nbsp;membrane&nbsp;tests,&nbsp;likely&nbsp;with&nbsp;drug&nbsp;added.&nbsp;Maybe&nbsp;IPSCs.</tt></dd></dl>
+ <dl><dt><a name="-proto_04_01_MTmon70s2"><strong>proto_04_01_MTmon70s2</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt><dd><tt>repeated&nbsp;membrane&nbsp;tests,&nbsp;likely&nbsp;with&nbsp;drug&nbsp;added.&nbsp;Maybe&nbsp;IPSCs.</tt></dd></dl>
+ <dl><dt><a name="-proto_IC_ramp_gain"><strong>proto_IC_ramp_gain</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt><dd><tt>increasing&nbsp;ramps&nbsp;in&nbsp;(?)&nbsp;pA&nbsp;steps.</tt></dd></dl>
+ <dl><dt><a name="-proto_MTmon3"><strong>proto_MTmon3</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt></dl>
+ <dl><dt><a name="-proto_SHIV4"><strong>proto_SHIV4</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt><dd><tt>increasing&nbsp;ramps&nbsp;in&nbsp;(?)&nbsp;pA&nbsp;steps.</tt></dd></dl>
+ <dl><dt><a name="-proto_VC_50_MT_IV"><strong>proto_VC_50_MT_IV</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt><dd><tt>combination&nbsp;of&nbsp;membrane&nbsp;test&nbsp;and&nbsp;IV&nbsp;steps.</tt></dd></dl>
+ <dl><dt><a name="-proto_loose"><strong>proto_loose</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt></dl>
+ <dl><dt><a name="-proto_sputter"><strong>proto_sputter</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt><dd><tt>increasing&nbsp;ramps&nbsp;in&nbsp;(?)&nbsp;pA&nbsp;steps.</tt></dd></dl>
+ <dl><dt><a name="-proto_unknown"><strong>proto_unknown</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt></dl>
+ <dl><dt><a name="-standard_groupingForInj"><strong>standard_groupingForInj</strong></a>(abf, target=200)</dt></dl>
+ <dl><dt><a name="-standard_inspect"><strong>standard_inspect</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt></dl>
+ <dl><dt><a name="-standard_overlayWithAverage"><strong>standard_overlayWithAverage</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025EE8B38&gt;)</dt></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>exampleABF</strong> = &lt;swhlab.core.abf.ABF object&gt;</td></tr></table>
+</body></html>

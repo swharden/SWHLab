@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module abf</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>abf</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:c%3A%5Capps%5Cpythonmodules%5Cswhlab%5Ccore%5Cabf.py">c:\apps\pythonmodules\swhlab\core\abf.py</a></font></td></tr></table>
+    <p><tt>Core&nbsp;SWHLab4&nbsp;<a href="#ABF">ABF</a>&nbsp;handling&nbsp;class.<br>
+&nbsp;<br>
+The&nbsp;<a href="#ABF">ABF</a>&nbsp;class&nbsp;is&nbsp;for:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;reading&nbsp;<a href="#ABF">ABF</a>&nbsp;data<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;determining&nbsp;<a href="#ABF">ABF</a>&nbsp;information&nbsp;(i.e.,&nbsp;number&nbsp;of&nbsp;channels&nbsp;from&nbsp;header)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;retrieval&nbsp;of&nbsp;recorded&nbsp;data<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;generation&nbsp;of&nbsp;command&nbsp;protocol<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;baseline&nbsp;subtraction&nbsp;#TODO:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;decimation<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;saving&nbsp;things&nbsp;to&nbsp;disk&nbsp;(data,&nbsp;memtests,&nbsp;images)<br>
+&nbsp;<br>
+The&nbsp;<a href="#ABF">ABF</a>&nbsp;class&nbsp;is&nbsp;*NOT*&nbsp;for:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;data&nbsp;analysis<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;plotting&nbsp;of&nbsp;any&nbsp;kind<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;event&nbsp;detection<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;membrane&nbsp;tests<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;gaussian&nbsp;filtering<br>
+&nbsp;<br>
+For&nbsp;things&nbsp;like&nbsp;event&nbsp;detection&nbsp;and&nbsp;membrane&nbsp;tests,&nbsp;do&nbsp;the&nbsp;analysis&nbsp;externally<br>
+and&nbsp;load&nbsp;the&nbsp;findings&nbsp;(i.e.,&nbsp;MTs[]&nbsp;and&nbsp;APs[])&nbsp;into&nbsp;the&nbsp;class.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="swhlab.core.common.html">swhlab.core.common</a><br>
+<a href="copy.html">copy</a><br>
+<a href="glob.html">glob</a><br>
+<a href="neo.html">neo</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+<a href="os.html">os</a><br>
+<a href="pickle.html">pickle</a><br>
+<a href="pprint.html">pprint</a><br>
+</td><td width="25%" valign=top><a href="pylab.html">pylab</a><br>
+<a href="swhlab.html">swhlab</a><br>
+<a href="sys.html">sys</a><br>
+<a href="time.html">time</a><br>
+</td><td width="25%" valign=top><a href="traceback.html">traceback</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="abf.html#ABF">ABF</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ABF">class <strong>ABF</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Limit&nbsp;functionality&nbsp;strictly&nbsp;to:<br>
+Loading&nbsp;ABFs,&nbsp;saving&nbsp;stats&nbsp;about&nbsp;ABFs<br>
+Calling&nbsp;sweeps,&nbsp;averages,&nbsp;or&nbsp;ranges&nbsp;of&nbsp;cut&nbsp;sweeps<br>
+*NO*&nbsp;analysis,&nbsp;event&nbsp;detection,&nbsp;or&nbsp;graphing<br>
+Methods&nbsp;here&nbsp;only&nbsp;modify&nbsp;dataX&nbsp;and&nbsp;dataY&nbsp;(together,&nbsp;by&nbsp;sweep)<br>
+maybe&nbsp;basic&nbsp;event&nbsp;detecton.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="ABF-__init__"><strong>__init__</strong></a>(self, ABFfname=None, debugLevel=1, saveInfo=True)</dt><dd><tt>SWHLab4&nbsp;<a href="#ABF">ABF</a>&nbsp;class.<br>
+Basic&nbsp;usage:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1.)&nbsp;call&nbsp;this&nbsp;with&nbsp;an&nbsp;<a href="#ABF">ABF</a>&nbsp;filename<br>
+&nbsp;&nbsp;&nbsp;&nbsp;2.)&nbsp;select&nbsp;a&nbsp;sweet&nbsp;with&nbsp;<a href="#ABF-setSweep">setSweep</a>()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.)&nbsp;reference&nbsp;data&nbsp;by&nbsp;<a href="#ABF">ABF</a>.dataX&nbsp;and&nbsp;<a href="#ABF">ABF</a>.dataY</tt></dd></dl>
+
+<dl><dt><a name="ABF-abfinfo"><strong>abfinfo</strong></a>(self, printToo=False, returnDict=False)</dt><dd><tt>show&nbsp;basic&nbsp;info&nbsp;about&nbsp;<a href="#ABF">ABF</a>&nbsp;class&nbsp;variables.</tt></dd></dl>
+
+<dl><dt><a name="ABF-average_data"><strong>average_data</strong></a>(self, ranges=[[None, None]], percentile=None)</dt><dd><tt>given&nbsp;a&nbsp;list&nbsp;of&nbsp;ranges,&nbsp;return&nbsp;single&nbsp;point&nbsp;averages&nbsp;for&nbsp;every&nbsp;sweep.<br>
+Units&nbsp;are&nbsp;in&nbsp;seconds.&nbsp;Expects&nbsp;something&nbsp;like:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ranges=[[1,2],[4,5],[7,7.5]]<br>
+None&nbsp;values&nbsp;will&nbsp;be&nbsp;replaced&nbsp;with&nbsp;maximum/minimum&nbsp;bounds.<br>
+For&nbsp;baseline&nbsp;subtraction,&nbsp;make&nbsp;a&nbsp;range&nbsp;baseline&nbsp;then&nbsp;sub&nbsp;it&nbsp;youtself.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;returns&nbsp;datas[iSweep][iRange][AVorSD]<br>
+if&nbsp;a&nbsp;percentile&nbsp;is&nbsp;given,&nbsp;return&nbsp;that&nbsp;percentile&nbsp;rather&nbsp;than&nbsp;average.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;percentile=50&nbsp;is&nbsp;the&nbsp;median,&nbsp;but&nbsp;requires&nbsp;sorting,&nbsp;and&nbsp;is&nbsp;slower.</tt></dd></dl>
+
+<dl><dt><a name="ABF-average_sweep"><strong>average_sweep</strong></a>(self, T1=0, T2=None, sweeps=None, stdErr=False)</dt><dd><tt>given&nbsp;an&nbsp;array&nbsp;of&nbsp;sweeps,&nbsp;return&nbsp;X,Y,Err&nbsp;average.<br>
+This&nbsp;returns&nbsp;*SWEEPS*&nbsp;of&nbsp;data,&nbsp;not&nbsp;just&nbsp;1&nbsp;data&nbsp;point.</tt></dd></dl>
+
+<dl><dt><a name="ABF-clampValues"><strong>clampValues</strong></a>(self, timePoint=0)</dt><dd><tt>return&nbsp;an&nbsp;array&nbsp;of&nbsp;command&nbsp;values&nbsp;at&nbsp;a&nbsp;time&nbsp;point&nbsp;(in&nbsp;sec).<br>
+Useful&nbsp;for&nbsp;things&nbsp;like&nbsp;generating&nbsp;I/V&nbsp;curves.</tt></dd></dl>
+
+<dl><dt><a name="ABF-deleteStuff"><strong>deleteStuff</strong></a>(self, ext='*', spareInfo=True, spare=['_info.pkl'])</dt><dd><tt>delete&nbsp;/swhlab4/ID_*</tt></dd></dl>
+
+<dl><dt><a name="ABF-filter_gaussian"><strong>filter_gaussian</strong></a>(self, sigmaMs=100, applyFiltered=False, applyBaseline=False)</dt><dd><tt>RETURNS&nbsp;filtered&nbsp;trace.&nbsp;Desn't&nbsp;filter&nbsp;it&nbsp;in&nbsp;place.</tt></dd></dl>
+
+<dl><dt><a name="ABF-generate_colormap"><strong>generate_colormap</strong></a>(self, colormap=None, reverse=False)</dt><dd><tt>use&nbsp;1&nbsp;colormap&nbsp;for&nbsp;the&nbsp;whole&nbsp;abf.&nbsp;You&nbsp;can&nbsp;change&nbsp;it!.</tt></dd></dl>
+
+<dl><dt><a name="ABF-generate_protocol"><strong>generate_protocol</strong></a>(self, sweep=None)</dt><dd><tt>Create&nbsp;(x,y)&nbsp;points&nbsp;necessary&nbsp;to&nbsp;graph&nbsp;protocol&nbsp;for&nbsp;the&nbsp;current&nbsp;sweep.</tt></dd></dl>
+
+<dl><dt><a name="ABF-get_data_around"><strong>get_data_around</strong></a>(self, timePoints, thisSweep=False, padding=0.02, msDeriv=0)</dt><dd><tt>return&nbsp;self.<strong>dataY</strong>&nbsp;around&nbsp;a&nbsp;time&nbsp;point.&nbsp;All&nbsp;units&nbsp;are&nbsp;seconds.<br>
+if&nbsp;thisSweep==False,&nbsp;the&nbsp;time&nbsp;point&nbsp;is&nbsp;considered&nbsp;to&nbsp;be&nbsp;experiment&nbsp;time<br>
+&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;an&nbsp;appropriate&nbsp;sweep&nbsp;may&nbsp;be&nbsp;selected.&nbsp;i.e.,&nbsp;with&nbsp;10&nbsp;second<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sweeps&nbsp;and&nbsp;timePint=35,&nbsp;will&nbsp;select&nbsp;the&nbsp;5s&nbsp;mark&nbsp;of&nbsp;the&nbsp;third&nbsp;sweep</tt></dd></dl>
+
+<dl><dt><a name="ABF-guess_protocol"><strong>guess_protocol</strong></a>(self)</dt><dd><tt>This&nbsp;just&nbsp;generates&nbsp;a&nbsp;string&nbsp;to&nbsp;define&nbsp;the&nbsp;nature&nbsp;of&nbsp;the&nbsp;<a href="#ABF">ABF</a>.<br>
+The&nbsp;ultimate&nbsp;goal&nbsp;is&nbsp;to&nbsp;use&nbsp;info&nbsp;about&nbsp;the&nbsp;abf&nbsp;to&nbsp;guess&nbsp;what&nbsp;to&nbsp;do&nbsp;with&nbsp;it.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[vc/ic]-[steps/fixed]-[notag/drugs]-[2ch/1ch]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;represents&nbsp;2^4&nbsp;(18)&nbsp;combinations,&nbsp;but&nbsp;is&nbsp;easily&nbsp;expanded.</tt></dd></dl>
+
+<dl><dt><a name="ABF-headerHTML"><strong>headerHTML</strong></a>(self, fname=None)</dt><dd><tt>read&nbsp;the&nbsp;<a href="#ABF">ABF</a>&nbsp;header&nbsp;and&nbsp;save&nbsp;it&nbsp;HTML&nbsp;formatted.</tt></dd></dl>
+
+<dl><dt><a name="ABF-loadThing"><strong>loadThing</strong></a>(self, fname, ext='.pkl')</dt><dd><tt>save&nbsp;any&nbsp;<a href="builtins.html#object">object</a>&nbsp;from&nbsp;/swhlab4/ID_[fname].pkl</tt></dd></dl>
+
+<dl><dt><a name="ABF-saveThing"><strong>saveThing</strong></a>(self, thing, fname, overwrite=True, ext='.pkl')</dt><dd><tt>save&nbsp;any&nbsp;<a href="builtins.html#object">object</a>&nbsp;as&nbsp;/swhlab4/ID_[fname].pkl</tt></dd></dl>
+
+<dl><dt><a name="ABF-setSweep"><strong>setSweep</strong></a>(self, sweep=0, force=False)</dt><dd><tt>Load&nbsp;X/Y&nbsp;data&nbsp;for&nbsp;a&nbsp;particular&nbsp;sweep.<br>
+determines&nbsp;if&nbsp;forced&nbsp;reload&nbsp;is&nbsp;needed,&nbsp;updates&nbsp;currentSweep,<br>
+regenerates&nbsp;dataX&nbsp;(if&nbsp;not&nbsp;None),decimates,returns&nbsp;X/Y.<br>
+Note&nbsp;that&nbsp;<a href="#ABF-setSweep">setSweep</a>()&nbsp;takes&nbsp;0.17ms&nbsp;to&nbsp;complete,&nbsp;so&nbsp;go&nbsp;for&nbsp;it!</tt></dd></dl>
+
+<dl><dt><a name="ABF-sweep_decimate"><strong>sweep_decimate</strong></a>(self)</dt><dd><tt>decimate&nbsp;data&nbsp;using&nbsp;one&nbsp;of&nbsp;the&nbsp;following&nbsp;methods:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;'avg','max','min','fast'<br>
+They're&nbsp;self&nbsp;explainatory.&nbsp;'fast'&nbsp;just&nbsp;plucks&nbsp;the&nbsp;n'th&nbsp;data&nbsp;point.</tt></dd></dl>
+
+<dl><dt><a name="ABF-sweep_genXs"><strong>sweep_genXs</strong></a>(self)</dt><dd><tt>generate&nbsp;sweepX&nbsp;(in&nbsp;seconds)&nbsp;to&nbsp;match&nbsp;sweepY</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-test"><strong>test</strong></a>()</dt></dl>
+</td></tr></table>
+</body></html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module memtest</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>memtest</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:c%3A%5Capps%5Cpythonmodules%5Cswhlab%5Ccore%5Cmemtest.py">c:\apps\pythonmodules\swhlab\core\memtest.py</a></font></td></tr></table>
+    <p><tt>Membrane&nbsp;test&nbsp;routines&nbsp;for&nbsp;voltage&nbsp;clamp&nbsp;experiments.<br>
+creates&nbsp;abf.MTs[sweep]={}&nbsp;#with&nbsp;keys&nbsp;like&nbsp;Ih,&nbsp;Ra,&nbsp;Rm,&nbsp;etc<br>
+&nbsp;<br>
+Example&nbsp;usage:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;abf=swhlab.ABF('../abfs/group/16701010.abf')<br>
+&nbsp;&nbsp;&nbsp;&nbsp;swhlab.memtest.<a href="#-memtest">memtest</a>(abf)&nbsp;#performs&nbsp;memtest&nbsp;on&nbsp;all&nbsp;sweeps<br>
+&nbsp;&nbsp;&nbsp;&nbsp;swhlab.memtest.<a href="#-checkSweep">checkSweep</a>(abf)&nbsp;#lets&nbsp;you&nbsp;eyeball&nbsp;check&nbsp;how&nbsp;it&nbsp;did<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pylab.show()</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="swhlab.core.common.html">swhlab.core.common</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+<a href="pylab.html">pylab</a><br>
+</td><td width="25%" valign=top><a href="swhlab.html">swhlab</a><br>
+<a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top><a href="time.html">time</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-checkSweep"><strong>checkSweep</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025E2D8D0&gt;, sweep=0)</dt><dd><tt>Produce&nbsp;an&nbsp;eyeball-ready&nbsp;indication&nbsp;how&nbsp;the&nbsp;MT&nbsp;was&nbsp;calculated&nbsp;in&nbsp;VC.</tt></dd></dl>
+ <dl><dt><a name="-checkSweepIC"><strong>checkSweepIC</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025E2D8D0&gt;, sweep=0)</dt><dd><tt>Produce&nbsp;an&nbsp;eyeball-ready&nbsp;indication&nbsp;how&nbsp;the&nbsp;MT&nbsp;was&nbsp;calculated&nbsp;in&nbsp;IC.</tt></dd></dl>
+ <dl><dt><a name="-memtest"><strong>memtest</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025E2D8D0&gt;, firstSweepOnly=False, plotToo=False, saveToo=True)</dt><dd><tt>perform&nbsp;memtest&nbsp;on&nbsp;all&nbsp;sweeps.</tt></dd></dl>
+ <dl><dt><a name="-memtestIC"><strong>memtestIC</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025E2D8D0&gt;)</dt><dd><tt>IC&nbsp;memtest&nbsp;is&nbsp;different.&nbsp;Make&nbsp;an&nbsp;average&nbsp;sweep,&nbsp;then&nbsp;curve&nbsp;fit&nbsp;it.<br>
+This&nbsp;only&nbsp;RETURNS&nbsp;the&nbsp;memtest,&nbsp;it&nbsp;does&nbsp;not&nbsp;assign&nbsp;it.</tt></dd></dl>
+ <dl><dt><a name="-memtestSweepVC"><strong>memtestSweepVC</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025E2D8D0&gt;)</dt><dd><tt>perform&nbsp;memtest&nbsp;on&nbsp;current&nbsp;sweep&nbsp;in&nbsp;VC&nbsp;mode.&nbsp;Return&nbsp;Ih,&nbsp;Ra,&nbsp;Rm,&nbsp;etc.<br>
+All&nbsp;variable&nbsp;names&nbsp;are&nbsp;explained&nbsp;in&nbsp;/swhlab/docs/memtest.ppt</tt></dd></dl>
+ <dl><dt><a name="-plot_standard4"><strong>plot_standard4</strong></a>(abf=&lt;swhlab.core.abf.ABF object at 0x0000018025E2D8D0&gt;)</dt><dd><tt>make&nbsp;a&nbsp;standard&nbsp;memtest&nbsp;plot&nbsp;showing&nbsp;Ih,&nbsp;Ra,&nbsp;etc.&nbsp;with&nbsp;time.</tt></dd></dl>
+ <dl><dt><a name="-test"><strong>test</strong></a>()</dt><dd><tt>voltage&nbsp;clamp&nbsp;MT.</tt></dd></dl>
+ <dl><dt><a name="-test2"><strong>test2</strong></a>()</dt><dd><tt>current&nbsp;clamp&nbsp;MT.</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>exampleABF</strong> = &lt;swhlab.core.abf.ABF object&gt;</td></tr></table>
+</body></html>

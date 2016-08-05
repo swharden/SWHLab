@@ -1,0 +1,158 @@
+
+<html><head><style>
+hr {margin: 20px 0px 20px 0px; background-color: white; height: 1px; border: 0;}
+body{background-color: #006699; color: white;}
+.title{font-size: 150%; font-weight: bold; margin: 10px;}
+.subtitle {font-style: italic; display: block; margin-left: 10px;}
+.testblock{border: 1px solid black; padding: 0px; margin: 0 25 50 25;
+           box-shadow: 10px 10px 20px rgba(0,0,0,.5);
+           background-color: white; color: black;}
+code {display: block; padding: 2px;}
+.output {background-color:black; color: white;}
+.cmd {background-color:black; color: yellow; font-weight: bold;}
+.pass {background-color:#68ff96;}
+.error {background-color:#f9bbbb;}
+.smallpic {height: 200px;box-shadow: 5px 5px 10px rgba(0,0,0,.5);
+           border: 1px solid black; margin: 10px; padding: 5px;}
+pre.prettyprint{width: auto;overflow: auto;max-height: 600px; margin: 10px;}
+</style></head><body>
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+<h1>Automated Test Routine</h1>
+<code>PYTHON PATH: C:\Users\swharden\Documents\important\WinPython-64bit-3.5.1.3\python-3.5.1.amd64\python.exe</code>
+<code>TEST FILES: C:\Apps\pythonModules\swhlab\tests\automated</code>
+<br><br>
+<div class="testblock">
+<span class="title">\01 - test\01 - simplest.py</span><br>
+<span class="subtitle">show multiple line output</span>
+<pre class="prettyprint" style="background-color: #FAFAFA;">
+for i in range(10):
+    print("%d^%d=%d"%(i,i,i**i))</pre>
+<br><br><code class="cmd">&gt; python.exe 01 - simplest.py</code><code class="output">0^0=1<br>1^1=1<br>2^2=4<br>3^3=27<br>4^4=256<br>5^5=3125<br>6^6=46656<br>7^7=823543<br>8^8=16777216<br>9^9=387420489</code><code class="pass">PASS. execution time: 0.047 sec</code></div><div class="testblock">
+<span class="title">\01 - test\02 - intentional crash.py</span><br>
+<span class="subtitle">intentionally crash (ZeroDivisionError)</span>
+<pre class="prettyprint" style="background-color: #FAFAFA;">
+for i in range(3,-5,-1):
+    if i>0:
+        print("%d..."%(i))
+    else:
+        print("BOOM!")
+    x=1/i</pre>
+<br><br><code class="cmd">&gt; python.exe 02 - intentional crash.py</code><code class="output">3...<br>2...<br>1...<br>BOOM!</code><code class="error">Traceback (most recent call last):<br>  File "C:\Apps\pythonModules\swhlab\tests\automated\01 - test\02 - intentional crash.py", line 9, in <module><br>    x=1/i<br>ZeroDivisionError: division by zero</code><code class="cmd">FAILED! execution time: 0.033 sec</code></div><div class="testblock">
+<span class="title">\01 - test\03 - big numbers.py</span><br>
+<span class="subtitle">Do a hard math problem to spin the computer's wheels.<br>I expect this test to take about half a second.</span>
+<pre class="prettyprint" style="background-color: #FAFAFA;">
+for i in range(10**7):
+    x=3**10
+print("did something",i,"times...")</pre>
+<br><br><code class="cmd">&gt; python.exe 03 - big numbers.py</code><code class="output">did&nbsp;something&nbsp;9999999&nbsp;times...</code><code class="pass">PASS. execution time: 0.437 sec</code></div><div class="testblock">
+<span class="title">\02 - abf\01 - abf.py</span><br>
+<span class="subtitle">Load an ABF and access basic stats.</span>
+<pre class="prettyprint" style="background-color: #FAFAFA;">
+import swhlab
+
+abf=swhlab.ABF(r'C:\Apps\pythonModules\abfs\16711016.abf')
+abf.abfinfo(True)
+print("this ABF rate:",abf.abfinfo(returnDict=True)["rate"])</pre>
+<br><br><code class="cmd">&gt; python.exe 01 - abf.py</code><code class="output">~~&nbsp;Loaded&nbsp;SWHLab&nbsp;(version&nbsp;1468611954)<br>&nbsp;>>&nbsp;ABF&nbsp;16711016.abf<br>&nbsp;o-&nbsp;not&nbsp;overwriting&nbsp;[16711016_info.pkl]<br><br>&nbsp;&nbsp;&nbsp;&nbsp;###&nbsp;ABF&nbsp;INFO&nbsp;###<br>&nbsp;&nbsp;&nbsp;&nbsp;ID&nbsp;<str>&nbsp;16711016<br>&nbsp;&nbsp;&nbsp;&nbsp;baseline&nbsp;<list>&nbsp;[None,&nbsp;None]<br>&nbsp;&nbsp;&nbsp;&nbsp;channel&nbsp;<int>&nbsp;0<br>&nbsp;&nbsp;&nbsp;&nbsp;commentSweeps&nbsp;<numpy.ndarray>&nbsp;[]<br>&nbsp;&nbsp;&nbsp;&nbsp;commentTags&nbsp;<list>&nbsp;[]<br>&nbsp;&nbsp;&nbsp;&nbsp;commentTimes&nbsp;<numpy.ndarray>&nbsp;[]<br>&nbsp;&nbsp;&nbsp;&nbsp;currentSweep&nbsp;<NoneType>&nbsp;None<br>&nbsp;&nbsp;&nbsp;&nbsp;dataStart&nbsp;<NoneType>&nbsp;None<br>&nbsp;&nbsp;&nbsp;&nbsp;decimateBy&nbsp;<int>&nbsp;100<br>&nbsp;&nbsp;&nbsp;&nbsp;decimateMethod&nbsp;<NoneType>&nbsp;None<br>&nbsp;&nbsp;&nbsp;&nbsp;fname&nbsp;<str>&nbsp;C:\Apps\pythonModules\abfs\16711016.abf<br>&nbsp;&nbsp;&nbsp;&nbsp;gapFree&nbsp;<bool>&nbsp;False<br>&nbsp;&nbsp;&nbsp;&nbsp;holding&nbsp;<float>&nbsp;0.0<br>&nbsp;&nbsp;&nbsp;&nbsp;nADC&nbsp;<int>&nbsp;1<br>&nbsp;&nbsp;&nbsp;&nbsp;offsetX&nbsp;<int>&nbsp;937<br>&nbsp;&nbsp;&nbsp;&nbsp;offsetY&nbsp;<int>&nbsp;0<br>&nbsp;&nbsp;&nbsp;&nbsp;outpath&nbsp;<str>&nbsp;C:\Apps\pythonModules\abfs\swhlab4/<br>&nbsp;&nbsp;&nbsp;&nbsp;outpre&nbsp;<str>&nbsp;C:\Apps\pythonModules\abfs\swhlab4\16711016_<br>&nbsp;&nbsp;&nbsp;&nbsp;protoComment&nbsp;<str>&nbsp;01-13-steps025dual<br>&nbsp;&nbsp;&nbsp;&nbsp;rate&nbsp;<int>&nbsp;20000<br>&nbsp;&nbsp;&nbsp;&nbsp;sweepInterval&nbsp;<float>&nbsp;3.0<br>&nbsp;&nbsp;&nbsp;&nbsp;sweepLength&nbsp;<float>&nbsp;3.0<br>&nbsp;&nbsp;&nbsp;&nbsp;sweepSize&nbsp;<float>&nbsp;60000.0<br>&nbsp;&nbsp;&nbsp;&nbsp;sweeps&nbsp;<int>&nbsp;20<br>&nbsp;&nbsp;&nbsp;&nbsp;timebase&nbsp;<float>&nbsp;12.5<br>&nbsp;&nbsp;&nbsp;&nbsp;units&nbsp;<str>&nbsp;mV<br>&nbsp;&nbsp;&nbsp;&nbsp;unitsCommand&nbsp;<str>&nbsp;pA<br>&nbsp;&nbsp;&nbsp;&nbsp;valid&nbsp;<bool>&nbsp;True<br><br>this&nbsp;ABF&nbsp;rate:&nbsp;20000</code><code class="pass">PASS. execution time: 0.985 sec</code></div><div class="testblock">
+<span class="title">\02 - abf\02 - abf groups.py</span><br>
+<span class="subtitle">Show how to organize a folder of ABFs into ABFs per cell.<br>ABFs belonging to a cell are defined as those coming after a perfectly<br>matching image file name (.TIF) and ABF file.</span>
+<pre class="prettyprint" style="background-color: #FAFAFA;">
+import swhlab
+import swhlab.core.common as cm
+import glob
+import os
+
+ABFPATH=r'C:\Apps\pythonModules\abfs'
+files=glob.glob(ABFPATH+"/*.*")
+print("found %d files (ABFs, TIFs, etc)"%len(files))
+groups=cm.getABFgroups(files)
+print("found %d groups (cells)"%len(groups))
+#for cellname in sorted(groups.keys()):
+for i,cellname in enumerate(sorted(groups.keys())):
+    print("\ncell %s has %d ABFs:"%(cellname,len(groups[cellname])))
+    for abfID in groups[cellname]:
+        fname=os.path.join(ABFPATH,abfID+".abf")
+        print("  %s.abf (protocol %s)"%(abfID,cm.determineProtocol(fname)))
+    if i>10:
+        break #just do this a few times</pre>
+<br><br><code class="cmd">&gt; python.exe 02 - abf groups.py</code><code class="output">~~&nbsp;Loaded&nbsp;SWHLab&nbsp;(version&nbsp;1468611954)<br>found&nbsp;206&nbsp;files&nbsp;(ABFs,&nbsp;TIFs,&nbsp;etc)<br>found&nbsp;17&nbsp;groups&nbsp;(cells)<br><br>cell&nbsp;16711000&nbsp;has&nbsp;3&nbsp;ABFs:<br>&nbsp;&nbsp;16711000.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br>&nbsp;&nbsp;16711001.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br>&nbsp;&nbsp;16711002.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br><br>cell&nbsp;16711003&nbsp;has&nbsp;1&nbsp;ABFs:<br>&nbsp;&nbsp;16711003.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br><br>cell&nbsp;16711004&nbsp;has&nbsp;1&nbsp;ABFs:<br>&nbsp;&nbsp;16711004.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br><br>cell&nbsp;16711005&nbsp;has&nbsp;1&nbsp;ABFs:<br>&nbsp;&nbsp;16711005.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br><br>cell&nbsp;16711006&nbsp;has&nbsp;1&nbsp;ABFs:<br>&nbsp;&nbsp;16711006.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br><br>cell&nbsp;16711007&nbsp;has&nbsp;4&nbsp;ABFs:<br>&nbsp;&nbsp;16711007.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br>&nbsp;&nbsp;16711008.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br>&nbsp;&nbsp;16711009.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br>&nbsp;&nbsp;16711010.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br><br>cell&nbsp;16711011&nbsp;has&nbsp;1&nbsp;ABFs:<br>&nbsp;&nbsp;16711011.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br><br>cell&nbsp;16711012&nbsp;has&nbsp;13&nbsp;ABFs:<br>&nbsp;&nbsp;16711012.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br>&nbsp;&nbsp;16711013.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br>&nbsp;&nbsp;16711014.abf&nbsp;(protocol&nbsp;01-01-HP010)<br>&nbsp;&nbsp;16711015.abf&nbsp;(protocol&nbsp;01-13-steps025dual)<br>&nbsp;&nbsp;16711016.abf&nbsp;(protocol&nbsp;01-13-steps025dual)<br>&nbsp;&nbsp;16711017.abf&nbsp;(protocol&nbsp;02-01-MT70)<br>&nbsp;&nbsp;16711018.abf&nbsp;(protocol&nbsp;02-01-MT70)<br>&nbsp;&nbsp;16711019.abf&nbsp;(protocol&nbsp;02-02-IVdual)<br>&nbsp;&nbsp;16711020.abf&nbsp;(protocol&nbsp;04-01-MTmon70s2)<br>&nbsp;&nbsp;16711021.abf&nbsp;(protocol&nbsp;04-01-MTmon70s2)<br>&nbsp;&nbsp;16711022.abf&nbsp;(protocol&nbsp;04-01-MTmon70s2)<br>&nbsp;&nbsp;16711023.abf&nbsp;(protocol&nbsp;04-01-MTmon70s2)<br>&nbsp;&nbsp;16711024.abf&nbsp;(protocol&nbsp;04-01-MTmon70s2)<br><br>cell&nbsp;16711025&nbsp;has&nbsp;6&nbsp;ABFs:<br>&nbsp;&nbsp;16711025.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br>&nbsp;&nbsp;16711026.abf&nbsp;(protocol&nbsp;01-01-HP010)<br>&nbsp;&nbsp;16711027.abf&nbsp;(protocol&nbsp;01-13-steps025dual)<br>&nbsp;&nbsp;16711028.abf&nbsp;(protocol&nbsp;02-01-MT70)<br>&nbsp;&nbsp;16711029.abf&nbsp;(protocol&nbsp;02-02-IVdual)<br>&nbsp;&nbsp;16711030.abf&nbsp;(protocol&nbsp;04-01-MTmon70s2)<br><br>cell&nbsp;16711031&nbsp;has&nbsp;8&nbsp;ABFs:<br>&nbsp;&nbsp;16711031.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br>&nbsp;&nbsp;16711032.abf&nbsp;(protocol&nbsp;01-01-HP010)<br>&nbsp;&nbsp;16711033.abf&nbsp;(protocol&nbsp;01-13-steps025dual)<br>&nbsp;&nbsp;16711034.abf&nbsp;(protocol&nbsp;02-01-MT70)<br>&nbsp;&nbsp;16711035.abf&nbsp;(protocol&nbsp;02-02-IVdual)<br>&nbsp;&nbsp;16711036.abf&nbsp;(protocol&nbsp;01-13-steps100dual)<br>&nbsp;&nbsp;16711037.abf&nbsp;(protocol&nbsp;04-01-MTmon70s2)<br>&nbsp;&nbsp;16711038.abf&nbsp;(protocol&nbsp;04-01-MTmon70s2)<br><br>cell&nbsp;16711039&nbsp;has&nbsp;8&nbsp;ABFs:<br>&nbsp;&nbsp;16711039.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br>&nbsp;&nbsp;16711040.abf&nbsp;(protocol&nbsp;01-01-HP010)<br>&nbsp;&nbsp;16711041.abf&nbsp;(protocol&nbsp;01-01-HP010)<br>&nbsp;&nbsp;16711042.abf&nbsp;(protocol&nbsp;01-13-steps025dual)<br>&nbsp;&nbsp;16711043.abf&nbsp;(protocol&nbsp;01-13-steps100dual)<br>&nbsp;&nbsp;16711044.abf&nbsp;(protocol&nbsp;04-01-MTmon70s2)<br>&nbsp;&nbsp;16711045.abf&nbsp;(protocol&nbsp;02-01-MT70)<br>&nbsp;&nbsp;16711046.abf&nbsp;(protocol&nbsp;02-02-IVdual)<br><br>cell&nbsp;16711047&nbsp;has&nbsp;9&nbsp;ABFs:<br>&nbsp;&nbsp;16711047.abf&nbsp;(protocol&nbsp;01-11-rampStep)<br>&nbsp;&nbsp;16711048.abf&nbsp;(protocol&nbsp;01-13-steps100dual)<br>&nbsp;&nbsp;16711049.abf&nbsp;(protocol&nbsp;01-01-HP010)<br>&nbsp;&nbsp;16711050.abf&nbsp;(protocol&nbsp;01-01-HP010)<br>&nbsp;&nbsp;16711051.abf&nbsp;(protocol&nbsp;01-01-HP010)<br>&nbsp;&nbsp;16711052.abf&nbsp;(protocol&nbsp;02-01-MT70)<br>&nbsp;&nbsp;16711053.abf&nbsp;(protocol&nbsp;02-02-IVdual)<br>&nbsp;&nbsp;16711054.abf&nbsp;(protocol&nbsp;04-01-MTmon70s2)<br>&nbsp;&nbsp;16711055.abf&nbsp;(protocol&nbsp;04-01-MTmon70s2)</code><code class="pass">PASS. execution time: 0.979 sec</code></div><div class="testblock">
+<span class="title">\02 - abf\03 - find memtests.py</span><br>
+<span class="subtitle">show the ABF of the most recent memtest of each cell</span>
+<pre class="prettyprint" style="background-color: #FAFAFA;">
+
+import swhlab.core.common as cm
+import glob
+import os
+
+ABFPATH=r'C:\Apps\pythonModules\abfs'
+groups=cm.getABFgroups(glob.glob(ABFPATH+"/*.*"))
+for i,cellname in enumerate(sorted(groups.keys())):
+    memtestFname=None
+    for abfID in sorted(groups[cellname]):
+        memtestFname=os.path.join(ABFPATH,abfID+".abf")
+    print(cellname, memtestFname)</pre>
+<br><br><code class="cmd">&gt; python.exe 03 - find memtests.py</code><code class="output">~~&nbsp;Loaded&nbsp;SWHLab&nbsp;(version&nbsp;1468611954)<br>16711000&nbsp;C:\Apps\pythonModules\abfs\16711002.abf<br>16711003&nbsp;C:\Apps\pythonModules\abfs\16711003.abf<br>16711004&nbsp;C:\Apps\pythonModules\abfs\16711004.abf<br>16711005&nbsp;C:\Apps\pythonModules\abfs\16711005.abf<br>16711006&nbsp;C:\Apps\pythonModules\abfs\16711006.abf<br>16711007&nbsp;C:\Apps\pythonModules\abfs\16711010.abf<br>16711011&nbsp;C:\Apps\pythonModules\abfs\16711011.abf<br>16711012&nbsp;C:\Apps\pythonModules\abfs\16711024.abf<br>16711025&nbsp;C:\Apps\pythonModules\abfs\16711030.abf<br>16711031&nbsp;C:\Apps\pythonModules\abfs\16711038.abf<br>16711039&nbsp;C:\Apps\pythonModules\abfs\16711046.abf<br>16711047&nbsp;C:\Apps\pythonModules\abfs\16711055.abf<br>16718000&nbsp;C:\Apps\pythonModules\abfs\16718007.abf<br>16718008&nbsp;C:\Apps\pythonModules\abfs\16718014.abf<br>16718015&nbsp;C:\Apps\pythonModules\abfs\16718025.abf<br>16718026&nbsp;C:\Apps\pythonModules\abfs\16718033.abf<br>16718034&nbsp;C:\Apps\pythonModules\abfs\16718040.abf</code><code class="pass">PASS. execution time: 0.969 sec</code></div><div class="testblock">
+<span class="title">\02 - abf\04 - find memtest labtalk.py</span><br>
+<span class="subtitle">generate the labtalk needed to run "memtest" for every cell.<br>  - cells are defined as image matches<br>  - if multiple memtests exist, only the most recent one is used</span>
+<pre class="prettyprint" style="background-color: #FAFAFA;">
+
+import swhlab.core.common as cm
+import glob
+import os
+
+ABFPATH=r'C:\Apps\pythonModules\abfs'
+groups=cm.getABFgroups(glob.glob(ABFPATH+"/*.*"))
+for i,cellname in enumerate(sorted(groups.keys())):
+    memtestFname=None
+    for abfID in sorted(groups[cellname]):
+        memtestFname=os.path.join(ABFPATH,abfID+".abf")
+    if memtestFname: # won't run if it didn't find one
+        cmd='setpath "%s"; memtest;'%(memtestFname)
+        print(cmd)</pre>
+<br><br><code class="cmd">&gt; python.exe 04 - find memtest labtalk.py</code><code class="output">~~&nbsp;Loaded&nbsp;SWHLab&nbsp;(version&nbsp;1468611954)<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16711002.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16711003.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16711004.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16711005.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16711006.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16711010.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16711011.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16711024.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16711030.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16711038.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16711046.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16711055.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16718007.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16718014.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16718025.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16718033.abf";&nbsp;memtest;<br>setpath&nbsp;"C:\Apps\pythonModules\abfs\16718040.abf";&nbsp;memtest;</code><code class="pass">PASS. execution time: 0.968 sec</code></div><div class="testblock">
+<span class="title">\02 - abf\05 - accessing data.py</span><br>
+<span class="subtitle">shows how to pull data from a file</span>
+<pre class="prettyprint" style="background-color: #FAFAFA;">
+import swhlab
+abf=swhlab.ABF(r"C:\Apps\pythonModules\abfs\16718036.abf")
+abf.setSweep(10)
+print(abf.sweepSize,abf.sweepLength,abf.sweepInterval) #ABF sweep info
+print(abf.dataX) #access to raw X data (seconds)
+print(abf.dataY) #access to raw Y data (mV or pA)</pre>
+<br><br><code class="cmd">&gt; python.exe 05 - accessing data.py</code><code class="output">~~&nbsp;Loaded&nbsp;SWHLab&nbsp;(version&nbsp;1468611954)<br>&nbsp;>>&nbsp;ABF&nbsp;16718036.abf<br>&nbsp;o-&nbsp;not&nbsp;overwriting&nbsp;[16718036_info.pkl]<br>60000.0&nbsp;3.0&nbsp;3.0<br>[&nbsp;&nbsp;0.00000000e+00&nbsp;&nbsp;&nbsp;5.00000000e-05&nbsp;&nbsp;&nbsp;1.00000000e-04&nbsp;...,&nbsp;&nbsp;&nbsp;2.99985000e+00<br>&nbsp;&nbsp;&nbsp;2.99990000e+00&nbsp;&nbsp;&nbsp;2.99995000e+00]<br>[-66.70532227&nbsp;-66.71142578&nbsp;-66.7175293&nbsp;&nbsp;...,&nbsp;-66.94946289&nbsp;-66.92504883<br>&nbsp;-66.94335938]</code><code class="pass">PASS. execution time: 0.977 sec</code></div><div class="testblock">
+<span class="title">\03 - plotting\01 - plot sweep.py</span><br>
+<span class="subtitle">simple examples of how to load an ABF and use swhlab.plot.sweep()<br>This function has lots of options! reads the docs for all of them.</span>
+<pre class="prettyprint" style="background-color: #FAFAFA;">
+import swhlab
+import os
+import pylab
+
+savePrefix=os.path.abspath(os.path.basename(__file__))+"_"
+abf=swhlab.ABF(r"C:\Apps\pythonModules\abfs\16718036.abf")
+
+swhlab.plot.sweep(abf) #default to the first sweep
+swhlab.plot.save(abf,savePrefix+"1.png")
+
+swhlab.plot.sweep(abf,10) #10th sweep
+swhlab.plot.save(abf,savePrefix+"2.png")
+
+swhlab.plot.sweep(abf,-1) #last sweep
+swhlab.plot.save(abf,savePrefix+"3.png")
+
+swhlab.plot.sweep(abf,'all',continuous=True)
+swhlab.plot.save(abf,savePrefix+"5.png")
+
+swhlab.plot.sweep(abf,'all',alpha=.2) #default as overlay
+swhlab.plot.save(abf,savePrefix+"4.png")
+
+swhlab.plot.sweep(abf,'all',offsetY=150) #stacked
+swhlab.plot.save(abf,savePrefix+"5.png")
+
+swhlab.plot.sweep(abf,'all',offsetY=20,offsetX=.2) #fancy
+swhlab.plot.save(abf,savePrefix+"6.png",close=False)
+pylab.grid() # by disabling "close", we can make more changes
+pylab.title("I'm changing things up!")
+swhlab.plot.save(abf,savePrefix+"7.png")
+
+#swhlab.plot.save(abf) # no filename will "show" the image in a popup</pre>
+<a href="./03 - plotting/01 - plot sweep.py_1.png"><img src="./03 - plotting/01 - plot sweep.py_1.png" class="smallpic"></a><a href="./03 - plotting/01 - plot sweep.py_2.png"><img src="./03 - plotting/01 - plot sweep.py_2.png" class="smallpic"></a><a href="./03 - plotting/01 - plot sweep.py_3.png"><img src="./03 - plotting/01 - plot sweep.py_3.png" class="smallpic"></a><a href="./03 - plotting/01 - plot sweep.py_4.png"><img src="./03 - plotting/01 - plot sweep.py_4.png" class="smallpic"></a><a href="./03 - plotting/01 - plot sweep.py_5.png"><img src="./03 - plotting/01 - plot sweep.py_5.png" class="smallpic"></a><a href="./03 - plotting/01 - plot sweep.py_6.png"><img src="./03 - plotting/01 - plot sweep.py_6.png" class="smallpic"></a><a href="./03 - plotting/01 - plot sweep.py_7.png"><img src="./03 - plotting/01 - plot sweep.py_7.png" class="smallpic"></a><br><br><code class="cmd">&gt; python.exe 01 - plot sweep.py</code><code class="output">~~&nbsp;Loaded&nbsp;SWHLab&nbsp;(version&nbsp;1468611954)<br>&nbsp;>>&nbsp;ABF&nbsp;16718036.abf<br>&nbsp;o-&nbsp;not&nbsp;overwriting&nbsp;[16718036_info.pkl]<br>&nbsp;<-&nbsp;saving&nbsp;[01&nbsp;-&nbsp;plot&nbsp;sweep.py_1.png]&nbsp;at&nbsp;87&nbsp;DPI&nbsp;(700x525)<br>&nbsp;<-&nbsp;saving&nbsp;[01&nbsp;-&nbsp;plot&nbsp;sweep.py_2.png]&nbsp;at&nbsp;87&nbsp;DPI&nbsp;(700x525)<br>&nbsp;!!&nbsp;there&nbsp;aren't&nbsp;21&nbsp;sweeps.&nbsp;Reverting&nbsp;to&nbsp;last&nbsp;(19)&nbsp;sweep.<br>&nbsp;<-&nbsp;saving&nbsp;[01&nbsp;-&nbsp;plot&nbsp;sweep.py_3.png]&nbsp;at&nbsp;87&nbsp;DPI&nbsp;(700x525)<br>&nbsp;<-&nbsp;saving&nbsp;[01&nbsp;-&nbsp;plot&nbsp;sweep.py_5.png]&nbsp;at&nbsp;87&nbsp;DPI&nbsp;(700x525)<br>&nbsp;<-&nbsp;saving&nbsp;[01&nbsp;-&nbsp;plot&nbsp;sweep.py_4.png]&nbsp;at&nbsp;87&nbsp;DPI&nbsp;(700x525)<br>&nbsp;<-&nbsp;saving&nbsp;[01&nbsp;-&nbsp;plot&nbsp;sweep.py_5.png]&nbsp;at&nbsp;87&nbsp;DPI&nbsp;(700x525)<br>&nbsp;<-&nbsp;saving&nbsp;[01&nbsp;-&nbsp;plot&nbsp;sweep.py_6.png]&nbsp;at&nbsp;87&nbsp;DPI&nbsp;(700x525)<br>&nbsp;<-&nbsp;saving&nbsp;[01&nbsp;-&nbsp;plot&nbsp;sweep.py_7.png]&nbsp;at&nbsp;87&nbsp;DPI&nbsp;(700x525)</code><code class="pass">PASS. execution time: 2.690 sec</code></div></body></html>
