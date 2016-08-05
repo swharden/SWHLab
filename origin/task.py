@@ -31,6 +31,25 @@ def LT(cmd,silent=False):
         print("~>%s"%cmd)
     PyOrigin.LT_execute(cmd)
 
+def LT_set(name,val,string=False):
+    if string:
+        if not name.endswith("$"):
+            name+="$"
+        LT('%s="%s"'%(name,val))
+    else:
+        LT('%s=%f'%(name,val))
+    return
+
+def LT_get(name,string=False):
+    if string:
+        if not name.endswith("$"):
+            name+="$"
+        val=str(PyOrigin.LT_get_str(name.upper()))
+    else:
+        val=float(PyOrigin.LT_get_var(name.upper())) #MUST BE ALL CAPS
+    print(" -- LT [%s]=%s"%(name.upper(),val),type(val))
+    return val
+
 ### CONVERSIONS
 
 def treeToDict(s,verbose=False):
@@ -203,7 +222,7 @@ def sheet_delete(title):
     LT('layer -d "%s";'%title)
     return
 
-def sheet_move(toBook,fromBook=None,fromSheet=None,deleteOldBook=False):
+def sheet_move(toBook, fromBook=None, fromSheet=None, deleteOldBook=False):
     """
     Move a given worksheet into the given workbook.
     if no fromBook is given, the active book will be used.
@@ -248,6 +267,12 @@ def sheet_addCol():
     """add a column to the current sheet"""
     LT("wks.addCol()")
 
+def sheet_setComment(comment,index=0):
+    """set the comments at position [index] of the selected sheet."""
+    wks=PyOrigin.ActiveLayer()
+    wks.Columns(index).SetComments(comment)
+    return
+
 def sheet_fillCol(data=None,index=-1,name="",units="",comments="",
                   coltype="Y",addcol=False):
     """
@@ -258,6 +283,7 @@ def sheet_fillCol(data=None,index=-1,name="",units="",comments="",
     if addcol, it'll add a new column for this data (and index is ignored).
     If data is a single number (int or float), all cells will be that number.
     """
+    #TODO: add feature to REPLACE a named column regardless of index.
     data=np.array(data)
     print("filling column index %d (%s) with data of shape:"%(index,name),
           data.shape)
@@ -340,8 +366,8 @@ def window_minimize():
 
 def redraw():
     """force redraw of the selected graph or workbook"""
-    LT('sec -pw "%s"'%book_getActive())
-
+    LT('ManualRefresh')
+    # PyOrigin.ActivePage().Refresh() # doesn't exist in PyOrigin
 
 def clearProject():
     """clear origin project (with dialog asking about saving)"""
@@ -382,7 +408,6 @@ def cjf_eventsOn():
 def cjf_selectAbfGraph():
     """force the ABFGraph to be selected."""
     LT("win -a ABFGraph")
-    #LT("manualrefresh")
     redraw()
 
 def cjf_selectLast():

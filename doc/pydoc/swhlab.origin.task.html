@@ -39,6 +39,8 @@ Many&nbsp;are&nbsp;not.</tt></p>
     
 <tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
 <td width="100%"><dl><dt><a name="-LT"><strong>LT</strong></a>(cmd, silent=False)</dt><dd><tt>execute&nbsp;a&nbsp;labtalk&nbsp;command.</tt></dd></dl>
+ <dl><dt><a name="-LT_get"><strong>LT_get</strong></a>(name, string=False)</dt></dl>
+ <dl><dt><a name="-LT_set"><strong>LT_set</strong></a>(name, val, string=False)</dt></dl>
  <dl><dt><a name="-book_close"><strong>book_close</strong></a>(book)</dt><dd><tt>close&nbsp;the&nbsp;given&nbsp;book,&nbsp;delete&nbsp;data</tt></dd></dl>
  <dl><dt><a name="-book_dictInfo"><strong>book_dictInfo</strong></a>(d)</dt><dd><tt>print&nbsp;stats&nbsp;about&nbsp;a&nbsp;workbook&nbsp;dictionary.</tt></dd></dl>
  <dl><dt><a name="-book_fromDict"><strong>book_fromDict</strong></a>(bookName='ABFBook')</dt></dl>
@@ -97,6 +99,7 @@ it&nbsp;the&nbsp;toBook&nbsp;doesn't&nbsp;exist,&nbsp;it&nbsp;will&nbsp;be&nbsp;
  <dl><dt><a name="-sheet_new"><strong>sheet_new</strong></a>(sheet)</dt><dd><tt>makes&nbsp;the&nbsp;sheet,&nbsp;or&nbsp;selects&nbsp;it&nbsp;if&nbsp;already&nbsp;there.</tt></dd></dl>
  <dl><dt><a name="-sheet_rename"><strong>sheet_rename</strong></a>(newname)</dt><dd><tt>rename&nbsp;the&nbsp;currently&nbsp;selected&nbsp;sheet&nbsp;to&nbsp;something&nbsp;(spaces&nbsp;OK)</tt></dd></dl>
  <dl><dt><a name="-sheet_select"><strong>sheet_select</strong></a>(sheet=None)</dt><dd><tt>select&nbsp;the&nbsp;sheet&nbsp;in&nbsp;the&nbsp;current&nbsp;book.&nbsp;Return&nbsp;False&nbsp;if&nbsp;doesnt&nbsp;exist.</tt></dd></dl>
+ <dl><dt><a name="-sheet_setComment"><strong>sheet_setComment</strong></a>(comment, index=0)</dt><dd><tt>set&nbsp;the&nbsp;comments&nbsp;at&nbsp;position&nbsp;[index]&nbsp;of&nbsp;the&nbsp;selected&nbsp;sheet.</tt></dd></dl>
  <dl><dt><a name="-sheet_toDict"><strong>sheet_toDict</strong></a>()</dt></dl>
  <dl><dt><a name="-treeToDict"><strong>treeToDict</strong></a>(s, verbose=False)</dt><dd><tt>given&nbsp;a&nbsp;str(PyOrigin.tree),&nbsp;return&nbsp;a&nbsp;dictionary&nbsp;of&nbsp;dictionaries.<br>
 This&nbsp;is&nbsp;done&nbsp;by&nbsp;dynamically&nbsp;generating&nbsp;python&nbsp;scipt&nbsp;to&nbsp;populate&nbsp;the<br>

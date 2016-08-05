@@ -44,7 +44,16 @@ run&nbsp;origin&nbsp;commands&nbsp;like:<br>
 <font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
     
 <tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><dl><dt><a name="-availableCommands"><strong>availableCommands</strong></a>(commentsAndCode=False)</dt><dd><tt>return&nbsp;a&nbsp;list&nbsp;of&nbsp;commands&nbsp;(and&nbsp;attach&nbsp;the&nbsp;function).</tt></dd></dl>
+<td width="100%"><dl><dt><a name="-VCIV"><strong>VCIV</strong></a>(m1, m2, book, sheet)</dt><dd><tt>perform&nbsp;voltage&nbsp;clamp&nbsp;IV&nbsp;analysis&nbsp;on&nbsp;a&nbsp;range&nbsp;of&nbsp;markers.<br>
+Note&nbsp;that&nbsp;"MarkerStatsEp"&nbsp;worksheets&nbsp;will&nbsp;be&nbsp;deleted.<br>
+--&nbsp;m1&nbsp;and&nbsp;m2:&nbsp;marker&nbsp;positions&nbsp;(ms)<br>
+--&nbsp;book/sheet:&nbsp;output&nbsp;workbook/worksheet</tt></dd></dl>
+ <dl><dt><a name="-addClamps"><strong>addClamps</strong></a>(abfFile, pointSec=None)</dt><dd><tt>given&nbsp;a&nbsp;time&nbsp;point&nbsp;(in&nbsp;sec),&nbsp;add&nbsp;a&nbsp;column&nbsp;to&nbsp;the&nbsp;selected&nbsp;worksheet<br>
+that&nbsp;contains&nbsp;the&nbsp;clamp&nbsp;values&nbsp;at&nbsp;that&nbsp;time&nbsp;point.</tt></dd></dl>
+ <dl><dt><a name="-addSheetNotesFromABF"><strong>addSheetNotesFromABF</strong></a>(abfFile)</dt><dd><tt>get&nbsp;notes&nbsp;from&nbsp;an&nbsp;ABFfile&nbsp;and&nbsp;push&nbsp;them&nbsp;into&nbsp;the&nbsp;selected&nbsp;sheet.<br>
+These&nbsp;notes&nbsp;come&nbsp;from&nbsp;experiment.txt&nbsp;in&nbsp;the&nbsp;abf&nbsp;folder.</tt></dd></dl>
+ <dl><dt><a name="-availableCommands"><strong>availableCommands</strong></a>(commentsAndCode=False)</dt><dd><tt>return&nbsp;a&nbsp;list&nbsp;of&nbsp;commands&nbsp;(and&nbsp;attach&nbsp;the&nbsp;function).</tt></dd></dl>
+ <dl><dt><a name="-checkCversion"><strong>checkCversion</strong></a>(need=1.0)</dt><dd><tt>show&nbsp;information&nbsp;about&nbsp;the&nbsp;version&nbsp;of&nbsp;the&nbsp;C&nbsp;code&nbsp;SWHLab&nbsp;is&nbsp;using.</tt></dd></dl>
  <dl><dt><a name="-cmd_addc"><strong>cmd_addc</strong></a>(abfFile, cmd, args)</dt><dd><tt>replace&nbsp;column&nbsp;0&nbsp;of&nbsp;the&nbsp;selected&nbsp;sheet&nbsp;with&nbsp;command&nbsp;steps.<br>
 This&nbsp;is&nbsp;intended&nbsp;to&nbsp;be&nbsp;used&nbsp;when&nbsp;making&nbsp;IV&nbsp;and&nbsp;AP&nbsp;gain&nbsp;plots.<br>
 &nbsp;<br>
@@ -98,8 +107,15 @@ AP&nbsp;sweep&nbsp;measurements&nbsp;(those&nbsp;ending&nbsp;with&nbsp;I&nbsp;ar
 &nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;sweep&nbsp;-&nbsp;sweep&nbsp;number</tt></dd></dl>
  <dl><dt><a name="-cmd_auto"><strong>cmd_auto</strong></a>(abfFile, cmd, args)</dt></dl>
  <dl><dt><a name="-cmd_checkout"><strong>cmd_checkout</strong></a>(abfFile, cmd, args)</dt></dl>
+ <dl><dt><a name="-cmd_continuous"><strong>cmd_continuous</strong></a>(abfFile, cmd, args)</dt><dd><tt>display&nbsp;current&nbsp;ABF&nbsp;as&nbsp;a&nbsp;continuous&nbsp;trace.&nbsp;This&nbsp;could&nbsp;be&nbsp;slow.<br>
+&gt;&gt;&gt;&nbsp;sc&nbsp;continuous<br>
+(see&nbsp;sister&nbsp;function,&nbsp;'sweep')</tt></dd></dl>
  <dl><dt><a name="-cmd_docs"><strong>cmd_docs</strong></a>(abfFile, cmd, args)</dt><dd><tt>Launch&nbsp;SWHLab&nbsp;website&nbsp;containing&nbsp;details&nbsp;about&nbsp;these&nbsp;scripts.<br>
 For&nbsp;now,&nbsp;it's&nbsp;locally&nbsp;hosted.</tt></dd></dl>
+ <dl><dt><a name="-cmd_drug"><strong>cmd_drug</strong></a>(abfFile, cmd, args)</dt><dd><tt>load&nbsp;a&nbsp;representative&nbsp;drug&nbsp;application&nbsp;(VC&nbsp;mode,&nbsp;repeated&nbsp;memtest).<br>
+Optionally&nbsp;give&nbsp;it&nbsp;a&nbsp;number&nbsp;to&nbsp;load&nbsp;a&nbsp;different&nbsp;ABF.<br>
+&gt;&gt;&gt;&nbsp;sc&nbsp;drug<br>
+&gt;&gt;&gt;&nbsp;sc&nbsp;drug&nbsp;3</tt></dd></dl>
  <dl><dt><a name="-cmd_edit"><strong>cmd_edit</strong></a>(run, cmd, args)</dt><dd><tt>Edit&nbsp;a&nbsp;file&nbsp;from&nbsp;the&nbsp;X&nbsp;drive&nbsp;using&nbsp;a&nbsp;short&nbsp;command.<br>
 Files&nbsp;live&nbsp;in:&nbsp;X:\Software\OriginC\On-line\python<br>
 Call&nbsp;them&nbsp;by&nbsp;their&nbsp;file&nbsp;name&nbsp;(without&nbsp;.py)<br>
@@ -108,9 +124,10 @@ Call&nbsp;them&nbsp;by&nbsp;their&nbsp;file&nbsp;name&nbsp;(without&nbsp;.py)<br
 ^^^&nbsp;If&nbsp;the&nbsp;file&nbsp;doesn't&nbsp;exist,&nbsp;it&nbsp;will&nbsp;be&nbsp;created<br>
 &nbsp;<br>
 Also&nbsp;try&nbsp;the&nbsp;'sc&nbsp;run'&nbsp;command.</tt></dd></dl>
- <dl><dt><a name="-cmd_fsi"><strong>cmd_fsi</strong></a>(abfFile, cmd, args)</dt><dd><tt>load&nbsp;a&nbsp;representative&nbsp;FSI&nbsp;gain&nbsp;function.&nbsp;Optionally&nbsp;give&nbsp;it&nbsp;a&nbsp;number.<br>
-&gt;&gt;&gt;&nbsp;sc&nbsp;fsi<br>
-&gt;&gt;&gt;&nbsp;sc&nbsp;fsi&nbsp;3</tt></dd></dl>
+ <dl><dt><a name="-cmd_gain"><strong>cmd_gain</strong></a>(abfFile, cmd, args)</dt><dd><tt>load&nbsp;a&nbsp;representative&nbsp;gain&nbsp;function.<br>
+Optionally&nbsp;give&nbsp;it&nbsp;a&nbsp;number&nbsp;to&nbsp;load&nbsp;a&nbsp;different&nbsp;ABF.<br>
+&gt;&gt;&gt;&nbsp;sc&nbsp;gain<br>
+&gt;&gt;&gt;&nbsp;sc&nbsp;gain&nbsp;3</tt></dd></dl>
  <dl><dt><a name="-cmd_getcols"><strong>cmd_getcols</strong></a>(abfFile, cmd, args)</dt><dd><tt>Variant&nbsp;of&nbsp;CJFLab&nbsp;getcols&nbsp;/&nbsp;collectcols.<br>
 Runs&nbsp;on&nbsp;the&nbsp;currently&nbsp;active&nbsp;worksheet.<br>
 Can&nbsp;take&nbsp;column&nbsp;numbers&nbsp;(start&nbsp;at&nbsp;0)&nbsp;or&nbsp;a&nbsp;string&nbsp;to&nbsp;match&nbsp;in&nbsp;long&nbsp;name.<br>
@@ -146,7 +163,7 @@ example&nbsp;usage:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;sc&nbsp;help&nbsp;test<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^^^&nbsp;this&nbsp;will&nbsp;show&nbsp;all&nbsp;commands&nbsp;starting&nbsp;with&nbsp;"help"</tt></dd></dl>
  <dl><dt><a name="-cmd_iv"><strong>cmd_iv</strong></a>(abfFile, cmd, args)</dt><dd><tt>load&nbsp;a&nbsp;representative&nbsp;voltage&nbsp;clamp&nbsp;IV&nbsp;ABF.<br>
-Optionally&nbsp;give&nbsp;it&nbsp;a&nbsp;number&nbsp;to&nbsp;load&nbsp;a&nbsp;different&nbsp;tau.<br>
+Optionally&nbsp;give&nbsp;it&nbsp;a&nbsp;number&nbsp;to&nbsp;load&nbsp;a&nbsp;different&nbsp;ABF.<br>
 &gt;&gt;&gt;&nbsp;sc&nbsp;iv<br>
 &gt;&gt;&gt;&nbsp;sc&nbsp;iv&nbsp;3</tt></dd></dl>
  <dl><dt><a name="-cmd_move"><strong>cmd_move</strong></a>(abfFile, cmd, args)</dt><dd><tt>move&nbsp;the&nbsp;currently&nbsp;selected&nbsp;sheet&nbsp;to&nbsp;the&nbsp;given&nbsp;workbook.<br>
@@ -159,6 +176,10 @@ simple&nbsp;example:<br>
 full&nbsp;functionality&nbsp;example:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;sc&nbsp;move&nbsp;newBook&nbsp;oldBook&nbsp;oldSheet&nbsp;newSheet<br>
 &nbsp;&nbsp;&nbsp;&nbsp;^^^&nbsp;If&nbsp;[oldBook]oldSheet&nbsp;exists,&nbsp;move&nbsp;it&nbsp;to&nbsp;[newBook]newSheet</tt></dd></dl>
+ <dl><dt><a name="-cmd_mt"><strong>cmd_mt</strong></a>(abfFile, cmd, args)</dt><dd><tt>load&nbsp;a&nbsp;representative&nbsp;20&nbsp;sweep&nbsp;memtest.<br>
+Optionally&nbsp;give&nbsp;it&nbsp;a&nbsp;number&nbsp;to&nbsp;load&nbsp;a&nbsp;different&nbsp;ABF.<br>
+&gt;&gt;&gt;&nbsp;sc&nbsp;mt<br>
+&gt;&gt;&gt;&nbsp;sc&nbsp;mt&nbsp;3</tt></dd></dl>
  <dl><dt><a name="-cmd_note"><strong>cmd_note</strong></a>(abfFile, cmd, args)</dt></dl>
  <dl><dt><a name="-cmd_parent"><strong>cmd_parent</strong></a>(childPath, cmd, args)</dt><dd><tt>find&nbsp;the&nbsp;ABF&nbsp;ID&nbsp;of&nbsp;the&nbsp;parent&nbsp;file&nbsp;(.abf&nbsp;with&nbsp;matching&nbsp;.TIF)<br>
 Give&nbsp;this&nbsp;a&nbsp;string&nbsp;(path&nbsp;to&nbsp;an&nbsp;abf)&nbsp;and&nbsp;it&nbsp;will&nbsp;assign&nbsp;it&nbsp;to<br>
@@ -168,6 +189,12 @@ the&nbsp;labtalk&nbsp;variables&nbsp;parentID$&nbsp;and&nbsp;parentPATH$<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;parentPATH$=</tt></dd></dl>
  <dl><dt><a name="-cmd_path"><strong>cmd_path</strong></a>(abfFile, cmd, args)</dt><dd><tt>shows&nbsp;the&nbsp;path&nbsp;of&nbsp;the&nbsp;SWHLab&nbsp;distribution&nbsp;being&nbsp;used</tt></dd></dl>
  <dl><dt><a name="-cmd_pyvals"><strong>cmd_pyvals</strong></a>(abfFile, cmd, args)</dt><dd><tt>shows&nbsp;data&nbsp;from&nbsp;the&nbsp;last&nbsp;ABFGraph&nbsp;tree.</tt></dd></dl>
+ <dl><dt><a name="-cmd_ramp"><strong>cmd_ramp</strong></a>(abfFile, cmd, args)</dt><dd><tt>load&nbsp;a&nbsp;representative&nbsp;current&nbsp;clamp&nbsp;ramp&nbsp;used&nbsp;for&nbsp;AP&nbsp;inspection.<br>
+Optionally&nbsp;give&nbsp;it&nbsp;a&nbsp;number&nbsp;to&nbsp;load&nbsp;a&nbsp;different&nbsp;ABF.<br>
+&gt;&gt;&gt;&nbsp;sc&nbsp;ramp<br>
+&gt;&gt;&gt;&nbsp;sc&nbsp;ramp&nbsp;3</tt></dd></dl>
+ <dl><dt><a name="-cmd_redraw"><strong>cmd_redraw</strong></a>(abfFile, cmd, args)</dt><dd><tt>forces&nbsp;redrawing&nbsp;of&nbsp;the&nbsp;active&nbsp;window.<br>
+&gt;&gt;&gt;&nbsp;redraw</tt></dd></dl>
  <dl><dt><a name="-cmd_replace"><strong>cmd_replace</strong></a>(abfFile, cmd, args)</dt><dd><tt>finds/replaces&nbsp;all&nbsp;cells&nbsp;in&nbsp;a&nbsp;workbook.<br>
 &nbsp;<br>
 &gt;&gt;&gt;&nbsp;sc&nbsp;replae&nbsp;nan&nbsp;0<br>
@@ -186,8 +213,11 @@ Call&nbsp;them&nbsp;by&nbsp;their&nbsp;file&nbsp;name&nbsp;(without&nbsp;.py)<br
 &nbsp;<br>
 Also&nbsp;try&nbsp;the&nbsp;'sc&nbsp;edit'&nbsp;command.</tt></dd></dl>
  <dl><dt><a name="-cmd_site"><strong>cmd_site</strong></a>(abfFile, cmd, args)</dt><dd><tt>Launch&nbsp;SWHLab&nbsp;website</tt></dd></dl>
- <dl><dt><a name="-cmd_tau"><strong>cmd_tau</strong></a>(abfFile, cmd, args)</dt><dd><tt>load&nbsp;a&nbsp;representative&nbsp;FSI&nbsp;tau&nbsp;ABF.<br>
-Optionally&nbsp;give&nbsp;it&nbsp;a&nbsp;number&nbsp;to&nbsp;load&nbsp;a&nbsp;different&nbsp;tau.<br>
+ <dl><dt><a name="-cmd_sweep"><strong>cmd_sweep</strong></a>(abfFile, cmd, args)</dt><dd><tt>display&nbsp;current&nbsp;ABF&nbsp;in&nbsp;sweep&nbsp;view&nbsp;(opposite&nbsp;of&nbsp;continuous)<br>
+&gt;&gt;&gt;&nbsp;sc&nbsp;sweep<br>
+(see&nbsp;sister&nbsp;function,&nbsp;'continuous')</tt></dd></dl>
+ <dl><dt><a name="-cmd_tau"><strong>cmd_tau</strong></a>(abfFile, cmd, args)</dt><dd><tt>load&nbsp;a&nbsp;representative&nbsp;tau&nbsp;ABF.<br>
+Optionally&nbsp;give&nbsp;it&nbsp;a&nbsp;number&nbsp;to&nbsp;load&nbsp;a&nbsp;different&nbsp;ABF.<br>
 &gt;&gt;&gt;&nbsp;sc&nbsp;tau<br>
 &gt;&gt;&gt;&nbsp;sc&nbsp;tau&nbsp;3</tt></dd></dl>
  <dl><dt><a name="-cmd_test"><strong>cmd_test</strong></a>(abfFile, cmd, args)</dt></dl>
@@ -199,11 +229,17 @@ example:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;sc&nbsp;treeshow&nbsp;pynotes</tt></dd></dl>
  <dl><dt><a name="-cmd_update"><strong>cmd_update</strong></a>(abfFile, cmd, args)</dt><dd><tt>See&nbsp;if&nbsp;SWHLab&nbsp;is&nbsp;up&nbsp;to&nbsp;date.&nbsp;If&nbsp;not,&nbsp;offer&nbsp;to&nbsp;upgrade.</tt></dd></dl>
  <dl><dt><a name="-cmd_version"><strong>cmd_version</strong></a>(abfFile, cmd, args)</dt><dd><tt>reports&nbsp;the&nbsp;current&nbsp;SWHLab&nbsp;distribution&nbsp;version.</tt></dd></dl>
- <dl><dt><a name="-gain"><strong>gain</strong></a>(m1, m2, book='gain', sheet=None, notesFromFile=False)</dt><dd><tt>perform&nbsp;a&nbsp;standard&nbsp;AP&nbsp;gain&nbsp;analysis.&nbsp;Marker&nbsp;positions&nbsp;required.<br>
+ <dl><dt><a name="-gain"><strong>gain</strong></a>(m1, m2, book, sheet)</dt><dd><tt>perform&nbsp;a&nbsp;standard&nbsp;AP&nbsp;gain&nbsp;analysis.&nbsp;Marker&nbsp;positions&nbsp;required.<br>
 Optionally&nbsp;give&nbsp;it&nbsp;a&nbsp;sheet&nbsp;name&nbsp;(to&nbsp;rename&nbsp;it&nbsp;to).<br>
 All&nbsp;sheets&nbsp;will&nbsp;IMMEDIATELY&nbsp;be&nbsp;moved&nbsp;out&nbsp;of&nbsp;EventsEp.<br>
-Optionally,&nbsp;give&nbsp;noesFromFile&nbsp;and&nbsp;notes&nbsp;will&nbsp;be&nbsp;populated.</tt></dd></dl>
+Optionally,&nbsp;give&nbsp;noesFromFile&nbsp;and&nbsp;notes&nbsp;will&nbsp;be&nbsp;populated.<br>
+Note&nbsp;that&nbsp;"Events"&nbsp;worksheets&nbsp;will&nbsp;be&nbsp;deleted,&nbsp;created,&nbsp;and&nbsp;deleted&nbsp;again.<br>
+--&nbsp;m1&nbsp;and&nbsp;m2:&nbsp;marker&nbsp;positions&nbsp;(ms)<br>
+--&nbsp;book/sheet:&nbsp;output&nbsp;workbook/worksheet</tt></dd></dl>
  <dl><dt><a name="-gendocs"><strong>gendocs</strong></a>(docPath)</dt><dd><tt>read&nbsp;this&nbsp;file,&nbsp;make&nbsp;docs,&nbsp;save&nbsp;as&nbsp;local&nbsp;webpage.</tt></dd></dl>
+ <dl><dt><a name="-getWksAbf"><strong>getWksAbf</strong></a>()</dt><dd><tt>return&nbsp;the&nbsp;ABF&nbsp;filename&nbsp;stored&nbsp;in&nbsp;metadata&nbsp;of&nbsp;the&nbsp;selected&nbsp;book</tt></dd></dl>
+ <dl><dt><a name="-print2"><strong>print2</strong></a>(message)</dt><dd><tt>print&nbsp;something&nbsp;that's&nbsp;very&nbsp;important</tt></dd></dl>
  <dl><dt><a name="-swhcmd"><strong>swhcmd</strong></a>(abfFile, cmd)</dt><dd><tt>this&nbsp;is&nbsp;called&nbsp;directly&nbsp;by&nbsp;origin.</tt></dd></dl>
+ <dl><dt><a name="-viewContinuous"><strong>viewContinuous</strong></a>(enable=True)</dt></dl>
 </td></tr></table>
 </body></html>

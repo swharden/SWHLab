@@ -26,37 +26,60 @@
 </head>
 <body>
 
-<h1>AP Gain</h1>
+<h1>Automated Analysis Quickstart Guide</h1>
 
-<span class="origin">>> sc fsi</span>
-<span class="desc">loads an example ABF from a fast-spiking interneuron</span>
+Load-up a brand new origin instance and run each command in order. 
+Pay attention to what you're doing, and by the end you'll know how to use the new tools
+new data analysis workflow
+
+<hr><h2>Gain Function</h2>
+
+<span class="origin">>> sc gain</span>
+<span class="desc">loads an example gain function ABF. Similar commands exist for ramp, iv, mt, drug, etc.</span>
 <br><br>
 
 <span class="action">enable event detection with settings to detect APs.</span>
 <br><br>
 
 <span class="origin">>> sc auto</span>
-<span class="desc">automatically determine how to analyze this file and do it.
-In this case, it's a gain function, so a single output workbook will be made or added to.
-Any gain-related analysis will be added to this workbook.<br><br>
-
-Note that sheet names are PARENT_ABF_STEP. No sheet of this workbook should ever be manually edited.<br><br>
-
-Note also that re-running the same "sc auto" analysis is fine. The sheet will be overwritten, and all is well. <br><br>
+<span class="desc">The goal is to have an automated routine for every primary type of ABF. Note that default
+workbook names (EventsEp, MemTests, etc) are *ALWAYS* deleted automatically.<br><br>
 </span>
 
-<span class="origin">>> sc fsi 1; sc auto; sc fsi 2; sc auto; sc fsi 3; sc auto; sc fsi 4; sc auto; sc fsi 5; sc auto;
- sc fsi 6; sc auto; sc fsi 7; sc auto; sc fsi 8; sc auto; sc fsi 9; sc auto; sc fsi 10; sc auto;
- sc fsi 11; sc auto; sc fsi 12; sc auto; sc fsi 13; sc auto; sc fsi 14; sc auto; sc fsi 15; sc auto;</span>
-<span class="desc">Let's do the same thing a bunch of times in a row.</span>
+<span class="origin">>> sc gain 1; sc auto; sc gain 2; sc auto; sc gain 3; sc auto; sc gain 4; sc auto; sc gain 5; sc auto;
+ sc gain 6; sc auto; sc gain 7; sc auto; sc gain 8; sc auto; sc gain 9; sc auto; sc gain 10; sc auto;
+ sc gain 11; sc auto; sc gain 12; sc auto; sc gain 13; sc auto; sc gain 14; sc auto; sc gain 15; sc auto;</span>
+<span class="desc">Note how output sheets are PARENTID_ABFID_STEP. This makes getcols easy.</span>
+<br><br>
+
+
+<span class="origin">>> sc getcols _step1 command Inst</span>
+<span class="desc">This needs to have the worksheet selected. It's an improved getcols does string matching, and if given 2 arguments provides XY pairs. (see 'sc docs' for even more usage features)
+</span>
 <br><br>
 
 <span class="origin">>> sc replace nan 0</span>
-<span class="desc">force sweeps with no APs to report 0. This is good for Steady State Freq. This is not desired for AvgAmp (for example).</span>
+<span class="desc">It's obvious what this does, and what cases it's useful (e.g., 0 is good for avg freq, nan is good for avg amplitude)</span>
 <br><br>
 
+<hr><h2>Membrane Test</h2>
+<span class="origin">sc mt 1; sc auto; sc mt 2; sc auto; sc mt 3; sc auto; sc mt 4; 
+sc auto; sc mt 5; sc auto; sc mt 6; sc auto;</span>
+<span class="desc">Select the output sheet, then run</span>
+<span class="origin">sc getcols _ Hold</span>
 
+<hr><h2>Time Constant (tau)</h2>
+<span class="origin">sc tau 1; sc auto; sc tau 2; sc auto; sc tau 3; sc auto; sc tau 4; sc auto;</span>
+<span class="desc">Select the output sheet, then run</span>
+<span class="origin">sc getcols _ tau</span>
 
+<hr><h2>AP Properties (current clamp ramp)</h2>
+<i>can't be done because I can't write to trees yet.</i>
 
+<hr><h2>Drug Experiments</h2>
+<span class="origin">sc drug 1; sc auto; sc drug 2; sc auto; sc drug 3; sc auto; sc drug 4; sc auto;</span>
+<span class="desc">Select the output sheet. Notice how the upper left comment contains the tags. Now run</span>
+<span class="origin">sc getcols _ Hold</span>
+<br>TODO: alignment (to tag), baseline subtraction, normalization.
 </body>
 </html>

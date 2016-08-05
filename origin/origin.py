@@ -27,45 +27,106 @@ from swhlab.origin import task as OR
 from swhlab.origin.task import LT
 
 try:
-    import PyOrigin #will work in spyder
+    import PyOrigin #allows spyder to access PyOrigin documentation
 except:
     pass
 
-# DEVELOPMENT COMMANDS
+def print2(message):
+    """print something that's very important"""
+    print("#"*60)
+    for line in str(message).split("\n"):
+        print("#",line)
+    print("#"*60)
+
+### DEVELOPMENT COMMANDS
 
 def cmd_checkout(abfFile,cmd,args):
     cm.checkOut(PyOrigin)
 
 def cmd_test(abfFile,cmd,args):
-    OR.note_new("program")
-    OR.note_set("wow,\ncool story scott!")
-    OR.note_append("I know, right?")
-    print(OR.note_read())
+    #addClamps(abfFile)
+    getWksAbf()
 
+### ACTIONS
+
+def getWksAbf():
+    """return the ABF filename stored in metadata of the selected book"""
+    LT("wksPath;")
+    fname=str(PyOrigin.LT_get_str("WKSPATH$"))
+    if ".abf" in fname:
+        print(" -- worksheet is from:",fname)
+    else:
+        print(" !! can't determine what ABF this data came from.")
+
+def viewContinuous(enable=True):
+    OR.cjf_selectAbfGraph()
+    if enable:
+        LT("iSweepScale=100;plotsweep(1);AutoX;AutoY;")
+    else:
+        LT("iSweepScale=1;plotsweep(1);AutoX;AutoY;")
+
+def addClamps(abfFile,pointSec=None):
+    """
+    given a time point (in sec), add a column to the selected worksheet
+    that contains the clamp values at that time point.
+    """
+    #TODO: warn and exit if a worksheet isn't selected.
+    abf=swhlab.ABF(abfFile)
+    if not type(pointSec) in [int,float]:
+        pointSec=abf.protoSeqX[1]/abf.rate+.001
+    vals=abf.clampValues(pointSec)
+    print(" -- clamp values:",vals)
+    OR.sheet_fillCol([vals],addcol=True, name="command",units=abf.unitsCommand,
+                     comments="%d ms"%(pointSec*1000))
+
+def checkCversion(need=1.0):
+    """show information about the version of the C code SWHLab is using."""
+    msg=None
+    try:
+        LT('SWHCVERSION')
+        cVer=float(PyOrigin.LT_get_var("SWHCVERSION")) #MUST BE ALL CAPS
+        #cVer=OR.LT_get("swhCversion",True)
+        if cVer<need:
+            msg="SWH.C [%s] is older than we want [%s]"%(cVer,need)
+        else:
+            print(" -- SWH.C [%s] seems to be good enough..."%cVer)
+    except:
+        msg="!!! Your SWH.C is not set up !!!"
+    if msg:
+        print("#"*50,"\n"+msg,"\n"+"#"*50)
+checkCversion() # CHECKED ON IMPORT
 
 ##########################################################
 ### PROCEDURES
 # common interactions with cjflab, usually through labtalk
 
-def gain(m1,m2,book="gain",sheet=None,notesFromFile=False):
+def addSheetNotesFromABF(abfFile):
+    """
+    get notes from an ABFfile and push them into the selected sheet.
+    These notes come from experiment.txt in the abf folder.
+    """
+    OR.cjf_noteSet(cm.getNotesForABF(abfFile))
+
+def gain(m1,m2,book,sheet):
     """
     perform a standard AP gain analysis. Marker positions required.
     Optionally give it a sheet name (to rename it to).
     All sheets will IMMEDIATELY be moved out of EventsEp.
     Optionally, give noesFromFile and notes will be populated.
+    Note that "Events" worksheets will be deleted, created, and deleted again.
+    -- m1 and m2: marker positions (ms)
+    -- book/sheet: output workbook/worksheet
     """
-    OR.book_close("EventsEp")
+    #TODO: add function to warn/abort if "EventsEp" worksheet exists.
+    OR.book_close("EventsEp") #TODO: lots of these lines can be eliminated now
     OR.book_close("EventsEpbyEve")
     OR.cjf_selectAbfGraph()
 
     LT("m1 %f; m2 %f;"%(m1,m2))
     LT("CJFMini;")
     OR.book_select("EventsEp")
-    if sheet:
-        OR.sheet_select() #select the ONLY sheet in the book
-        OR.sheet_rename(sheet)
-    if notesFromFile:
-        OR.cjf_noteSet(cm.getNotesForABF(notesFromFile))
+    OR.sheet_select() #select the ONLY sheet in the book
+    OR.sheet_rename(sheet)
     OR.sheet_move(book)
 
     OR.book_close("EventsEp")
@@ -73,6 +134,23 @@ def gain(m1,m2,book="gain",sheet=None,notesFromFile=False):
     OR.book_select(book)
     #LT("sc addc")
     cmd_addc(None,None,None)
+
+def VCIV(m1,m2,book,sheet):
+    """
+    perform voltage clamp IV analysis on a range of markers.
+    Note that "MarkerStatsEp" worksheets will be deleted.
+    -- m1 and m2: marker positions (ms)
+    -- book/sheet: output workbook/worksheet
+    """
+    #TODO: add function to warn/abort if "MarkerStatsEp" worksheet exists.
+    OR.cjf_selectAbfGraph()
+    LT("m1 %f; m2 %f;"%(m1,m2))
+    OR.book_close("MarkerStatsEp")
+    LT("getstats;")
+    OR.book_select("MarkerStatsEp") #TODO: add command to calculate Rm
+    OR.sheet_rename(sheet)
+    OR.sheet_move(book, deleteOldBook=True)
+
 
 ##########################################################
 # COMMANDS ###############################################
@@ -84,34 +162,67 @@ def cmd_note(abfFile,cmd,args):
     print(OR.cjf_noteGet())
 
 def cmd_auto(abfFile,cmd,args):
+    OR.cjf_selectAbfGraph() # you may have to keep doing this!
     parent=cm.getParent(abfFile)
     parentID=os.path.basename(parent).replace(".abf","")
     print("analyzing",abfFile)
     abf=swhlab.ABF(abfFile)
     print("protocol:",abf.protoComment)
+
     if abf.protoComment.startswith("01-13-"):
+        #TODO: THIS REQUIRES ABILITY TO SET AP PROPERTIES IN CJFLAB BECAUSE DEFAULT IS GABA NOT APS
         print("looks like a dual gain protocol")
-        gain( 132.44, 658.63,"gain",sheet="%s_%s_step1"%(parentID,abf.ID))
-        gain(1632.44,2158.63,"gain",sheet="%s_%s_step2"%(parentID,abf.ID))
+        gain( 132.44, 658.63,"gain","%s_%s_step1"%(parentID,abf.ID))
+        gain(1632.44,2158.63,"gain","%s_%s_step2"%(parentID,abf.ID))
+
     elif abf.protoComment.startswith("01-01-HP"):
         print("looks like current clamp tau protocol")
         LT("tau")
         OR.book_new("tau","%s_%s"%(parentID,abf.ID))
         tau=float(PyOrigin.LT_get_var("TAUVAL")) #MUST BE ALL CAPS
         OR.sheet_fillCol([tau],name="tau",units="ms",addcol=True)
+
     elif abf.protoComment.startswith("02-01-MT"):
+        #TODO: THIS REQUIRES ABILITY TO SET AP PROPERTIES IN CJFLAB IF CM IS TO BE CALCULATED
         print("looks like a memtest protocol")
         OR.book_close("MemTests")
         LT("memtest;")
         OR.book_select("MemTests")
         OR.sheet_rename("%s_%s"%(parentID,abf.ID))
         OR.sheet_move("MT",deleteOldBook=True)
+
+    elif abf.protoComment.startswith("02-02-IV"):
+        #TODO: THIS REQUIRES ABILITY TO SET AP PROPERTIES IN CJFLAB IF PHASIC IS TO BE CALCULATED
+        print("looks like a voltage clamp IV protocol")
+        VCIV( 900,1050,"IV","%s_%s_step1"%(parentID,abf.ID))
+        addClamps(abfFile,.900)
+        VCIV(2400,2550,"IV","%s_%s_step2"%(parentID,abf.ID))
+        addClamps(abfFile,2.400)
+
+    elif abf.protoComment.startswith("01-11-rampStep"):
+        #TODO: THIS REQUIRES ABILITY TO SET AP PROPERTIES IN CJFLAB IF PHASIC IS TO BE CALCULATED
+        print("### NEED FUNCTION: automatic marker removal")
+        print("### NEED FUNCTION: automatic enable event detection")
+        print("### NEED FUNCTION: automatic set event type to APs")
+        print("### NEED FUNCTION: automatic enable saving indvidual events")
+
+    elif abf.protoComment.startswith("04-01-MTmon"):
+        #TODO: THIS REQUIRES ABILITY TO SET AP PROPERTIES IN CJFLAB IF PHASIC IS TO BE CALCULATED
+        print("looks like a memtest protocol where drugs are applied")
+        LT("varTags") # load tag info into varTags$
+        OR.book_close("MemTests")
+        LT("memtest;")
+        OR.book_select("MemTests")
+        OR.sheet_setComment(OR.LT_get("varTags",True).strip()) #topleft cell
+        OR.sheet_rename("%s_%s"%(parentID,abf.ID))
+        OR.sheet_move("drugVC",deleteOldBook=True)
+
     else:
-        print("I don't know what this protocol is!")
+        print2("I don't know how to analyze protocol: [%s]"%abf.protoComment)
+    OR.redraw()
     OR.book_select("ABFBook")
     OR.window_minimize()
-    #OR.book_close("Book1")
-    #OR.cjf_selectAbfGraph()
+    OR.cjf_selectAbfGraph()
 
 ##########################################################
 ### WORKSHEET MANIPULATION
@@ -416,11 +527,13 @@ def cmd_version(abfFile,cmd,args):
     print("SWHLab version:",swhlab.VERSION)
 
 ### setting up ABFs
-def cmd_fsi(abfFile,cmd,args):
+
+def cmd_gain(abfFile,cmd,args):
     """
-    load a representative FSI gain function. Optionally give it a number.
-    >>> sc fsi
-    >>> sc fsi 3
+    load a representative gain function.
+    Optionally give it a number to load a different ABF.
+    >>> sc gain
+    >>> sc gain 3
     """
     basedir=r"X:\Data\2P01\2016\2016-07-11 PIR TR IHC"
     filenames="""16711015,16711016,16711033,16711048,16718019,16718020,
@@ -441,8 +554,8 @@ def cmd_fsi(abfFile,cmd,args):
 
 def cmd_tau(abfFile,cmd,args):
     """
-    load a representative FSI tau ABF.
-    Optionally give it a number to load a different tau.
+    load a representative tau ABF.
+    Optionally give it a number to load a different ABF.
     >>> sc tau
     >>> sc tau 3
     """
@@ -464,7 +577,7 @@ def cmd_tau(abfFile,cmd,args):
 def cmd_iv(abfFile,cmd,args):
     """
     load a representative voltage clamp IV ABF.
-    Optionally give it a number to load a different tau.
+    Optionally give it a number to load a different ABF.
     >>> sc iv
     >>> sc iv 3
     """
@@ -483,7 +596,100 @@ def cmd_iv(abfFile,cmd,args):
     LT(r'setpath "%s"'%filenames[i])
     OR.book_setHidden("ABFBook")
 
-### code snippits that demonstrate python/origin interactions
+def cmd_mt(abfFile,cmd,args):
+    """
+    load a representative 20 sweep memtest.
+    Optionally give it a number to load a different ABF.
+    >>> sc mt
+    >>> sc mt 3
+    """
+
+    basedir=r"X:\Data\2P01\2016\2016-07-11 PIR TR IHC"
+    filenames="""16725004,16725012,16725020,16725028,16725035,16725042,
+    16725049,16725056
+    """.replace(" ","").replace("\n","").split(",")
+    for i,fname in enumerate(filenames):
+        filenames[i]=os.path.abspath(os.path.join(basedir,fname+".abf"))
+    try:
+        i=min(int(args)-1,len(filenames))
+    except:
+        i=0
+    print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
+    LT(r'setpath "%s"'%filenames[i])
+    OR.book_setHidden("ABFBook")
+
+
+def cmd_ramp(abfFile,cmd,args):
+    """
+    load a representative current clamp ramp used for AP inspection.
+    Optionally give it a number to load a different ABF.
+    >>> sc ramp
+    >>> sc ramp 3
+    """
+
+    basedir=r"X:\Data\2P01\2016\2016-07-11 PIR TR IHC"
+    filenames="""16725000,16725007,16725016,16725023,16725031,16725038,
+    16725045,16725052,16725058,16725059
+    """.replace(" ","").replace("\n","").split(",")
+    for i,fname in enumerate(filenames):
+        filenames[i]=os.path.abspath(os.path.join(basedir,fname+".abf"))
+    try:
+        i=min(int(args)-1,len(filenames))
+    except:
+        i=0
+    print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
+    LT(r'setpath "%s"'%filenames[i])
+    OR.book_setHidden("ABFBook")
+    viewContinuous(True)
+
+def cmd_drug(abfFile,cmd,args):
+    """
+    load a representative drug application (VC mode, repeated memtest).
+    Optionally give it a number to load a different ABF.
+    >>> sc drug
+    >>> sc drug 3
+    """
+
+    basedir=r"X:\Data\2P01\2016\2016-07-11 PIR TR IHC"
+    filenames="""16711024,16711038,16711054,16718025,16718033,
+    16711030,16711046,16718040,16718007,16718014
+    """.replace(" ","").replace("\n","").split(",")
+    for i,fname in enumerate(filenames):
+        filenames[i]=os.path.abspath(os.path.join(basedir,fname+".abf"))
+    try:
+        i=min(int(args)-1,len(filenames))
+    except:
+        i=0
+    print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
+    LT(r'setpath "%s"'%filenames[i])
+    OR.book_setHidden("ABFBook")
+
+
+
+### code snippets that demonstrate python/origin interactions
+
+def cmd_sweep(abfFile,cmd,args):
+    """
+    display current ABF in sweep view (opposite of continuous)
+    >>> sc sweep
+    (see sister function, 'continuous')
+    """
+    viewContinuous(False)
+
+def cmd_continuous(abfFile,cmd,args):
+    """
+    display current ABF as a continuous trace. This could be slow.
+    >>> sc continuous
+    (see sister function, 'sweep')
+    """
+    viewContinuous(True)
+
+def cmd_redraw(abfFile,cmd,args):
+    """
+    forces redrawing of the active window.
+    >>> redraw
+    """
+    OR.redraw()
 
 def cmd_move(abfFile,cmd,args):
     """
