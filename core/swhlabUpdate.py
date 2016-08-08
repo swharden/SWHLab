@@ -155,7 +155,7 @@ def update(forceUpdate=False,deleteOldFolder=False):
     unzip(zipTo,zipFname)
     source=glob.glob(zipTo+"/*master")[0]
     print("-- moving",source)
-    os.rename(source,LOCAL_PATH)
+    os.rename(source,LOCAL_PATH.lower()) # rename SWHLab to swhlab to make importing easier
     print("-- deleting",zipTo)
     shutil.rmtree(zipTo)
     print("-- deleting",zipFname)
