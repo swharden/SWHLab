@@ -156,19 +156,135 @@ def VCIV(m1,m2,book,sheet):
 # COMMANDS ###############################################
 # every command gets ABF filename and command string.
 
+### Experiment text files
+
+def cmd_loadexp(abfFile,cmd,args):
+    """
+    load experiment text file.
+    tries to find experiment.txt in the same folder as the last loaded ABF.
+    >>> sc loadexp
+    """
+    OR.note_new("experiment.txt")
+    expFile = os.path.abspath(os.path.dirname(abfFile)+"/experiment.txt")
+    if not os.path.exists(expFile):
+        print("!! experiment file does not exist:",expFile)
+        return
+    with open(expFile) as f:
+        raw=f.read()
+    OR.note_set(raw)
+
+def cmd_groupExp(abfFile,cmd,args):
+    """
+    add groups to the note window 'groups' from the experiment.txt in the
+    same folder as the currently loaded ABF in ABFGraph
+    >>> sc groupExp
+    """
+    expFile = os.path.abspath(os.path.dirname(abfFile)+"/experiment.txt")
+    if not os.path.exists(expFile):
+        print("!! experiment file does not exist:",expFile)
+        return
+    with open(expFile) as f:
+        raw=f.read().split("\n")
+    for line in raw:
+        if len(line)<3:
+            continue
+        if line[0]=="~":
+            line=line.replace("\t"," ")
+            while "  " in line:
+                line=line.replace("  "," ")
+            line=line[1:].split(" ")
+            group_addParent(line[0],line[1])
+
+### group note management
+def group_addParent(parentID,group="uncategorized"):
+    """
+    if the parent isn't already in the group, add a line.
+    if the group already exists, add the parent to that group.
+    if the group doesn't exist, make the group, and add the parent.
+    """
+    OR.note_new("groups")
+    existing=OR.note_read()
+    if len(existing)<3:
+        msg="""# ABF GROUPS FILE
+        #
+        # Lines beginning with # are ignored.
+        # The first word of each line is considered the ABF ID of a parent.
+        # If the line starts with "GROUP: ", a new group is made and
+        #   all ABFs (parent IDs) listed below it belong to that group.
+        # Running 'sc auto' adds new parents to this list.
+        """.replace("        ","")
+        OR.note_append(msg)
+    if parentID in existing:
+        print(" -- group skip",parentID)
+    else:
+        print(" -- group add",parentID)
+        if not "GROUP: %s"%(group) in existing:
+            OR.note_append("\nGROUP: %s"%(group))
+        existing=OR.note_read().split("\n")
+        for i,line in enumerate(existing):
+            if line.strip()=="GROUP: %s"%(group):
+                print("HIT")
+                existing[i]=existing[i]+"\n"+parentID
+        OR.note_set("\n".join(existing))
+
+
+
 ### PRE-PROGRAMMED ANALYSIS ROUTINES
 
 def cmd_note(abfFile,cmd,args):
     print(OR.cjf_noteGet())
 
+
+def cmd_autoall(abfFile,cmd,args):
+    abfs=sorted(glob.glob(os.path.dirname(abfFile)+"/*.abf"))
+    msg="This will automatically analyze %s abfs in:\n"%len(abfs)
+    msg+=os.path.basename(abfFile)+"\n\n"
+    msg+="This could take a really, really long time!\n"
+    msg+="Are you sure you want to proceed?"
+
+    if cm.TK_ask("WARNING",msg):
+        print("doing it!")
+    else:
+        print("chickening out.")
+        return
+
+    LT('break -end;') #just in case one was lingering
+    script='StringArray pyABFsToAnalyze;'
+    for path in abfs:
+        script+='pyABFsToAnalyze.Add("%s");'%(path)
+    script+='break -b Automatically analyzing all ABFs in:\n%s;'%os.path.dirname(abfFile)
+    script+='break -r 0 %d;'%(len(abfs))
+    script+='for (ii = 1; ii <= %d; ii++){'%len(abfs)
+    script+='break -p ii;'
+    script+='type;'*3
+    script+='type '+'#'*60+"\n;"
+    script+='pyABFsToAnalyze.GetAt(ii)$=;'
+    script+='setpath pyABFsToAnalyze.GetAt(ii)$;'
+    #script+='sec -p .5;' # delay 10ms
+    script+='win -a ABFGraph;'
+    script+='sc auto;' # THIS IS BROKEN RIGHT NOW! SUCKS!
+    script+='};'
+    script+='break -end;'
+    LT(script) #TODO: RUN THIS AFTER THE CURRENT SCRIPT EXITS.
+
 def cmd_auto(abfFile,cmd,args):
+    """
+    automatically analyze the current ABF based on its protocol information.
+    protocol comments are how this program knows how to analyze the file.
+    >>> sc auto
+    >>> sc auto all
+
+    """
+    if "all" in args:
+        cmd_autoall(abfFile,cmd,args)
+        return
     OR.cjf_selectAbfGraph() # you may have to keep doing this!
     parent=cm.getParent(abfFile)
     parentID=os.path.basename(parent).replace(".abf","")
     print("analyzing",abfFile)
     abf=swhlab.ABF(abfFile)
     print("protocol:",abf.protoComment)
-
+    addToGroups=True
     if abf.protoComment.startswith("01-13-"):
         #TODO: THIS REQUIRES ABILITY TO SET AP PROPERTIES IN CJFLAB BECAUSE DEFAULT IS GABA NOT APS
         print("looks like a dual gain protocol")
@@ -219,6 +335,11 @@ def cmd_auto(abfFile,cmd,args):
 
     else:
         print2("I don't know how to analyze protocol: [%s]"%abf.protoComment)
+        addToGroups=False
+
+    if addToGroups:
+        group_addParent(parentID)
+
     OR.redraw()
     OR.book_select("ABFBook")
     OR.window_minimize()
@@ -641,6 +762,8 @@ def cmd_ramp(abfFile,cmd,args):
     LT(r'setpath "%s"'%filenames[i])
     OR.book_setHidden("ABFBook")
     viewContinuous(True)
+    print("INSERT COOL CODE HERE") #TODO: this
+    viewContinuous(False)
 
 def cmd_drug(abfFile,cmd,args):
     """
