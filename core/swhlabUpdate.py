@@ -173,11 +173,11 @@ def update(forceUpdate=False,deleteOldFolder=False):
     print("-- deleting",zipFname)
     os.remove(zipFname)
     print("UPDATE COMPLETE!")
+    showWarning("update successful!")
 
 if __name__=="__main__":
     try:
         update()
-        showWarning("update successful!")
     except Exception:
         msg="online version check / update failed!\n"
         msg+="#"*60+"\n"
