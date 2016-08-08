@@ -515,7 +515,7 @@ def cmd_update(abfFile,cmd,args):
     """
     if "force" in args:
         print(" -- forcing an update.")
-        swhlab.version.update()
+        swhlab.version.check(True)
     else:
         print(" -- you can force an update with 'sc update force' ")
         swhlab.version.check()
