@@ -195,6 +195,27 @@ def cmd_groupExp(abfFile,cmd,args):
             line=line[1:].split(" ")
             group_addParent(line[0],line[1])
 
+def getPythonScriptOutput(script,args=[]):
+    #TODO: move to common
+    args=["python",script,args]
+    print(" -- system executing:",args)
+    process = subprocess.Popen(args, stdout=subprocess.PIPE)
+    out, err = process.communicate()
+    return out.decode('utf-8')
+
+def cmd_setpaths(abfFile,cmd,args):
+    out=getPythonScriptOutput(swhlab.LOCALPATH+"/origin/win_abfSelect.py",os.path.dirname(abfFile))
+    if not "\nABFS:" in out:
+        print("no ABFs selected")
+        return
+    for line in out.split("\n"):
+        if line.startswith("ABFS:"):
+            abfs=line.strip().split(" ")[1].split(",")
+    print("\n\n### jason i need to be able to run sc auto from within python")
+    for abf in abfs:
+        path=os.path.join(os.path.dirname(abfFile),abf+".abf")
+        print('setpath "%s"; sc auto;'%(path))
+
 ### group note management
 def group_addParent(parentID,group="uncategorized"):
     """

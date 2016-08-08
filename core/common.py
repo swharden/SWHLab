@@ -605,6 +605,15 @@ def getParent(abfFname):
             break
     return parentID
 
+def getParent2(abfFname,groups):
+    """given an ABF and the groups dict, return the ID of its parent."""
+    if ".abf" in abfFname:
+        abfFname=os.path.basename(abfFname).replace(".abf","")
+    for parentID in groups.keys():
+        if abfFname in groups[parentID]:
+            return parentID
+    return abfFname #no parent found, return itself
+
 def getNotesForABF(abfFile):
     """given an ABF, find the parent, return that line of experiments.txt"""
     parent=getParent(abfFile)
@@ -626,7 +635,7 @@ def getNotesForABF(abfFile):
 
 def getABFgroups(files):
     """
-    given a list of files, return a dict[ID]=[ID,ID,ID].
+    given a list of ALL files (not just ABFs), return a dict[ID]=[ID,ID,ID].
     Parents are determined if a .abf matches a .TIF.
     This is made to assign children files to parent ABF IDs.
     """
