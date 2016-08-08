@@ -100,7 +100,7 @@ def check(forceUpdate=False):
     and also allow their desktop client to operate on the same folder.
     """
     if forceUpdate:
-        with open(swhlab.LOCALPATH+"/UPDATENOW.txt") as f:
+        with open(swhlab.LOCALPATH+"/UPDATENOW.txt",'w') as f:
             f.write("pow!")
     print("~~ checking for updates via GitHub (detached subprocess)")
     checkGitHub()
