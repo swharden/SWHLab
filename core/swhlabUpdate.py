@@ -177,6 +177,7 @@ def update(forceUpdate=False,deleteOldFolder=False):
 if __name__=="__main__":
     try:
         update()
+        showWarning("update successful!")
     except Exception:
         msg="online version check / update failed!\n"
         msg+="#"*60+"\n"
