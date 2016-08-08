@@ -92,56 +92,62 @@ def distribute():
     else:
         print("distribution roll-out FAILED!")
 
-def check(url=swhlab.UPDATECHECK,popup=True):
+def check(forceUpdate=False):
     """
-    check the website to see if this version is the latest.
-    returns True if current, False if needs update.
+    Check for updates via GitHub. Maybe even perform an update.
+    This is a large shift away from the privately hosted zip files at
+    swhlab.swharden.com -- this should be totally in sync with GitHub
+    and also allow their desktop client to operate on the same folder.
     """
-
-    print("ABANDONING OLD VERSION SYSTEM.")
-    print("CHECKING GITHUB...")
+    print("~~ checking for updates via GitHub (detached subprocess)")
     checkGitHub()
-    print("GITHUB CHECK COMPLETE.")
+    print("~~ github check complete.")
     return
 
-    timeStart = time.time()
-
-    fileVersion=None
-    try:
-        with open(swhlab.LOCALPATH+"/version.py") as f:
-            for line in f:
-                line=line.strip().replace(" ",'')
-                if "=" in line:
-                    line=line.split("=")
-                    fileVersion=int(line[1])
-    except:
-        pass
-
-    newestVersion=int(cm.download(swhlab.UPDATECHECK))
-
-    if fileVersion and not fileVersion==swhlab.VERSION:
-        print("\n"*2)
-        print(" ## PYTHON VERSION CHANGED ##")
-        print(" -- the version in memory is different than the one in in your filesystem.")
-        print(" -- If you just updated, try reloading all python modules.")
-        return True
-
-    daysOldNew=(time.time()-int(newestVersion))/60/60/24
-    daysOldThis=(time.time()-int(swhlab.VERSION))/60/60/24
-    if int(swhlab.VERSION)>=int(newestVersion):
-        print(" ~ SWHLab is current (%.02f days old, check took %d ms)"%(daysOldThis,(time.time()-timeStart)*1000))
-        return True
-    else:
-        if popup:
-            msg=" ~ SWHLab updates are available!\n"
-            msg+="     the latest version is %.02f days old\n"%daysOldNew
-            msg+="     this one is %.02f days old\n"%daysOldThis
-            print(msg)
-            #cm.TK_message("UPDATE",msg)
-            if cm.TK_ask("UPDATE AVAILABLE","I see a SWHLab update.\nDo you want to update now?"):
-                print("UPDATING!")
-                update()
-        return False
+#def check(url=swhlab.UPDATECHECK,popup=True):
+#    """
+#    check the website to see if this version is the latest.
+#    returns True if current, False if needs update.
+#    """
+#
+#    timeStart = time.time()
+#
+#    fileVersion=None
+#    try:
+#        with open(swhlab.LOCALPATH+"/version.py") as f:
+#            for line in f:
+#                line=line.strip().replace(" ",'')
+#                if "=" in line:
+#                    line=line.split("=")
+#                    fileVersion=int(line[1])
+#    except:
+#        pass
+#
+#    newestVersion=int(cm.download(swhlab.UPDATECHECK))
+#
+#    if fileVersion and not fileVersion==swhlab.VERSION:
+#        print("\n"*2)
+#        print(" ## PYTHON VERSION CHANGED ##")
+#        print(" -- the version in memory is different than the one in in your filesystem.")
+#        print(" -- If you just updated, try reloading all python modules.")
+#        return True
+#
+#    daysOldNew=(time.time()-int(newestVersion))/60/60/24
+#    daysOldThis=(time.time()-int(swhlab.VERSION))/60/60/24
+#    if int(swhlab.VERSION)>=int(newestVersion):
+#        print(" ~ SWHLab is current (%.02f days old, check took %d ms)"%(daysOldThis,(time.time()-timeStart)*1000))
+#        return True
+#    else:
+#        if popup:
+#            msg=" ~ SWHLab updates are available!\n"
+#            msg+="     the latest version is %.02f days old\n"%daysOldNew
+#            msg+="     this one is %.02f days old\n"%daysOldThis
+#            print(msg)
+#            #cm.TK_message("UPDATE",msg)
+#            if cm.TK_ask("UPDATE AVAILABLE","I see a SWHLab update.\nDo you want to update now?"):
+#                print("UPDATING!")
+#                update()
+#        return False
 
 def gentleDelete(deleteFolder):
     """
