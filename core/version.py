@@ -97,6 +97,13 @@ def check(url=swhlab.UPDATECHECK,popup=True):
     check the website to see if this version is the latest.
     returns True if current, False if needs update.
     """
+
+    print("ABANDONING OLD VERSION SYSTEM.")
+    print("CHECKING GITHUB...")
+    checkGitHub()
+    print("GITHUB CHECK COMPLETE.")
+    return
+
     timeStart = time.time()
 
     fileVersion=None
@@ -240,9 +247,35 @@ def check_threaded():
     t=threading.Thread(target=check)
     t.start()
 
+def prepareForGitHub():
+    """
+    just move pghd.py to the folder up.
+    (customizing it to this path first)
+    """
+    if os.path.exists(swhlab.LOCALPATH+"/../swhlabUpdate.py"):
+        print("../swhlabUpdate.py is where it should be")
+        return
+    print("../swhlabUpdate.py is not found. Creating one!")
+    with open(swhlab.LOCALPATH+'/core/swhlabUpdate.py') as f:
+        raw=f.read().split("\n")
+    for i,line in enumerate(raw):
+        if line.startswith("LOCAL_PATH="):
+            raw[i]='LOCAL_PATH=r"%s"'%swhlab.LOCALPATH
+            print(raw[i])
+    with open(swhlab.LOCALPATH+"/../swhlabUpdate.py",'w') as f:
+        f.write("\n".join(raw))
+    print("../swhlabUpdate.py now exists and is custom to your computer.")
+
+def checkGitHub():
+    prepareForGitHub()
+    script=os.path.abspath(swhlab.LOCALPATH+"/../swhlabUpdate.py")
+    subprocess.Popen(["python",script])
+    return
+
 if __name__=="__main__":
-    if 'distribute' in sys.argv:
-        distribute()
-    if 'forceupdate' in sys.argv:
-        swhlab.VERSION=0
-    check()
+    checkGitHub()
+#    if 'distribute' in sys.argv:
+#        distribute()
+#    if 'forceupdate' in sys.argv:
+#        swhlab.VERSION=0
+#    check()
