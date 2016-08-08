@@ -99,6 +99,9 @@ def check(forceUpdate=False):
     swhlab.swharden.com -- this should be totally in sync with GitHub
     and also allow their desktop client to operate on the same folder.
     """
+    if forceUpdate:
+        with open(swhlab.LOCALPATH+"/UPDATENOW.txt") as f:
+            f.write("pow!")
     print("~~ checking for updates via GitHub (detached subprocess)")
     checkGitHub()
     print("~~ github check complete.")

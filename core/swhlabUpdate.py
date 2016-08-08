@@ -115,10 +115,9 @@ def update(forceUpdate=False,deleteOldFolder=False):
         print("creating",LOCAL_PATH)
         os.makedirs(LOCAL_PATH)
 
-    if updateNeeded() or forceUpdate:
+    if updateNeeded() or forceUpdate or os.path.exists(LOCAL_PATH+"/UPDATENOW.txt"):
         msg="A new release of %s is available!"%(os.path.basename(GIT_PROJECT))
         msg+="\nDo you want to update now?"
-        #msg+="\n\nyou *MUST* exit origin before clicking yes..."
         if not askYesNo(msg):
             print("update not desired. exiting!")
             return
