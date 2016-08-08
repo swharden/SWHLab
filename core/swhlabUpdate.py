@@ -43,6 +43,7 @@ import zipfile
 import time
 import shutil
 import sys
+import traceback
 
 def askYesNo(question="did you forget the argument?"):
     """launch a TK window and get a yes/no answer."""
@@ -52,6 +53,13 @@ def askYesNo(question="did you forget the argument?"):
     result=tkinter.messagebox.askyesno(os.path.basename(GIT_PROJECT),question)
     root.destroy()
     return result
+
+def showWarning(message):
+    root = tkinter.Tk()
+    root.attributes("-topmost", True) #always on top
+    root.withdraw() #hide tk window
+    tkinter.messagebox.showwarning("WARNING",message)
+    root.destroy()
 
 def getLocalReleaseDate():
     """determine the date of the local copy by looking at file time."""
@@ -123,9 +131,10 @@ def update(forceUpdate=False,deleteOldFolder=False):
             return
         else:
             print("proceeding with update...")
-            msg="you MUST close OriginLab before updating."
+            msg="you MUST close OriginLab before updating.\n\n"
+            msg+="if you don't, the update may fail.\n\n"
             msg+="click OK when you are ready to continue..."
-            tkinter.messagebox.showwarning(title="WARNING",message=msg)
+            showWarning(msg)
     else:
         print("update not needed. exiting!")
         return
@@ -168,6 +177,8 @@ def update(forceUpdate=False,deleteOldFolder=False):
 if __name__=="__main__":
     try:
         update()
-    except:
-        msg="online version check / update failed!"
-        tkinter.messagebox.showwarning(title="WARNING",message=msg)
+    except Exception:
+        msg="online version check / update failed!\n"
+        msg+="#"*60+"\n"
+        msg+=str(traceback.format_exc())
+        showWarning(msg)
