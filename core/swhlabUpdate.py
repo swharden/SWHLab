@@ -118,11 +118,15 @@ def update(forceUpdate=False,deleteOldFolder=False):
     if updateNeeded() or forceUpdate:
         msg="A new release of %s is available!"%(os.path.basename(GIT_PROJECT))
         msg+="\nDo you want to update now?"
+        #msg+="\n\nyou *MUST* exit origin before clicking yes..."
         if not askYesNo(msg):
             print("update not desired. exiting!")
             return
         else:
             print("proceeding with update...")
+            msg="you MUST close OriginLab before updating."
+            msg+="click OK when you are ready to continue..."
+            tkinter.messagebox.showwarning(title="WARNING",message=msg)
     else:
         print("update not needed. exiting!")
         return
@@ -163,20 +167,8 @@ def update(forceUpdate=False,deleteOldFolder=False):
     print("UPDATE COMPLETE!")
 
 if __name__=="__main__":
-
-    ### uncomment one of lines to allow standalone operation ###
-    #update(True) #set True to force an update.
-    update() #leave blank to only update if a newer version is available
-
-    ### this section is for command line operation
-#    if not len(sys.argv)==3:
-#        print("improper number of arguments! See README file for details.")
-#        print("arguments are github user/project and destination path.")
-#        print("I expect input like this (mind your slashes):")
-#        print("python pghd.py swharden/swhlab c:/my/project/destination")
-#    else:
-#        _,GIT_PROJECT,LOCAL_PATH=sys.argv
-#        LOCAL_PATH=os.path.abspath(LOCAL_PATH)
-#        print("checking project:",GIT_PROJECT)
-#        print("against local copy:",LOCAL_PATH)
-#        update()
+    try:
+        update()
+    except:
+        msg="online version check / update failed!"
+        tkinter.messagebox.showwarning(title="WARNING",message=msg)

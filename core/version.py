@@ -269,7 +269,7 @@ def prepareForGitHub():
 def checkGitHub():
     prepareForGitHub()
     script=os.path.abspath(swhlab.LOCALPATH+"/../swhlabUpdate.py")
-    subprocess.Popen(["python",script])
+    subprocess.Popen(["pythonw",script]) #windowless
     return
 
 if __name__=="__main__":
