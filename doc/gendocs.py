@@ -5,6 +5,7 @@ Things related to documentation generation.
 import os
 import sys
 #sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+#this should show up when github updater does its thing.
 
 import imp
 import pydoc
