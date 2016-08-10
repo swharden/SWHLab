@@ -24,15 +24,20 @@ except:
     pass
 
 ### LABTALK
-def LT(cmd,silent=False):
+
+LT_ECHO=False #set to TRUE to show all labtalk being executed
+
+def LT(cmd):
     """execute a labtalk command."""
     cmd=cmd.replace("\\","/") #I know, right?
-    if silent is False:
+    if LT_ECHO:
         print("~>%s"%cmd)
     PyOrigin.LT_execute(cmd)
 
-def LT_set(name,val,string=False):
-    if string:
+def LT_set(name,val):
+    """set a labtalk variable. Knows to add $ if it's a string."""
+    print("##############",type(val))
+    if type(val) is str:
         if not name.endswith("$"):
             name+="$"
         LT('%s="%s"'%(name,val))
@@ -41,13 +46,14 @@ def LT_set(name,val,string=False):
     return
 
 def LT_get(name,string=False):
+    """get a labtalk variable. If it's a string, it'll add the $."""
     if string:
         if not name.endswith("$"):
             name+="$"
         val=str(PyOrigin.LT_get_str(name.upper()))
     else:
         val=float(PyOrigin.LT_get_var(name.upper())) #MUST BE ALL CAPS
-    print(" -- LT [%s]=%s"%(name.upper(),val),type(val))
+    #print(" -- LT [%s]=%s"%(name.upper(),val),type(val))
     return val
 
 ### CONVERSIONS
@@ -154,7 +160,7 @@ def book_new(book,sheet=False):
 def book_select(book,sheet=False):
     """select the given workbook."""
     LT('win -a "%s";'%book) #TODO: warn if book doesn't eixst
-    redraw()
+    #redraw() this is slow
     if sheet:
         sheet_select(sheet)
 
@@ -252,7 +258,7 @@ def sheet_select(sheet=None):
         print("sheet (%s) doesn't exist so I can't select it."%(sheet))
         return False
     LT('page.active$ = "%s";'%sheet)
-    redraw()
+    #redraw() this is slow
     return True
 
 def sheet_getActive():
@@ -401,6 +407,7 @@ def window_minimize():
 
 def redraw():
     """force redraw of the selected graph or workbook"""
+    print("WARNING: performing ManualRefresh() which is slow...")
     LT('ManualRefresh')
     # PyOrigin.ActivePage().Refresh() # doesn't exist in PyOrigin
 
@@ -443,7 +450,7 @@ def cjf_eventsOn():
 def cjf_selectAbfGraph():
     """force the ABFGraph to be selected."""
     LT("win -a ABFGraph")
-    redraw()
+    #redraw() this is slow
 
 def cjf_selectLast():
     """force active of the last made worksheet."""

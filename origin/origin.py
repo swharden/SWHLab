@@ -50,15 +50,6 @@ def cmd_test(abfFile,cmd,args):
 
 ### ACTIONS
 
-def getWksAbf():
-    """return the ABF filename stored in metadata of the selected book"""
-    LT("wksPath;")
-    fname=str(PyOrigin.LT_get_str("WKSPATH$"))
-    if ".abf" in fname:
-        print(" -- worksheet is from:",fname)
-    else:
-        print(" !! can't determine what ABF this data came from.")
-
 def viewContinuous(enable=True):
     OR.cjf_selectAbfGraph()
     if enable:
@@ -85,8 +76,7 @@ def checkCversion(need=1.0):
     msg=None
     try:
         LT('SWHCVERSION')
-        cVer=float(PyOrigin.LT_get_var("SWHCVERSION")) #MUST BE ALL CAPS
-        #cVer=OR.LT_get("swhCversion",True)
+        cVer=OR.LT_get("SWHCVERSION",False)
         if cVer<need:
             msg="SWH.C [%s] is older than we want [%s]"%(cVer,need)
         else:
@@ -196,26 +186,47 @@ def cmd_groupExp(abfFile,cmd,args):
             line=line[1:].split(" ")
             group_addParent(line[0],line[1])
 
-def getPythonScriptOutput(script,args=[]):
-    #TODO: move to common
-    args=["python",script,args]
-    print(" -- system executing:",args)
+def getPythonScriptOutput(script,args=[],showConsole=False):
+    """
+    launch a python script (optionally without a console window) and
+    return the text output.
+    """
+    #TODO: get absolute python path a CJFLab.ini file or something.
+    #if it's not an absolute path, it needs to be set in the PATH variables
+    if showConsole:
+        pythonProgram="python"
+    else:
+        pythonProgram="pythonw"
+    args=[pythonProgram,script,args]
     process = subprocess.Popen(args, stdout=subprocess.PIPE)
     out, err = process.communicate()
     return out.decode('utf-8')
 
 def cmd_setpaths(abfFile,cmd,args):
+    """
+    set multiple paths and run sc auto on all of them.
+    For now, this can only be run if an ABF is already up. It'll check the
+    directory of that abf.
+    Preceed this command with 'sc mt' if you want an abf to get you started.
+    >>> sc setpaths
+    """
     out=getPythonScriptOutput(swhlab.LOCALPATH+"/origin/win_abfSelect.py",os.path.dirname(abfFile))
+    # the out variable now contains the kernel 'stdout' text.
+    # we use python to parse the output and generate labtalk based on it.
     if not "\nABFS:" in out:
         print("no ABFs selected")
         return
     for line in out.split("\n"):
         if line.startswith("ABFS:"):
+            if len(line)<10:
+                return
             abfs=line.strip().split(" ")[1].split(",")
-    print("\n\n### jason i need to be able to run sc auto from within python")
+    # abfs is now a list of the abfs we selected
+    script=""
     for abf in abfs:
         path=os.path.join(os.path.dirname(abfFile),abf+".abf")
-        print('setpath "%s"; sc auto;'%(path))
+        script+='setpath "%s"; sc auto;\n'%(path)
+    OR.LT_set("pyLTafter",script) # set the script to run after we close.
 
 ### group note management
 def group_addParent(parentID,group="uncategorized"):
@@ -245,7 +256,6 @@ def group_addParent(parentID,group="uncategorized"):
         existing=OR.note_read().split("\n")
         for i,line in enumerate(existing):
             if line.strip()=="GROUP: %s"%(group):
-                print("HIT")
                 existing[i]=existing[i]+"\n"+parentID
         OR.note_set("\n".join(existing))
 
@@ -317,7 +327,7 @@ def cmd_auto(abfFile,cmd,args):
         print("looks like current clamp tau protocol")
         LT("tau")
         OR.book_new("tau","%s_%s"%(parentID,abf.ID))
-        tau=float(PyOrigin.LT_get_var("TAUVAL")) #MUST BE ALL CAPS
+        tau=OR.LT_get('tauval')
         OR.sheet_fillCol([tau],name="tau",units="ms",addcol=True)
 
     elif abf.protoComment.startswith("02-01-MT"):
@@ -493,7 +503,7 @@ def cmd_addc(abfFile,cmd,args):
         ^^^ corrects command steps to be offset from holding current.
     """
     LT("abfPathToLT;")
-    abfFileName=PyOrigin.LT_get_str("tmpABFPath$")
+    abfFileName=OR.LT_get('tmpABFPath',True)
     if not len(abfFileName):
         print("active sheet has no metadata.")
         return
