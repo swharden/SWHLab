@@ -44,8 +44,9 @@ def cmd_checkout(abfFile,cmd,args):
     cm.checkOut(PyOrigin)
 
 def cmd_test(abfFile,cmd,args):
-    #addClamps(abfFile)
-    getWksAbf()
+    d=OR.sheet_toDict()
+    d["data"]=cm.numpyAlignXY(d["data"])
+    OR.sheet_fromDict(d)
 
 ### ACTIONS
 
@@ -368,6 +369,50 @@ def cmd_auto(abfFile,cmd,args):
 
 ##########################################################
 ### WORKSHEET MANIPULATION
+
+def cmd_alignXY(abfFile,cmd,args):
+    """
+    aligns XYXYXY vetically by similar Xs.
+    Run on an active sheet, and it produces new XYYY output sheet.
+    >>> sc alignXY
+    """
+    orig=OR.sheet_toDict()
+    data=cm.numpyAlignXY(orig["data"])
+    d={} #new workbook dictionary from scratch
+    d["data"]=data
+    d["names"]=[""]+orig["names"][1::2]
+    d["units"]=[""]+orig["units"][1::2]
+    d["comments"]=[""]+orig["comments"][1::2]
+    d["types"]=["X"]+orig["types"][1::2]
+    book,sheet=OR.getSelectedBookAndSheet()
+    OR.sheet_fromDict(d,sheet+".aligned")
+
+def cmd_roundX(abfFile,cmd,args):
+    """
+    finds all X columns and rounds them to the given number.
+    creates a new sheet.
+
+    >>> sc roundX 10
+    ^^^ will turn an X value of 35 into 30
+    """
+    try:
+        roundto=float(args)
+        print("rounding to:",roundto)
+    except:
+        print("need a argument! see docs.")
+        return
+    d=OR.sheet_toDict()
+    for col,coltype in enumerate(d["types"]):
+        if coltype==3: #X column
+            values=d["data"][:,col]
+            #values=np.array(values/roundto).astype(int)*roundto
+            values=np.round(values/roundto)*roundto
+            print(values)
+            d["data"][:,col]=values
+        print(col,coltype)
+    book,sheet=OR.getSelectedBookAndSheet()
+    OR.sheet_fromDict(d,sheet+".rounded")
+
 
 def cmd_replace(abfFile,cmd,args):
     """
@@ -962,7 +1007,6 @@ def swhcmd(abfFile,cmd):
             print(' -- here are some ideas starting with %s...'%cmd.replace("cmd_",''))
             cmd_help(None,None,cmd)
             print(' -- run "sc docs" for a info on how to use every command.')
-
 
 if __name__=="__main__":
     print("DO NOT RUN THIS")
