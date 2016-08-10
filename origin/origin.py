@@ -483,10 +483,14 @@ def cmd_addc(abfFile,cmd,args):
     """
     replace column 0 of the selected sheet with command steps.
     This is intended to be used when making IV and AP gain plots.
-
+    args: 
+        hold: if 'hold' in args will correct command steps to be offset from holding current.
+        
     example:
         * run a memtest or event analysis and make sure a sheet is selected
         >>> sc addc
+        >>> sc addc hold 
+        ^^^ corrects command steps to be offset from holding current.
     """
     LT("abfPathToLT;")
     abfFileName=PyOrigin.LT_get_str("tmpABFPath$")
@@ -495,14 +499,13 @@ def cmd_addc(abfFile,cmd,args):
         return
     abf=swhlab.ABF(abfFileName)
     vals=abf.clampValues(abf.protoSeqX[1]/abf.rate+.01)
+    if "hold" in args:
+        vals-=abf.holding
     wks=PyOrigin.ActiveLayer()
     col=wks.Columns(0)
     col.SetLongName("command")
     col.SetUnits(abf.unitsCommand)
     wks.SetData([vals],0,0) #without the [] it makes a row, not a column
-
-
-### action potentials
 
 def cmd_aps(abfFile,cmd,args):
     """
