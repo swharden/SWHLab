@@ -282,14 +282,18 @@ def sheet_fillCol(data=None,index=-1,name="",units="",comments="",
     If no data is given, fill it with row numbers.
     if addcol, it'll add a new column for this data (and index is ignored).
     If data is a single number (int or float), all cells will be that number.
+    Coltype should be an integer (3 for X, 0 for Y).
+        It could be a string "X" or "Y"
     """
-    #TODO: add feature to REPLACE a named column regardless of index.
+    if coltype=="X":
+        coltype=3
+    if coltype=="Y":
+        coltype=0
+    if coltype=="":
+        coltype=0
+    if not type(coltype) == int:
+        print("WARNING: column type is not understood.")
     data=np.array(data)
-    print("filling column index %d (%s) with data of shape:"%(index,name),
-          data.shape)
-    coltypes={"X":PyOrigin.COLTYPE_DESIGN_X,
-              "Y":PyOrigin.COLTYPE_DESIGN_Y,
-              "YERR":PyOrigin.COLTYPE_DESIGN_YERR}
     if addcol:
         sheet_addCol()
         index=-1
@@ -303,8 +307,9 @@ def sheet_fillCol(data=None,index=-1,name="",units="",comments="",
     wks.Columns(index).SetLongName(name)
     wks.Columns(index).SetUnits(units)
     wks.Columns(index).SetComments(comments)
-    if coltype in coltypes.keys():
-        wks.Columns(index).SetType(coltypes[coltype])
+    wks.Columns(index).SetType(coltype)
+    data=data.astype(str)
+    data[np.where(data=='nan')]=''
     wks.SetData([data],0,index) #without the [] it makes a row, not a column
 
 def sheet_getColNames():
@@ -332,23 +337,53 @@ def sheet_getColData(col=0):
     return data, name
 
 def sheet_toDict(): #works on active sheet
+    """
+    return a sheet as a dictionary with keys:
+        data, names, units, comments, types
+    """
     sheet=PyOrigin.ActiveLayer()
     cols=sheet.GetColCount()
-    rows=len(sheet.Columns(0).GetData())
+    rows=sheet.GetRowCount()
     data=np.empty((rows,cols),dtype=np.float)*np.nan
-    names,units,comments=[],[],[]
+    names,units,comments,types=[],[],[],[]
     for x in range(cols):
         names.append(sheet.Columns(x).GetLongName())
         units.append(sheet.Columns(x).GetUnits())
         comments.append(sheet.Columns(x).GetComments())
+        print("COL: %s TYPE: %s"%(x,sheet.Columns(x).GetType()))
+        types.append(sheet.Columns(x).GetType())
         thing=np.array(sheet.Columns(x).GetData()).astype('U32')
         thing[np.where(thing=='')]=np.nan
-        data[:,x]=thing
-    d={"names":names,"units":units,"comments":comments,"data":data}
+        data[:len(thing),x]=thing
+    while np.all(np.isnan(data[-1])): #trimn off extra rows
+        data=data[:-1]
+    d={"names":names,"units":units,"comments":comments,"data":data,"types":types}
     return d
 
-def sheet_fromDict(d={}): #works on active sheet
-    return #TODO:
+def sheet_fromDict(d={},newSheet=False):
+    """
+    given a worksheet dict (like that from sheet_toDict()) make a worksheet.
+    at minimum must have a 2d numpy array in d["data"]
+        if newSheet is False, fill active sheet.
+        if newSheet is True, make a new unique sheet.
+        if newSheet is a string, make that sheet.
+    """
+    if newSheet is True:
+        newSheet=str(time.time())
+    if type(newSheet) is str:
+        sheet_new(newSheet)
+    rows,cols=d["data"].shape
+    for key in ['names','units','comments','types']:
+        if not key in d.keys():
+            d[key]=[""]*cols
+    print("ROWS,COLS:",rows,cols)
+    for col in range(len(d["data"][0])):
+        sheet_fillCol(data=d["data"][:,col],
+                      name=d["names"][col],
+                      units=d["units"][col],
+                      comments=d["comments"][col],
+                      coltype=d["types"][col],
+                      addcol=True)
 
 
 
