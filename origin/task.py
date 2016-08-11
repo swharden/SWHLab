@@ -18,6 +18,8 @@ import subprocess
 import swhlab.core.common as cm
 import time
 
+from swhlab.origin import pyOriginXML
+
 try:
     import PyOrigin #will work in spyder
 except:
@@ -65,6 +67,7 @@ def treeToDict(s,verbose=False):
     dictionary pyvals{}, then return it. Technically malicious code
     could be inserted in strings in the pyvals, and it will be evaluated.
     """
+    print("treeToDict() is old! use XML methods!")
     def levelFromLine(s):
         """yes I'm putting a function inside a function."""
         level=0
@@ -152,7 +155,8 @@ def book_getNames():
     return sorted(names)
 
 def book_new(book,sheet=False):
-    LT('newbook name:="%s" sheet:=0 option:=lsname;'%book)
+    if not book in book_getNames():
+        LT('newbook name:="%s" sheet:=0 option:=lsname;'%book)
     book_select(book)
     if sheet:
         sheet_new(sheet)
@@ -221,7 +225,9 @@ def book_getSheetNames():
 ### SHEET ACTIONS
 def sheet_new(sheet):
     """makes the sheet, or selects it if already there."""
-    LT('newsheet name:="%s" cols:=0 use:=1;'%sheet)
+    if not sheet in book_getSheetNames():
+        LT('newsheet name:="%s" cols:=0 use:=1;'%sheet)
+    sheet_select(sheet)
 
 def sheet_delete(title):
     """delete the given sheet in the active book."""
@@ -329,6 +335,8 @@ def sheet_getColNames():
 
 def sheet_getColData(col=0):
     """return [data,colname] from column (index or matching string)"""
+    #TODO: make separate functions for data and name/units/comments
+    name=""
     if type(col) is str:
         for i,name in enumerate(sheet_getColNames()):
             if col in name:
@@ -472,6 +480,24 @@ def cjf_noteSet(s):
 def cjf_noteGet():
     """get contents of a worksheet note."""
     return
+
+### CJFmini event detection
+
+def cjf_events_xml_SAVE():
+    """copy event detection tree to disk."""
+    LT("miniPToXML")
+
+def cjf_events_xml_LOAD():
+    """load event detection tree from disk."""
+    LT("XMLtoMiniP")
+
+def cjf_events_setEventEp(bSaveMarkerData=1):
+    cjf_events_xml_SAVE()
+    XML=pyOriginXML.OriginXML("C:/Apps/pythonModules/MiniPTemp.xml")
+    XML.set("GetN.bSaveMarkerData",bSaveMarkerData)
+    XML.save()
+    cjf_events_xml_LOAD()
+
 
 #############################################################################
 ### COMMON TASKS

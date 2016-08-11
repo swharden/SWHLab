@@ -22,7 +22,9 @@ import sys
 import subprocess
 import swhlab.core.common as cm
 import time
+import pylab
 
+from swhlab.origin import pyOriginXML
 from swhlab.origin import task as OR
 from swhlab.origin.task import LT
 
@@ -40,13 +42,53 @@ def print2(message):
 
 ### DEVELOPMENT COMMANDS
 
-def cmd_checkout(abfFile,cmd,args):
+def cmd_checkout(*args):
     cm.checkOut(PyOrigin)
 
-def cmd_test(abfFile,cmd,args):
-    d=OR.sheet_toDict()
-    d["data"]=cm.numpyAlignXY(d["data"])
-    OR.sheet_fromDict(d)
+def cmd_test(*args):
+    OR.cjf_events_setEventEp(1)
+def cmd_test2(*args):
+    OR.cjf_events_setEventEp(0)
+
+def cmd_extractAP(*args):
+    """
+    run this command in current clamp mode with markeres centered around an AP.
+    >>> sc extractAP
+    """
+    ID=os.path.basename(args[0].replace(".abf",""))
+    OR.cjf_selectAbfGraph()
+    OR.LT("if (LBL_Mark1.Show==0) btn_ToggleMarks; bringmarks;")
+    m1s=OR.LT_get("mark1.x")/1000
+    m2s=OR.LT_get("mark2.x")/1000
+    RATE=int(OR.treeToDict(str(PyOrigin.GetTree("PYABF")))["dRate"])
+    m1i=int(m1s*RATE)
+    m2i=int(m2s*RATE)
+    print("extracting from points:",m1i,m2i)
+
+    OR.book_select("ABFBook")
+    OR.sheet_select("ABFData")
+    data,name=OR.sheet_getColData(1)
+    data=data[m1i:m2i].astype(np.float)
+    deriv=np.diff(data)*RATE/1000 #because it's mV not V
+    data=data[:-1] # to make it match, pluck 1 data point
+
+    # EXTRACT RAW DATA
+    OR.book_new("extracted","raw")
+    if not len(OR.sheet_getColNames()):
+        OR.sheet_fillCol(data=[np.arange(len(data))/RATE],addcol=True,name="time",units="sec",coltype="X")
+    OR.sheet_fillCol(data=[data],addcol=True,comments=ID,name="%d-%d"%(m1i,m2i),units="mV")
+
+    # CREATE DV PLOTS
+    OR.book_new("extracted","derivative")
+    if not len(OR.sheet_getColNames()):
+        OR.sheet_fillCol(data=[np.arange(len(deriv))/RATE],addcol=True,name="time",units="sec",coltype="X")
+    OR.sheet_fillCol(data=[deriv],addcol=True,comments=ID,name="%d-%d"%(m1i,m2i),units="mV/ms")
+
+    # CREATE PHASE PLOT
+    OR.book_new("extracted","phase")
+    OR.sheet_fillCol(data=[data],addcol=True,units="mV",coltype="X",comments=ID,name="%d-%d"%(m1i,m2i))
+    OR.sheet_fillCol(data=[deriv],addcol=True,units="V/S",comments=ID,name="%d-%d"%(m1i,m2i))
+
 
 ### ACTIONS
 
@@ -124,7 +166,7 @@ def gain(m1,m2,book,sheet):
     OR.book_close("EventsEpbyEve")
     OR.book_select(book)
     #LT("sc addc")
-    cmd_addc(None,None,None)
+    cmd_addc(None)
 
 def VCIV(m1,m2,book,sheet):
     """
@@ -263,7 +305,7 @@ def group_addParent(parentID,group="uncategorized"):
 
 ### PRE-PROGRAMMED ANALYSIS ROUTINES
 
-def cmd_note(abfFile,cmd,args):
+def cmd_note(*args):
     print(OR.cjf_noteGet())
 
 
@@ -940,11 +982,11 @@ def cmd_treeshow(abfFile,cmd,args):
     args=args.strip().upper()
     print(str(PyOrigin.GetTree(args)))
 
-def cmd_pyvals(abfFile,cmd,args):
-    """shows data from the last ABFGraph tree."""
-    LT("CJFDataTopyVals;")
-    pyvals=OR.treeToDict(str(PyOrigin.GetTree("PYVALS")),verbose=True)
-    print("pyvals has %d master keys"%len(pyvals))
+#def cmd_pyvals(abfFile,cmd,args):
+#    """shows data from the last ABFGraph tree."""
+#    LT("CJFDataTopyVals;")
+#    pyvals=OR.treeToDict(str(PyOrigin.GetTree("PYVALS")),verbose=True)
+#    print("pyvals has %d master keys"%len(pyvals))
 
 ######################################################
 ### documentation
@@ -1017,6 +1059,8 @@ def availableCommands(commentsAndCode=False):
 
 def swhcmd(abfFile,cmd):
     """this is called directly by origin."""
+    OR.LT("pyABF_update") # populate pyABF labtalk tree with abf data
+    #print(OR.treeToDict(str(PyOrigin.GetTree("PYABF")),verbose=True))
     cmd=cmd.strip()
     if " " in cmd:
         cmd,args=cmd.split(" ",1)

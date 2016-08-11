@@ -48,7 +48,6 @@ class OriginXML():
         print("xml input string is %d bytes"%len(xml))
         if not "OriginStorage" in xml:
             print("WARNING: this doesn't look like an origin tree!")
-            self.PREFIX=""
         xml=xml.replace("<","\n<").split("\n")
         for pos,line in enumerate(xml):
             if not line.startswith("<") and len(line):
@@ -58,7 +57,7 @@ class OriginXML():
         levels=[]
         for pos,line in enumerate(xml):
             if not ("<" in line and ">" in line):
-                continue           
+                continue
             line=line.replace(">"," >",1)
             name=line.split(" ",1)[0][1:].replace(">","")
             val=line.split(">")[1]
@@ -76,33 +75,57 @@ class OriginXML():
                 print(pos,line,"=",val)
             if val is None:
                 continue
-            key=key.replace(self.PREFIX,'')
             #print(">>",pos,key,val)
             self.values[key]=[pos,val]
         self.xml=xml
         print("xml now has %d lines and %d keys"%(len(self.xml),len(self.values.keys())))
-        
+
+    def save(self):
+        """if XML was initiated with a filename, write it back to that file."""
+        if not self.path:
+            print("XML object wasn't initiated with a filename!")
+            return
+        self.toString(saveAs=self.path)
+
+    def keysShow(self):
+        for key in sorted(list(self.values.keys())):
+            print(key.replace(self.PREFIX,""),"=",self.values[key][1])
+
     def keys(self):
         """return a list of all available keys from the XML"""
         return sorted(list(self.values.keys()))
-        
+
     def value(self,key):
         """given a key, return its value from the XML"""
         if not key in self.values.keys():
-            print("key [%s] is not in the XML keys")
-            return None
+            if self.PREFIX+key in self.values.keys():
+                key=self.PREFIX+key
+            else:
+                print("key [%s] is not in the XML keys")
+                return None
         pos,val=self.values[key]
         return val
-        
+
     def set(self,key,newVal):
         """given a key, set its value"""
         if not key in self.values.keys():
-            print("key [%s] is not in the XML keys")
-            return
+            if self.PREFIX+key in self.values.keys():
+                key=self.PREFIX+key
+            else:
+                print("key [%s] is not in the XML keys")
+                return None
         newVal=str(newVal) #everything in an xml string is a string
         pos,oldVal=self.values[key]
-        self.xml[pos]=self.xml[pos].replace(oldVal,newVal)
+        val=self.xml[pos].split(">")[-1]
+        line=self.xml[pos][:-len(val)]+newVal
+        #print(" -- XML WAS:",self.xml[pos])
+        #print(" -- XML NOW:",line)
+        if self.xml[pos]==line:
+            print(" -- key [%s] has been left at [%s]"%(key,newVal))
+            return
+        self.xml[pos]=line
         self.values[key]=pos,newVal
+        print(" -- key [%s] has been set to [%s]"%(key,newVal))
 
     def toString(self,saveAs=False):
         """return or save XML in the format Origin wants."""
@@ -111,13 +134,13 @@ class OriginXML():
         if saveAs:
             with open(saveAs,'w') as f:
                 f.write(xml)
-            print("wrote",saveAs)
+            print(" -- saved XML to:",saveAs)
         return xml
 
-if __name__=="__main__":   
+if __name__=="__main__":
     ### DEMO USAGE
-    #XML=OriginXML('<html><head><style>css</style></head><body>lolz</body></html>')
-    XML=OriginXML('data.xml')
+    XML=OriginXML('<html><head><style>css</style></head><body>lolz</body></html>')
+    #XML=OriginXML('data.xml')
     print("KEYS:",XML.keys()) # show available keys
     print("BEFORE:",XML.value("html.body")) # show value for a key
     XML.set("html.body","something more professional") # set a value by its key

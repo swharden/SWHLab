@@ -76,21 +76,23 @@ def getParts(fname,d={}):
     raw=removeBetween(raw,"/*","*/")
     raw=raw.split("\n")
     for i,line in enumerate(raw):
-        if len(line)<3 or line[0] in "*#{}\t\r\n ":
-            continue
-        if ';' in line or "::" in line:
-            continue
-        func,funcArgs=line.split(")")[0].split("(")
-        func=func.strip()
-        if not " " in func:
-            func="voidNeeded "+func
-        funcType,funcName=func.split(" ",1)
-        if ">" in funcName:
-            funcName=funcName.split(">")[1].strip()
-        funcFile=os.path.basename(fname)
-        funcCode=getCode(rawCode,"\n"+line.strip())
-        d[funcName]=[funcName,funcArgs,funcType,funcFile,funcCode]
-        #return d
+        try:
+            if len(line)<3 or line[0] in "*#{}\t\r\n ":
+                continue
+            if ';' in line or "::" in line:
+                continue
+            func,funcArgs=line.split(")")[0].split("(")
+            func=func.strip()
+            if not " " in func:
+                func="voidNeeded "+func
+            funcType,funcName=func.split(" ",1)
+            if ">" in funcName:
+                funcName=funcName.split(">")[1].strip()
+            funcFile=os.path.basename(fname)
+            funcCode=getCode(rawCode,"\n"+line.strip())
+            d[funcName]=[funcName,funcArgs,funcType,funcFile,funcCode]
+        except:
+            print(" -- doc failed in [%s] line %d"%(os.path.basename(fname),i))
     return d
 
 def tohtml(s):
