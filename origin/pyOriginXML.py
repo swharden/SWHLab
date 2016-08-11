@@ -101,7 +101,7 @@ class OriginXML():
             if self.PREFIX+key in self.values.keys():
                 key=self.PREFIX+key
             else:
-                print("key [%s] is not in the XML keys")
+                print("key [%s] is not in the XML keys"%key)
                 return None
         pos,val=self.values[key]
         return val
@@ -112,7 +112,7 @@ class OriginXML():
             if self.PREFIX+key in self.values.keys():
                 key=self.PREFIX+key
             else:
-                print("key [%s] is not in the XML keys")
+                print("key [%s] is not in the XML keys"%key)
                 return None
         newVal=str(newVal) #everything in an xml string is a string
         pos,oldVal=self.values[key]
@@ -137,14 +137,13 @@ class OriginXML():
             print(" -- saved XML to:",saveAs)
         return xml
 
-if __name__=="__main__":
-    ### DEMO USAGE
-    XML=OriginXML('<html><head><style>css</style></head><body>lolz</body></html>')
-    #XML=OriginXML('data.xml')
-    print("KEYS:",XML.keys()) # show available keys
-    print("BEFORE:",XML.value("html.body")) # show value for a key
-    XML.set("html.body","something more professional") # set a value by its key
-    print("AFTER:",XML.value("html.body")) # show value for a key
-    XML.toString("output.xml")
+def updateTree(fnameOLD,fnameNEW):
+    """Pull values from an old XML tree file into a new XML tree file."""
+    XMLOLD,XMLNEW=OriginXML(fnameOLD),OriginXML(fnameOLD)
+    for key in XMLOLD.keys():
+        if key in XMLNEW.keys():
+            XMLNEW.set(key,XMLOLD.value(key))
+    XMLNEW.save()
 
-    print("DONE")
+if __name__=="__main__":
+    print("do not run this program directly")
