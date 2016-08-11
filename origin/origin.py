@@ -493,13 +493,13 @@ def cmd_addc(abfFile,cmd,args):
     """
     replace column 0 of the selected sheet with command steps.
     This is intended to be used when making IV and AP gain plots.
-    args: 
+    args:
         hold: if 'hold' in args will correct command steps to be offset from holding current.
-        
+
     example:
         * run a memtest or event analysis and make sure a sheet is selected
         >>> sc addc
-        >>> sc addc hold 
+        >>> sc addc hold
         ^^^ corrects command steps to be offset from holding current.
     """
     LT("abfPathToLT;")
@@ -619,9 +619,24 @@ def cmd_docs(abfFile,cmd,args):
     Launch SWHLab website containing details about these scripts.
     For now, it's locally hosted.
     """
-    docPath = tempfile.gettempdir()+"/swhlab/originDocs.html"
-    gendocs(docPath)
-    webbrowser.open(docPath)
+
+    # generate CJFLab documentation
+    # TODO: fix this absoute file path madness
+    print(" -- generating CJFLab docs by parsing C files...")
+    originPath=r"X:\Software\OriginC\On-line\OriginPro 2016"
+    from swhlab.origin import CJFdoc as CJFdoc
+    CJFdoc.documentOriginCfolder(originPath)
+    cjfLabDoc=originPath+"/CJF_doc.html"
+
+    # generate SWHLab documentation
+    print(" -- generating SWHLab docs by parsing python files...")
+    swhLabDoc = tempfile.gettempdir()+"/swhlab/originDocs.html"
+    gendocs(swhLabDoc)
+
+    # launch browser with both docs
+    print(" -- launching documentation in browser")
+    webbrowser.open(cjfLabDoc)
+    webbrowser.open(swhLabDoc)
 
 def cmd_help(abfFile,cmd,matching):
     """
@@ -938,9 +953,10 @@ def gendocs(docPath):
     """read this file, make docs, save as local webpage."""
     commands,docs,code=availableCommands(True)
     html="""<html><style>
-    body{font-family: Verdana, Geneva, sans-serif;
-    line-height: 150%;
-    }
+    body{font-family: Verdana, Geneva, sans-serif;line-height: 150%;}
+    a {color: blue; text-decoration: none;}
+    a:visited {color: blue;}
+    a:hover {text-decoration: underline;}
     .cmd{font-size: 150%; font-weight: bold; border: solid 1px #CCCCCC;
          padding-left:5px;padding-right:5px;background-color:#EEEEEE;}
     .example {color: green;font-family: monospace; padding-left:30px;}
@@ -948,8 +964,13 @@ def gendocs(docPath):
     .tip{font-style: italic; padding-left:60px;font-family: Georgia;color:#6666FF;}
     .doc{font-family: Georgia, serif;padding-left:20px;}
     </style><body>"""
-    html+="<h1>CJFLab / SWHLab Commands</h1>"
+    html+="<h1>SWHLab Command Reference</h1>"
     for command in sorted(commands):
+        html+='<a href="#%s">%s</a>, '%(command,command.replace("cmd_",""))
+    html=html[:-2] #remove trailing comma
+    html+="<hr>"
+    for command in sorted(commands):
+        html+='<a name="%s"></a>'%command
         html+='<code class="cmd">%s</code><br>'%command.replace("cmd_","sc ")
         d=docs[command].replace("<","&lt;").replace(">","&gt;")
         d=d.strip().split("\n")

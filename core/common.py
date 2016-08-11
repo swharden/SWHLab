@@ -361,6 +361,28 @@ def matrixToHTML(data,names=None,units=None,bookName=None,sheetName=None,xCol=No
     webbrowser.open(htmlFname)
     return
 
+
+### XML STUFF
+
+def XMLtoPython(xmlStr=r"C:\Apps\pythonModules\GSTemp.xml"):
+    """
+    given a string or a path to an XML file, return an XML object.
+    """
+    #TODO: this absolute file path crazy stuff needs to stop!
+    if os.path.exists(xmlStr):
+        with open(xmlStr) as f:
+            xmlStr=f.read()
+    print(xmlStr)
+    print("DONE")
+    return
+
+def XMLfromPython(xmlObj,saveAs=False):
+    """
+    given a an XML object, return XML string.
+    optionally, save it to disk.
+    """
+    return
+
 ### curve fitting
 
 def algo_exp(x, m, t, b):
@@ -915,3 +937,4 @@ def log_crash(msg):
 
 if __name__=="__main__":
     print("DONT RUN THIS DIRECTLY.")
+    XMLtoPython()
