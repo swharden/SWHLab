@@ -46,9 +46,18 @@ def cmd_checkout(*args):
     cm.checkOut(PyOrigin)
 
 def cmd_test(*args):
-    OR.cjf_events_setEventEp(1)
-def cmd_test2(*args):
-    OR.cjf_events_setEventEp(0)
+    LT('XML_from_gs("_cjf_gs");') # puts graph settings into a labtalk tree
+    LT('XML_LT_TreeToXML("_cjf_gs");') # converts that labtlak tree to a labtalk string of XML
+    XML=pyOriginXML.OriginXML(OR.LT_get("_cjf_gs",True)) # laods that xml with my XML browser/editor class object
+    XML.keysShow() # displays all the keys available for editing and their value
+    key="GetN.CJFGeneral.CJFBooks.strMT" #let's edit this value
+    print("currently",key,"is",XML.value(key)) # show what the value of key is
+    XML.set(key,"LOLOLOLOLOLOL") # set that key to something new
+    print("now",key,"is",XML.value(key)) # show what the value of key is again
+    OR.LT_set("_cjf_gs",XML.toString()) # push our modified XML into the labtalk string
+    LT('XML_LT_TreeFromXML("_cjf_gs");') # converts labtalk xml string to a tree of the same name
+    #LT('XML_to_gs("_cjf_gs");') # converts that labtlak tree to a labtalk string of XML
+
 
 def cmd_extractAP(*args):
     """
@@ -307,7 +316,6 @@ def group_addParent(parentID,group="uncategorized"):
 
 def cmd_note(*args):
     print(OR.cjf_noteGet())
-
 
 def cmd_autoall(abfFile,cmd,args):
     abfs=sorted(glob.glob(os.path.dirname(abfFile)+"/*.abf"))

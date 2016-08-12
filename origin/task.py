@@ -38,13 +38,10 @@ def LT(cmd):
 
 def LT_set(name,val):
     """set a labtalk variable. Knows to add $ if it's a string."""
-    print("##############",type(val))
     if type(val) is str:
-        if not name.endswith("$"):
-            name+="$"
-        LT('%s="%s"'%(name,val))
+        PyOrigin.LT_set_str(name,val)
     else:
-        LT('%s=%f'%(name,val))
+        PyOrigin.LT_set_var(name,val)
     return
 
 def LT_get(name,string=False):
