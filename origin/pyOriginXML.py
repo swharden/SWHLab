@@ -2,11 +2,11 @@
 PyOriginXML and OriginXML class.
 This script is a collection of tools to provide easy python access to OriginLab
 tree objects. PyOrigin may be used one day, but for now Tree.Save and Tree.Load
-are standard OriginC features which conversion between origin tree objects and
-XML strings. These python scripts can access vaues and delicately change them
+are standard OriginC features which convert between origin tree objects and
+XML strings. This python module can access vaues and delicately change them
 while preserving the strict structure Origin needs to re-load it into the same
 tree object. There are numerous modules that do XML object manipulation, but
-this one is made with PyOrigin in mind and is extremely careful to preserve
+this one is made with Origin in mind and is extremely careful to preserve
 all formatting.
 
     * XML=OriginXML(thing) initiates the xml object
