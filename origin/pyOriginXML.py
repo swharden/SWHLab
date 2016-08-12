@@ -32,11 +32,12 @@ import os
 class OriginXML():
     def __init__(self,xml):
         """Initiate with a string or XML file path."""
-        self.PREFIX="?xml.OriginStorage." # ignore what every key will always have
         if "<" in xml:
             print("initializing with XML from string")
             self.path=None
+            self.PREFIX="OriginStorage."
         else:
+            self.PREFIX="?xml.OriginStorage."
             self.path=os.path.abspath(xml)
             print("loading XML from:",self.path)
             if os.path.exists(xml):
@@ -88,8 +89,11 @@ class OriginXML():
         self.toString(saveAs=self.path)
 
     def keysShow(self):
+        """show all of the keys and their values in a pretty formatted way."""
+        print("\n\nTHE FOLLOWING KEYS ARE AVALIABLE FOR MODIFICATION:")
         for key in sorted(list(self.values.keys())):
-            print(key.replace(self.PREFIX,""),"=",self.values[key][1])
+            print(" ",key.replace(self.PREFIX,""),"=",self.values[key][1])
+        print("\n")
 
     def keys(self):
         """return a list of all available keys from the XML"""
