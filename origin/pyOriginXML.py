@@ -88,12 +88,19 @@ class OriginXML():
             return
         self.toString(saveAs=self.path)
 
-    def keysShow(self):
+    def keysShow(self,matching=False,html=False):
         """show all of the keys and their values in a pretty formatted way."""
-        print("\n\nTHE FOLLOWING KEYS ARE AVALIABLE FOR MODIFICATION:")
+        out=""
         for key in sorted(list(self.values.keys())):
-            print(" ",key.replace(self.PREFIX,""),"=",self.values[key][1])
-        print("\n")
+            if matching and not matching in key:
+                continue
+            out+="%s = %s\n"%(key.replace(self.PREFIX,""),self.values[key][1])
+        if html:
+            out=out.replace("<","&lt;").replace(">","&gt;").replace("\n","<br>")
+            out="<html><body><code>%s</code></body></html>"%out
+        else:
+            print(out)
+        return out
 
     def keys(self):
         """return a list of all available keys from the XML"""
@@ -110,6 +117,19 @@ class OriginXML():
         pos,val=self.values[key]
         return val
 
+    def use(self,matching,use=True):
+        """
+        Mark an item as used or unused.
+        An unused item is grayed in the origin tree browser.
+        """
+        for i,line in enumerate(self.xml):
+            if matching in line:
+                if use:
+                    self.xml[i]=self.xml[i].replace('Use="0"','Use="1"')
+                else:
+                    self.xml[i]=self.xml[i].replace('Use="1"','Use="0"')
+                print("setting use of XML line %d matching %s to %s"%(i,matching,str(use)))
+
     def set(self,key,newVal):
         """given a key, set its value"""
         if not key in self.values.keys():
@@ -122,20 +142,21 @@ class OriginXML():
         pos,oldVal=self.values[key]
         val=self.xml[pos].split(">")[-1]
         line=self.xml[pos][:-len(val)]+newVal
-        #print(" -- XML WAS:",self.xml[pos])
+        #print(" -- XML WAS:",self.xml[pos])♠
         #print(" -- XML NOW:",line)
         if self.xml[pos]==line:
-            print(" -- key [%s] has been left at [%s]"%(key,newVal))
+            #print(" -- key [%s] has been left at [%s]"%(key,newVal))
             return
         self.xml[pos]=line
         self.values[key]=pos,newVal
-        print(" -- key [%s] has been set to [%s]"%(key,newVal))
+        #print(" -- key [%s] has been changed to [%s]"%(key,newVal))
+        print(' -- "%s" changed from %s to %s'%(key,oldVal,newVal))
 
     def toString(self,saveAs=False):
         """return or save XML in the format Origin wants."""
         xml="".join(self.xml)
         print("xml output string is %d bytes"%len(xml))
-        if saveAs:
+        if type(saveAs) == str:
             with open(saveAs,'w') as f:
                 f.write(xml)
             print(" -- saved XML to:",saveAs)
@@ -147,7 +168,7 @@ def updateTree(fnameOLD,fnameNEW):
     for key in XMLOLD.keys():
         if key in XMLNEW.keys():
             XMLNEW.set(key,XMLOLD.value(key))
-    XMLNEW.save()
+    return XMLNEW.toString(XMLNEW.path)
 
 if __name__=="__main__":
     print("do not run this program directly")

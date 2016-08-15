@@ -217,7 +217,7 @@ def checkOut(thing,html=True):
     msg=""
     for name in sorted(dir(thing)):
         if not "__" in name:
-            msg+="%s\n"%name
+            msg+="<b>%s</b>\n"%name
             try:
                 #print(" ^-VALUE:",getattr(thing,name)())
                 msg+=" ^-VALUE: %s\n"%getattr(thing,name)()

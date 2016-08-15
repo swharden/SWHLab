@@ -45,20 +45,26 @@ def print2(message):
 def cmd_checkout(*args):
     cm.checkOut(PyOrigin)
 
-def cmd_test(*args):
-    print("WORKING ON IT")
-#    LT('XML_from_gs("_cjf_gs");') # puts graph settings into a labtalk tree
-#    LT('XML_LT_TreeToXML("_cjf_gs");') # converts that labtlak tree to a labtalk string of XML
-#    XML=pyOriginXML.OriginXML(OR.LT_get("_cjf_gs",True)) # laods that xml with my XML browser/editor class object
-#    XML.keysShow() # displays all the keys available for editing and their value
-#    key="GetN.CJFGeneral.CJFBooks.strMT" #let's edit this value
-#    print("currently",key,"is",XML.value(key)) # show what the value of key is
-#    XML.set(key,"LOLOLOLOLOLOL") # set that key to something new
-#    print("now",key,"is",XML.value(key)) # show what the value of key is again
-#    OR.LT_set("_cjf_gs",XML.toString()) # push our modified XML into the labtalk string
-#    LT('XML_LT_TreeFromXML("_cjf_gs");') # converts labtalk xml string to a tree of the same name
-#    #LT('XML_to_gs("_cjf_gs");') # converts that labtlak tree to a labtalk string of XML
+def html_temp_launch(html):
+    fname = tempfile.gettempdir()+"/swhlab/temp.html"
+    with open(fname,'w') as f:
+        f.write(html)
+    webbrowser.open(fname)
 
+
+
+def cmd_test(*args):
+    OR.cjf_gs_set(phasic=True)
+    return
+
+def cmd_GSupdate(*args):
+    """
+    run this command after updating the tree structure for an ABFGraph.
+    It saves the existing values (in XML), reloads the graph with the new
+    default tree settings, and imports settings one by one from the old XML.
+    >>> sc GSupdate
+    """
+    return
 
 def cmd_extractAP(*args):
     """
@@ -150,6 +156,40 @@ def addSheetNotesFromABF(abfFile):
     """
     OR.cjf_noteSet(cm.getNotesForABF(abfFile))
 
+def ramp(book,sheet):
+    """
+    perform AP analysis on a current clamp ramp protocol.
+    almost identical to gain()
+    """
+    #TODO: add function to warn/abort if "EventsEp" worksheet exists.
+    OR.book_close("EventsEp") #TODO: lots of these lines can be eliminated now
+    OR.book_close("EventsEpbyEve")
+    OR.cjf_selectAbfGraph()
+
+    LT("CJFMini;")
+
+    OR.book_select("EventsEp")
+    OR.sheet_select()
+    OR.sheet_rename(sheet)
+    OR.sheet_move(book+"gain")
+    cmd_addc(None)
+    OR.book_close("EventsEp")
+
+    OR.book_select("EventsEpbyEve")
+    OR.sheet_select()
+    OR.sheet_rename(sheet)
+    OR.sheet_move(book+"aps")
+
+    # make event time experiment time
+    LT('col(B)/=1000; col(B)+=col(A)')
+
+    # instantaneous command is needed
+    LT('wks.AddCol(pA)')
+    LT('copy col(B) col(pA); col(pA)/=100; col(pA)+=10*col(A)')
+    LT('wks.col = wks.nCols; wks.col.unit$=pA; wks.col.lname$=command')
+
+    OR.book_close("EventsEpbyEve")
+
 def gain(m1,m2,book,sheet):
     """
     perform a standard AP gain analysis. Marker positions required.
@@ -175,7 +215,6 @@ def gain(m1,m2,book,sheet):
     OR.book_close("EventsEp")
     OR.book_close("EventsEpbyEve")
     OR.book_select(book)
-    #LT("sc addc")
     cmd_addc(None)
 
 def VCIV(m1,m2,book,sheet):
@@ -280,6 +319,17 @@ def cmd_setpaths(abfFile,cmd,args):
         script+='setpath "%s"; sc auto;\n'%(path)
     OR.LT_set("pyLTafter",script) # set the script to run after we close.
 
+def cmd_egg(*args):
+    """html demo"""
+    html="""
+    <h1>&nbsp;&nbsp;SWHLab</h1>
+    <h3>&nbsp;&nbsp;Generated: %s</h3>
+        <img src="http://swharden.com/tmp/pub/bitmoji_hello.png"
+        style="text-align: center; position: absolute; bottom: 0px;">
+    """%(time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime()))
+    html=html.replace('"',"'")
+    LT('type -html "%s"'%html)
+
 ### group note management
 def group_addParent(parentID,group="uncategorized"):
     """
@@ -368,9 +418,15 @@ def cmd_auto(abfFile,cmd,args):
     abf=swhlab.ABF(abfFile)
     print("protocol:",abf.protoComment)
     addToGroups=True
+
+    # by default events and markers are set to OFF
+    OR.cjf_eventsOff()
+    OR.cjf_marksOff()
+
     if abf.protoComment.startswith("01-13-"):
-        #TODO: THIS REQUIRES ABILITY TO SET AP PROPERTIES IN CJFLAB BECAUSE DEFAULT IS GABA NOT APS
         print("looks like a dual gain protocol")
+        OR.cjf_eventsOn()
+        OR.cjf_events_default_AP()
         gain( 132.44, 658.63,"gain","%s_%s_step1"%(parentID,abf.ID))
         gain(1632.44,2158.63,"gain","%s_%s_step2"%(parentID,abf.ID))
 
@@ -379,11 +435,11 @@ def cmd_auto(abfFile,cmd,args):
         LT("tau")
         OR.book_new("tau","%s_%s"%(parentID,abf.ID))
         tau=OR.LT_get('tauval')
-        OR.sheet_fillCol([tau],name="tau",units="ms",addcol=True)
+        print(" -- TAU:",tau)
+        OR.sheet_fillCol([[tau]],addcol=True, name="tau",units="ms")
 
     elif abf.protoComment.startswith("02-01-MT"):
-        #TODO: THIS REQUIRES ABILITY TO SET AP PROPERTIES IN CJFLAB IF CM IS TO BE CALCULATED
-        print("looks like a memtest protocol")
+        print("looks like a memtest protocol") #TODO: event detection?
         OR.book_close("MemTests")
         LT("memtest;")
         OR.book_select("MemTests")
@@ -391,24 +447,23 @@ def cmd_auto(abfFile,cmd,args):
         OR.sheet_move("MT",deleteOldBook=True)
 
     elif abf.protoComment.startswith("02-02-IV"):
-        #TODO: THIS REQUIRES ABILITY TO SET AP PROPERTIES IN CJFLAB IF PHASIC IS TO BE CALCULATED
         print("looks like a voltage clamp IV protocol")
+        OR.cjf_gs_set(phasic=True)
         VCIV( 900,1050,"IV","%s_%s_step1"%(parentID,abf.ID))
         addClamps(abfFile,.900)
         VCIV(2400,2550,"IV","%s_%s_step2"%(parentID,abf.ID))
         addClamps(abfFile,2.400)
 
     elif abf.protoComment.startswith("01-11-rampStep"):
-        #TODO: THIS REQUIRES ABILITY TO SET AP PROPERTIES IN CJFLAB IF PHASIC IS TO BE CALCULATED
-        print("### NEED FUNCTION: automatic marker removal")
-        print("### NEED FUNCTION: automatic enable event detection")
-        print("### NEED FUNCTION: automatic set event type to APs")
-        print("### NEED FUNCTION: automatic enable saving indvidual events")
+        print("looks like a current clamp ramp protocol")
+        OR.cjf_eventsOn()
+        OR.cjf_events_default_AP()
+        ramp("RAMP","%s_%s"%(parentID,abf.ID))
 
     elif abf.protoComment.startswith("04-01-MTmon"):
-        #TODO: THIS REQUIRES ABILITY TO SET AP PROPERTIES IN CJFLAB IF PHASIC IS TO BE CALCULATED
         print("looks like a memtest protocol where drugs are applied")
-        LT("varTags") # load tag info into varTags$
+        OR.cjf_gs_set(phasic=True)
+        LT("varTags")
         OR.book_close("MemTests")
         LT("memtest;")
         OR.book_select("MemTests")
@@ -540,7 +595,7 @@ def cmd_getcols(abfFile,cmd,args):
     OR.collectCols(cols,matching=matching)
     return
 
-def cmd_addc(abfFile,cmd,args):
+def cmd_addc(*args):
     """
     replace column 0 of the selected sheet with command steps.
     This is intended to be used when making IV and AP gain plots.
@@ -719,6 +774,19 @@ def cmd_path(abfFile,cmd,args):
     print("SWHLab version:",swhlab.VERSION)
     print(swhlab.LOCALPATH)
 
+def cmd_echo(*args):
+    """
+    run this to enable/disable verbose labtalk echoing.
+    It's good for troubleshooting, but gets in the way most of the time.
+    >>> sc echo
+    """
+    if OR.LT_ECHO:
+        print(" ### VERBOSE LABTALK MODE DEACTIVATED ###")
+        OR.LT_ECHO=False
+    else:
+        print(" ### VERBOSE LABTALK MODE ACTIVATED ###")
+        OR.LT_ECHO=True
+
 def cmd_run(run,cmd,args):
     """
     run a file from the X drive using a short command.
@@ -816,7 +884,11 @@ def cmd_gain(abfFile,cmd,args):
     OR.book_setHidden("ABFBook")
     LT("plotsweep -1")
     LT("AutoY")
-    print("now enable event detection and hit AP mode")
+
+    OR.cjf_eventsOn() # enable events
+    OR.cjf_events_default_AP() # load with default AP settings
+    OR.cjf_events_set(saveData=1) # demo how to set only one thing
+
 
 def cmd_tau(abfFile,cmd,args):
     """
@@ -906,9 +978,7 @@ def cmd_ramp(abfFile,cmd,args):
     print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
     LT(r'setpath "%s"'%filenames[i])
     OR.book_setHidden("ABFBook")
-    viewContinuous(True)
-    print("INSERT COOL CODE HERE") #TODO: this
-    viewContinuous(False)
+    #viewContinuous(True)
 
 def cmd_drug(abfFile,cmd,args):
     """

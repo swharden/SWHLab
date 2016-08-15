@@ -32,6 +32,9 @@ LT_ECHO=False #set to TRUE to show all labtalk being executed
 def LT(cmd):
     """execute a labtalk command."""
     cmd=cmd.replace("\\","/") #I know, right?
+    cmd=cmd.strip()
+    if not cmd.endswith(";"):
+        cmd=cmd+";"
     if LT_ECHO:
         print("~>%s"%cmd)
     PyOrigin.LT_execute(cmd)
@@ -443,11 +446,27 @@ def cjf_getLast():
     pyvals=treeToDict(str(PyOrigin.GetTree("pyLastBookSheet".upper())))
     return pyvals["pyNameBookShort"],pyvals["pyNameSheetShort"]
 
+def cjf_marksOn():
+    LT("if (llM1.Show==0) {btn_ToggleMarks; UpdateMarkerVals 1;}")
+def cjf_marksOff():
+    LT("if (llM1.Show==1) {btn_ToggleMarks; UpdateMarkerVals 1;}")
+
 def cjf_eventsOn():
     """forcably enables event detection."""
+    print(" -- turning event detection ON")
     cmd="""if (btnEventDetection.color==1){
     btn_ToggleCJFMiniControls;
-    btnEventDetection.color = 6;
+    btnEventDetection.color = 2;
+    MiniPrep_CheckOtherSettings;
+    testmini;}"""
+    LT(cmd)
+
+def cjf_eventsOff():
+    """forcably disables event detection."""
+    print(" -- turning event detection OFF")
+    cmd="""if (btnEventDetection.color==2){
+    btn_ToggleCJFMiniControls;
+    btnEventDetection.color = 1;
     MiniPrep_CheckOtherSettings;
     testmini;}"""
     LT(cmd)
@@ -478,22 +497,86 @@ def cjf_noteGet():
     """get contents of a worksheet note."""
     return
 
-### CJFmini event detection
+def cjf_events_saveEvents(setTo=1):
+    """modify minip tree to enable/disable saving of events."""
+    cjf_events_set(saveData=1)
 
-def cjf_events_xml_SAVE():
-    """copy event detection tree to disk."""
-    LT("miniPToXML")
+def cjf_events_default_GABA():
+    """enable event detection with default GABA settings."""
+    cjf_events_set(area=60, positive=0, threshold=10, saveData=1, baseline=10,
+                   baselineTime=.5, decayTime=30, decayValue=37, localMax=10)
 
-def cjf_events_xml_LOAD():
-    """load event detection tree from disk."""
-    LT("XMLtoMiniP")
+def cjf_events_default_AP():
+    """enable event detection with default AP settings."""
+    cjf_events_set(area=0, positive=1, threshold=10, saveData=1, baseline=2,
+                   baselineTime=.5, decayTime=10, decayValue=5, localMax=5)
 
-def cjf_events_setEventEp(bSaveMarkerData=1):
-    cjf_events_xml_SAVE()
-    XML=pyOriginXML.OriginXML("C:/Apps/pythonModules/MiniPTemp.xml")
-    XML.set("GetN.bSaveMarkerData",bSaveMarkerData)
-    XML.save()
-    cjf_events_xml_LOAD()
+def cjf_events_set(area=False,positive=False,threshold=False,saveData=False,
+                   baseline=False,baselineTime=False,decayTime=False,
+                   decayValue=False,localMax=None):
+    """set event detection properties. Set only what you want to change."""
+    LT('XML_from_minip("XML_MINIP")')
+    tree=PyOrigin.GetTree("XML_MINIP")
+    XML=pyOriginXML.OriginXML(tree.GetStrValue("xml"))
+    if area: XML.set("GetN.Area",area)
+    if positive: XML.set("GetN.Polarity",positive)
+    if threshold: XML.set("GetN.Threshold",threshold)
+    if saveData: XML.set("GetN.bSaveMarkerData",saveData)
+    if baseline: XML.set("GetN.tBaseline",baseline)
+    if baselineTime: XML.set("GetN.tBaselineTime",baselineTime)
+    if decayTime: XML.set("GetN.tDecayTime",decayTime)
+    if decayValue: XML.set("GetN.tDecayValue",decayValue)
+    if localMax: XML.set("GetN.tLocalMax",localMax)
+    tree.FirstChild().NextSibling().SetStrValue(XML.toString())
+    LT('XML_to_minip("XML_MINIP")')
+    LT('del -vs XML_MINIP')
+    LT('testmini') # to redraw graph window
+
+def cjf_gs_set(decimateBy=False,phasic=False):
+    """set graph settings."""
+    LT('XML_from_gs("XML_GS")')
+    tree=PyOrigin.GetTree("XML_GS")
+    XML=pyOriginXML.OriginXML(tree.GetStrValue("xml"))
+
+    XML.use("phasic/tonic",phasic)
+
+    for key in XML.keys():
+        if decimateBy and "bDecimate.dDecBy" in key:
+            XML.set(key)
+
+    tree.FirstChild().NextSibling().SetStrValue(XML.toString())
+    LT('XML_to_gs("XML_GS")')
+    LT('del -vs XML_GS')
+
+def cjf_GS_update():
+    """save existing graph settings, reload, import old settings."""
+
+    # prepare LT editor objects containing tree/xml pairs
+    LT('XML_from_gs("XML_OLD")')
+    print("##### WHATS THE COMMAND TO UPDATE THE NEW TREE?")
+    LT('XML_from_gs("XML_NEW")')
+
+    # load XML string from an editor object
+    tree_old=PyOrigin.GetTree("XML_OLD")
+    xml_old=tree_old.GetStrValue("xml")
+
+    # load XML string from an editor object
+    tree_new=PyOrigin.GetTree("XML_NEW")
+    xml_new=tree_new.GetStrValue("xml")
+
+    # pull values from the old tree into the new tree
+    xml_new=pyOriginXML.updateTree(xml_old,xml_new)
+    xml_new=xml_new.replace("><",">\n<") # linebreaks so origin doesnt crash
+    xml_new=xml_new.replace("MemTests","SCOTTS THING WORKS")
+    tree_new.FirstChild().NextSibling().SetStrValue(xml_new)
+
+    # update graph settings from the XML editor
+    LT('XML_to_gs("XML_NEW")')
+
+    # clean up
+    LT('del -vs XML_NEW')
+    LT('del -vs XML_OLD')
+
 
 
 #############################################################################
