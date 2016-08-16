@@ -51,7 +51,10 @@ def html_temp_launch(html):
         f.write(html)
     webbrowser.open(fname)
 
+def cmd_code_pb():
+    """demonstrate how to do an interactive progressbar in labtalk."""
 
+    return
 
 def cmd_test(*args):
     return
@@ -304,11 +307,25 @@ def cmd_setpaths(abfFile,cmd,args):
             if len(line)<10:
                 return
             abfs=line.strip().split(" ")[1].split(",")
-    # abfs is now a list of the abfs we selected
-    script=""
-    for abf in abfs:
-        path=os.path.join(os.path.dirname(abfFile),abf+".abf")
-        script+='setpath "%s"; sc auto;\n'%(path)
+
+    # create a script to run 'sc auto' on every abf but allow breaking.
+    script='break -end;\nStringArray pyABFsToAnalyze;\n' # start clean
+    for path in abfs:
+        path=os.path.join(os.path.dirname(abfFile),path+".abf")
+        script+='\npyABFsToAnalyze.Add("%s");'%(path)
+    script+="""
+    break -b %s;
+    break -r 1 %d;
+    for (ii = 1; ii <= %d; ii++){
+        	break -p ii; // update progress bar
+        	setpath pyABFsToAnalyze.GetAt(ii)$;
+        	win -a ABFGraph; // raise it
+        	ManualRefresh; // redraw it
+         sc auto; // do the thing
+    }
+    break -end;
+    """%("SWHLab automatic analysis",len(abfs),len(abfs))
+
     tree=PyOrigin.GetTree("PYVALS")
     tree.SetStrValue(script,"runAfter")
 
@@ -362,37 +379,37 @@ def group_addParent(parentID,group="uncategorized"):
 def cmd_note(*args):
     print(OR.cjf_noteGet())
 
-def cmd_autoall(abfFile,cmd,args):
-    abfs=sorted(glob.glob(os.path.dirname(abfFile)+"/*.abf"))
-    msg="This will automatically analyze %s abfs in:\n"%len(abfs)
-    msg+=os.path.basename(abfFile)+"\n\n"
-    msg+="This could take a really, really long time!\n"
-    msg+="Are you sure you want to proceed?"
-
-    if cm.TK_ask("WARNING",msg):
-        print("doing it!")
-    else:
-        print("chickening out.")
-        return
-
-    LT('break -end;') #just in case one was lingering
-    script='StringArray pyABFsToAnalyze;'
-    for path in abfs:
-        script+='pyABFsToAnalyze.Add("%s");'%(path)
-    script+='break -b Automatically analyzing all ABFs in:\n%s;'%os.path.dirname(abfFile)
-    script+='break -r 0 %d;'%(len(abfs))
-    script+='for (ii = 1; ii <= %d; ii++){'%len(abfs)
-    script+='break -p ii;'
-    script+='type;'*3
-    script+='type '+'#'*60+"\n;"
-    script+='pyABFsToAnalyze.GetAt(ii)$=;'
-    script+='setpath pyABFsToAnalyze.GetAt(ii)$;'
-    #script+='sec -p .5;' # delay 10ms
-    script+='win -a ABFGraph;'
-    script+='sc auto;' # THIS IS BROKEN RIGHT NOW! SUCKS!
-    script+='};'
-    script+='break -end;'
-    LT(script) #TODO: RUN THIS AFTER THE CURRENT SCRIPT EXITS.
+#def cmd_autoall(abfFile,cmd,args):
+#    abfs=sorted(glob.glob(os.path.dirname(abfFile)+"/*.abf"))
+#    msg="This will automatically analyze %s abfs in:\n"%len(abfs)
+#    msg+=os.path.basename(abfFile)+"\n\n"
+#    msg+="This could take a really, really long time!\n"
+#    msg+="Are you sure you want to proceed?"
+#
+#    if cm.TK_ask("WARNING",msg):
+#        print("doing it!")
+#    else:
+#        print("chickening out.")
+#        return
+#
+#    LT('break -end;') #just in case one was lingering
+#    script='StringArray pyABFsToAnalyze;'
+#    for path in abfs:
+#        script+='pyABFsToAnalyze.Add("%s");'%(path)
+#    script+='break -b Automatically analyzing all ABFs in:\n%s;'%os.path.dirname(abfFile)
+#    script+='break -r 0 %d;'%(len(abfs))
+#    script+='for (ii = 1; ii <= %d; ii++){'%len(abfs)
+#    script+='break -p ii;'
+#    script+='type;'*3
+#    script+='type '+'#'*60+"\n;"
+#    script+='pyABFsToAnalyze.GetAt(ii)$=;'
+#    script+='setpath pyABFsToAnalyze.GetAt(ii)$;'
+#    #script+='sec -p .5;' # delay 10ms
+#    script+='win -a ABFGraph;'
+#    script+='sc auto;' # THIS IS BROKEN RIGHT NOW! SUCKS!
+#    script+='};'
+#    script+='break -end;'
+#    LT(script) #TODO: RUN THIS AFTER THE CURRENT SCRIPT EXITS.
 
 def cmd_auto(abfFile,cmd,args):
     """
@@ -415,7 +432,9 @@ def cmd_auto(abfFile,cmd,args):
 
     # by default events and markers are set to OFF
     OR.cjf_eventsOff()
+    OR.cjf_events_set(saveData=0)
     OR.cjf_marksOff()
+
 
     if abf.protoComment.startswith("01-13-"):
         print("looks like a dual gain protocol")
@@ -452,6 +471,7 @@ def cmd_auto(abfFile,cmd,args):
         print("looks like a current clamp ramp protocol")
         OR.cjf_eventsOn()
         OR.cjf_events_default_AP()
+        OR.cjf_events_set(saveData=1)
         ramp("RAMP","%s_%s"%(parentID,abf.ID))
 
     elif abf.protoComment.startswith("04-01-MTmon"):
@@ -472,10 +492,17 @@ def cmd_auto(abfFile,cmd,args):
     if addToGroups:
         group_addParent(parentID)
 
-    OR.redraw()
-    OR.book_select("ABFBook")
-    OR.window_minimize()
+    #OR.redraw()
+    #OR.book_select("ABFBook")
+    #OR.window_minimize()
+
+    # clean up
+    OR.cjf_eventsOff()
+    OR.cjf_marksOff()
     OR.cjf_selectAbfGraph()
+    OR.redraw()
+
+
 
 ##########################################################
 ### WORKSHEET MANIPULATION
