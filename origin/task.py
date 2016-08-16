@@ -556,7 +556,7 @@ def cjf_GS_update():
     #fname=os.path.join(LT_get("PATH",True),LT_get("FILE",True))
     LT('XML_from_gs("XML_OLD")')
     #LT('setpath "%s"'%(fname))
-    LT('gs default')
+    LT('gs default 1')
     cjf_selectAbfGraph()
     LT('XML_from_gs("XML_NEW")')
 
