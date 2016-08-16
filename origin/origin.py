@@ -308,23 +308,34 @@ def cmd_setpaths(abfFile,cmd,args):
                 return
             abfs=line.strip().split(" ")[1].split(",")
 
+    OR.cjf_eventsOff()
+    OR.cjf_marksOff()
+
     # create a script to run 'sc auto' on every abf but allow breaking.
-    script='break -end;\nStringArray pyABFsToAnalyze;\n' # start clean
+    script='StringArray ABFS;\n' # start clean
     for path in abfs:
         path=os.path.join(os.path.dirname(abfFile),path+".abf")
-        script+='\npyABFsToAnalyze.Add("%s");'%(path)
+        script+='\nABFS.Add("%s");'%(path)
     script+="""
-    break -b %s;
-    break -r 1 %d;
-    for (ii = 1; ii <= %d; ii++){
-        	break -p ii; // update progress bar
-        	setpath pyABFsToAnalyze.GetAt(ii)$;
+
+    for (ii = 1; ii <= ABFS.GetSize(); ii++){
+
+
+        	setpath ABFS.GetAt(ii)$;
         	win -a ABFGraph; // raise it
         	ManualRefresh; // redraw it
          sc auto; // do the thing
+
+         sec -p .5; // must come at end of for loop to allow breaking
+         break -b SWHLab analyzing abf $(ii) of $(ABFS.GetSize()); // launch new progressbar
+         break -r 1 ABFS.GetSize(); // set scale of progress bar
+        	break -p ii; // update progress bar value
+         sec -p .5; // must come at end of for loop to allow breaking
+         sec -p .5; // must come at end of for loop to allow breaking
+         sec -p .5; // must come at end of for loop to allow breaking
     }
     break -end;
-    """%("SWHLab automatic analysis",len(abfs),len(abfs))
+    """
 
     tree=PyOrigin.GetTree("PYVALS")
     tree.SetStrValue(script,"runAfter")
