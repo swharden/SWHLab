@@ -447,9 +447,9 @@ def cjf_getLast():
     return pyvals["pyNameBookShort"],pyvals["pyNameSheetShort"]
 
 def cjf_marksOn():
-    LT("if (llM1.Show==0) {btn_ToggleMarks; UpdateMarkerVals 1;}")
+    LT("marks on")
 def cjf_marksOff():
-    LT("if (llM1.Show==1) {btn_ToggleMarks; UpdateMarkerVals 1;}")
+    LT("marks off")
 
 def cjf_eventsOn():
     """forcably enables event detection."""
