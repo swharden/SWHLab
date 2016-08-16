@@ -54,8 +54,10 @@ def html_temp_launch(html):
 
 
 def cmd_test(*args):
-    OR.cjf_gs_set(phasic=True)
-    return
+    #OR.cjf_gs_set(phasic=True)
+
+    tree=PyOrigin.GetTree("PYVALS")
+    tree.SetStrValue("type omg this worked?;","runAfter")
 
 def cmd_GSupdate(*args):
     """
@@ -317,7 +319,9 @@ def cmd_setpaths(abfFile,cmd,args):
     for abf in abfs:
         path=os.path.join(os.path.dirname(abfFile),abf+".abf")
         script+='setpath "%s"; sc auto;\n'%(path)
-    OR.LT_set("pyLTafter",script) # set the script to run after we close.
+    tree=PyOrigin.GetTree("PYVALS")
+    tree.SetStrValue(script,"runAfter")
+
 
 def cmd_egg(*args):
     """html demo"""

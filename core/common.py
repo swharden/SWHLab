@@ -219,11 +219,9 @@ def checkOut(thing,html=True):
         if not "__" in name:
             msg+="<b>%s</b>\n"%name
             try:
-                #print(" ^-VALUE:",getattr(thing,name)())
                 msg+=" ^-VALUE: %s\n"%getattr(thing,name)()
             except:
                 pass
-    print(msg)
     if html:
         html='<html><body><code>'+msg+'</code></body></html>'
         html=html.replace(" ","&nbsp;").replace("\n","<br>")
@@ -231,6 +229,7 @@ def checkOut(thing,html=True):
         with open(fname,'w') as f:
             f.write(html)
         webbrowser.open(fname)
+    print(msg.replace('<b>','').replace('</b>',''))
 
 def matrixToWks(data,names=None,units=None,bookName=None,sheetName=" ",xCol=None):
     """
