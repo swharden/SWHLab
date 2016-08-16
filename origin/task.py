@@ -552,8 +552,8 @@ def cjf_GS_update():
     """save existing graph settings, reload, import old settings."""
 
     # prepare LT editor objects containing tree/xml pairs
-    LT('XML_from_gs("XML_OLD")')
-    print("##### WHATS THE COMMAND TO UPDATE THE NEW TREE?")
+    LT('XML_from_gs("XML_OLD")') #TODO: I think this is wrong. It should be from the worksheet, right?
+    LT('gs default')
     LT('XML_from_gs("XML_NEW")')
 
     # load XML string from an editor object
