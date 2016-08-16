@@ -27,7 +27,7 @@ except:
 
 ### LABTALK
 
-LT_ECHO=False #set to TRUE to show all labtalk being executed
+VERBOSE=False #set to TRUE to show all labtalk being executed
 
 def LT(cmd):
     """execute a labtalk command."""
@@ -35,7 +35,7 @@ def LT(cmd):
     cmd=cmd.strip()
     if not cmd.endswith(";"):
         cmd=cmd+";"
-    if LT_ECHO:
+    if VERBOSE:
         print("~>%s"%cmd)
     PyOrigin.LT_execute(cmd)
 
@@ -55,19 +55,20 @@ def LT_get(name,string=False):
         val=str(PyOrigin.LT_get_str(name.upper()))
     else:
         val=float(PyOrigin.LT_get_var(name.upper())) #MUST BE ALL CAPS
-    #print(" -- LT [%s]=%s"%(name.upper(),val),type(val))
+    if VERBOSE:
+        print(" -- LT [%s]=%s"%(name.upper(),val),type(val))
     return val
 
 ### CONVERSIONS
 
-def treeToDict(s,verbose=False):
+def treeToDict(s):
     """
     given a str(PyOrigin.tree), return a dictionary of dictionaries.
     This is done by dynamically generating python scipt to populate the
     dictionary pyvals{}, then return it. Technically malicious code
     could be inserted in strings in the pyvals, and it will be evaluated.
     """
-    print("treeToDict() is old! use XML methods!")
+    print(" -- treeToDict() is old! use XML methods!")
     def levelFromLine(s):
         """yes I'm putting a function inside a function."""
         level=0
@@ -101,7 +102,7 @@ def treeToDict(s,verbose=False):
         else:
             s[i]+=' = {}'
     for line in sorted(s):
-        if verbose:
+        if VERBOSE:
             print(line)
         exec(line)
     return pyvals
@@ -249,7 +250,8 @@ def sheet_move(toBook, fromBook=None, fromSheet=None, deleteOldBook=False):
         fromSheet=PyOrigin.ActiveLayer().GetName()
     sheet_select(fromSheet)
     sheet_rename("~"+fromSheet)
-    print("moving [%s](%s) to [%s](%s)"%(fromBook,fromSheet,toBook,fromSheet))
+    if VERBOSE:
+        print("moving [%s](%s) to [%s](%s)"%(fromBook,fromSheet,toBook,fromSheet))
     LT("ExtractByString %s %s 0"%("~"+fromSheet,toBook))
     book_select(toBook)
     LT('layer -d "%s";'%fromSheet)
@@ -261,7 +263,8 @@ def sheet_move(toBook, fromBook=None, fromSheet=None, deleteOldBook=False):
 def sheet_select(sheet=None):
     """select the sheet in the current book. Return False if doesnt exist."""
     if not sheet in book_getSheetNames():
-        print("sheet (%s) doesn't exist so I can't select it."%(sheet))
+        if VERBOSE:
+            print("sheet (%s) doesn't exist so I can't select it."%(sheet))
         return False
     LT('page.active$ = "%s";'%sheet)
     #redraw() this is slow
@@ -340,7 +343,8 @@ def sheet_getColData(col=0):
     if type(col) is str:
         for i,name in enumerate(sheet_getColNames()):
             if col in name:
-                print("[%s] matched to column %d (%s)"%(col,i,name))
+                if VERBOSE:
+                    print("[%s] matched to column %d (%s)"%(col,i,name))
                 col=i
                 break
     if type(col) is str:
@@ -364,7 +368,6 @@ def sheet_toDict(): #works on active sheet
         names.append(sheet.Columns(x).GetLongName())
         units.append(sheet.Columns(x).GetUnits())
         comments.append(sheet.Columns(x).GetComments())
-        print("COL: %s TYPE: %s"%(x,sheet.Columns(x).GetType()))
         types.append(sheet.Columns(x).GetType())
         thing=np.array(sheet.Columns(x).GetData()).astype('U32')
         thing[np.where(thing=='')]=np.nan
@@ -390,7 +393,6 @@ def sheet_fromDict(d={},newSheet=False):
     for key in ['names','units','comments','types']:
         if not key in d.keys():
             d[key]=[""]*cols
-    print("ROWS,COLS:",rows,cols)
     for col in range(len(d["data"][0])):
         sheet_fillCol(data=d["data"][:,col],
                       name=d["names"][col],
@@ -485,7 +487,7 @@ def cjf_selectLast():
 def cjf_setpath(fname):
     fname=os.path.abspath(fname)
     fname=fname.replace("\\","/")
-    cmd='setpath "%s";'%fname
+    cmd='setpath "%s" 0;'%fname
     LT(cmd)
 
 def cjf_noteSet(s):
@@ -553,9 +555,7 @@ def cjf_GS_update():
 
     # prepare LT editor objects containing tree/xml pairs
     cjf_selectAbfGraph()
-    #fname=os.path.join(LT_get("PATH",True),LT_get("FILE",True))
     LT('XML_from_gs("XML_OLD")')
-    #LT('setpath "%s"'%(fname))
     LT('gs default 1')
     cjf_selectAbfGraph()
     LT('XML_from_gs("XML_NEW")')
@@ -569,10 +569,7 @@ def cjf_GS_update():
     xml_new=tree_new.GetStrValue("xml")
 
     # pull values from the old tree into the new tree
-    #XML=pyOriginXML.OriginXML(xml_new)
-    #xml_new=XML.toString()
     xml_new=pyOriginXML.updateTree(xml_old,xml_new)
-    #xml_new=xml_new.replace("><",">\n<") # linebreaks so origin doesnt crash
     xml_new=xml_new.replace("MemTests","SCOTTS THING WORKS")
 
     # update the new editor XML
@@ -582,8 +579,8 @@ def cjf_GS_update():
     LT('XML_to_gs("XML_NEW")')
 
     # clean up
-    #LT('del -vs XML_NEW')
-    #LT('del -vs XML_OLD')
+    LT('del -vs XML_NEW')
+    LT('del -vs XML_OLD')
 
 
 

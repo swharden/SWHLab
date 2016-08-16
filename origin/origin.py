@@ -24,7 +24,7 @@ import swhlab.core.common as cm
 import time
 import pylab
 
-from swhlab.origin import pyOriginXML
+#from swhlab.origin import pyOriginXML
 from swhlab.origin import task as OR
 from swhlab.origin.task import LT
 
@@ -58,15 +58,6 @@ def cmd_code_pb():
 
 def cmd_test(*args):
     return
-#    #OR.cjf_gs_set(phasic=True)
-#    tree=PyOrigin.GetTree("PYVALS")
-#    treeHeader = tree.FirstChild()
-#    while not treeHeader.GetLongName()=="ABFheader":
-#        treeHeader=treeHeader.NextSibling()
-#    assert treeHeader.GetLongName()=="ABFheader"
-#    graphFile=treeHeader.GetStrValue("fname")
-#    print("FNAME:",graphFile)
-#    #tree.SetStrValue("type omg this worked?;","runAfter")
 
 def cmd_GSupdate(*args):
     """
@@ -296,49 +287,45 @@ def cmd_setpaths(abfFile,cmd,args):
     Preceed this command with 'sc mt' if you want an abf to get you started.
     >>> sc setpaths
     """
-    out=getPythonScriptOutput(swhlab.LOCALPATH+"/origin/win_abfSelect.py",os.path.dirname(abfFile))
-    # the out variable now contains the kernel 'stdout' text.
-    # we use python to parse the output and generate labtalk based on it.
-    if not "\nABFS:" in out:
-        print("no ABFs selected")
-        return
-    for line in out.split("\n"):
-        if line.startswith("ABFS:"):
-            if len(line)<10:
-                return
-            abfs=line.strip().split(" ")[1].split(",")
 
+    if not abfFile:
+        print(" !! an ABF must be loaded frst!")
+        return
+
+    # Launch QT gui from within Origin's python instance
+    from swhlab.origin import win_abfSelect
+    abfs = win_abfSelect.getABFlist(os.path.dirname(abfFile))
+
+    if not len(abfs):
+        print(" !! no abfs selected")
+        return
+    print(" -- selected %d ABFS"%len(abfs))
     OR.cjf_eventsOff()
     OR.cjf_marksOff()
 
     # create a script to run 'sc auto' on every abf but allow breaking.
-    script='StringArray ABFS;\n' # start clean
+    LT('del -al ABFS') # start clean
+    LT('StringArray ABFS') # make a string array
     for path in abfs:
         path=os.path.join(os.path.dirname(abfFile),path+".abf")
-        script+='\nABFS.Add("%s");'%(path)
-    script+="""
-
+        LT('ABFS.Add("%s")'%path) # add to the string array
+    script="""
     for (ii = 1; ii <= ABFS.GetSize(); ii++){
-
-
         	setpath ABFS.GetAt(ii)$;
         	win -a ABFGraph; // raise it
         	ManualRefresh; // redraw it
          sc auto; // do the thing
-
-         sec -p .5; // must come at end of for loop to allow breaking
+         sec -p .5; // give time for old progress bars to fade away
          break -b SWHLab analyzing abf $(ii) of $(ABFS.GetSize()); // launch new progressbar
          break -r 1 ABFS.GetSize(); // set scale of progress bar
         	break -p ii; // update progress bar value
-         sec -p .5; // must come at end of for loop to allow breaking
-         sec -p .5; // must come at end of for loop to allow breaking
-         sec -p .5; // must come at end of for loop to allow breaking
+         sec -p 1.5; // must come at end of for loop to allow breaking
     }
     break -end;
     """
-
+    #TODO: should this be a macro?
     tree=PyOrigin.GetTree("PYVALS")
-    tree.SetStrValue(script,"runAfter")
+    tree.SetStrValue(script,"runAfter") # this crashes if the string is too long
 
 
 def cmd_egg(*args):
@@ -390,38 +377,6 @@ def group_addParent(parentID,group="uncategorized"):
 def cmd_note(*args):
     print(OR.cjf_noteGet())
 
-#def cmd_autoall(abfFile,cmd,args):
-#    abfs=sorted(glob.glob(os.path.dirname(abfFile)+"/*.abf"))
-#    msg="This will automatically analyze %s abfs in:\n"%len(abfs)
-#    msg+=os.path.basename(abfFile)+"\n\n"
-#    msg+="This could take a really, really long time!\n"
-#    msg+="Are you sure you want to proceed?"
-#
-#    if cm.TK_ask("WARNING",msg):
-#        print("doing it!")
-#    else:
-#        print("chickening out.")
-#        return
-#
-#    LT('break -end;') #just in case one was lingering
-#    script='StringArray pyABFsToAnalyze;'
-#    for path in abfs:
-#        script+='pyABFsToAnalyze.Add("%s");'%(path)
-#    script+='break -b Automatically analyzing all ABFs in:\n%s;'%os.path.dirname(abfFile)
-#    script+='break -r 0 %d;'%(len(abfs))
-#    script+='for (ii = 1; ii <= %d; ii++){'%len(abfs)
-#    script+='break -p ii;'
-#    script+='type;'*3
-#    script+='type '+'#'*60+"\n;"
-#    script+='pyABFsToAnalyze.GetAt(ii)$=;'
-#    script+='setpath pyABFsToAnalyze.GetAt(ii)$;'
-#    #script+='sec -p .5;' # delay 10ms
-#    script+='win -a ABFGraph;'
-#    script+='sc auto;' # THIS IS BROKEN RIGHT NOW! SUCKS!
-#    script+='};'
-#    script+='break -end;'
-#    LT(script) #TODO: RUN THIS AFTER THE CURRENT SCRIPT EXITS.
-
 def cmd_auto(abfFile,cmd,args):
     """
     automatically analyze the current ABF based on its protocol information.
@@ -430,9 +385,7 @@ def cmd_auto(abfFile,cmd,args):
     >>> sc auto all
 
     """
-    if "all" in args:
-        cmd_autoall(abfFile,cmd,args)
-        return
+
     OR.cjf_selectAbfGraph() # you may have to keep doing this!
     parent=cm.getParent(abfFile)
     parentID=os.path.basename(parent).replace(".abf","")
@@ -812,12 +765,12 @@ def cmd_echo(*args):
     It's good for troubleshooting, but gets in the way most of the time.
     >>> sc echo
     """
-    if OR.LT_ECHO:
-        print(" ### VERBOSE LABTALK MODE DEACTIVATED ###")
-        OR.LT_ECHO=False
+    if OR.VERBOSE:
+        print(" -- reverted to regular output mode")
+        OR.VERBOSE=False
     else:
-        print(" ### VERBOSE LABTALK MODE ACTIVATED ###")
-        OR.LT_ECHO=True
+        print(" ### VERBOSE MODE ACTIVATED ###")
+        OR.VERBOSE=True
 
 def cmd_run(run,cmd,args):
     """
@@ -912,7 +865,7 @@ def cmd_gain(abfFile,cmd,args):
     except:
         i=0
     print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
-    LT(r'setpath "%s"'%filenames[i])
+    OR.cjf_setpath(filenames[i])
     OR.book_setHidden("ABFBook")
     LT("plotsweep -1")
     LT("AutoY")
@@ -941,7 +894,7 @@ def cmd_tau(abfFile,cmd,args):
     except:
         i=0
     print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
-    LT(r'setpath "%s"'%filenames[i])
+    OR.cjf_setpath(filenames[i])
     OR.book_setHidden("ABFBook")
 
 def cmd_iv(abfFile,cmd,args):
@@ -963,7 +916,7 @@ def cmd_iv(abfFile,cmd,args):
     except:
         i=0
     print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
-    LT(r'setpath "%s"'%filenames[i])
+    OR.cjf_setpath(filenames[i])
     OR.book_setHidden("ABFBook")
 
 def cmd_mt(abfFile,cmd,args):
@@ -985,7 +938,7 @@ def cmd_mt(abfFile,cmd,args):
     except:
         i=0
     print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
-    LT(r'setpath "%s"'%filenames[i])
+    OR.cjf_setpath(filenames[i])
     OR.book_setHidden("ABFBook")
 
 
@@ -1008,7 +961,7 @@ def cmd_ramp(abfFile,cmd,args):
     except:
         i=0
     print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
-    LT(r'setpath "%s"'%filenames[i])
+    OR.cjf_setpath(filenames[i])
     OR.book_setHidden("ABFBook")
     #viewContinuous(True)
 
@@ -1031,7 +984,7 @@ def cmd_drug(abfFile,cmd,args):
     except:
         i=0
     print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
-    LT(r'setpath "%s"'%filenames[i])
+    OR.cjf_setpath(filenames[i])
     OR.book_setHidden("ABFBook")
 
 

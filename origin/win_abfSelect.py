@@ -5,7 +5,8 @@ import pylab
 import time
 import glob
 import swhlab.core.common as cm
-import ui_abfSelect
+#import ui_abfSelect
+from swhlab.origin import ui_abfSelect
 import os
 import swhlab
 
@@ -28,56 +29,53 @@ class ExampleApp(QtGui.QMainWindow, ui_abfSelect.Ui_MainWindow):
     def __init__(self, parent=None):
         super(ExampleApp, self).__init__(parent)
         self.setupUi(self)
-        self.populateFromPath()
         self.btnUse.clicked.connect(self.use)
+        self.ABFS=[] # we will eventually return this
+        self.path="SETTHIS"
 
     def closeEvent(self, event):
-        event.accept()
         self.close()
-
-    def close(self):
-        QtGui.QApplication.exit()
-        sys.exit() #TODO: clean this up!
 
     def use(self):
-        abfs=[]
         for item in self.listWidget.selectedItems():
-            abfs.append(item.text().split("\t")[0])
-        print("\nABFS:",','.join(abfs))
-        self.close()
+            self.ABFS.append(item.text().split("\t")[0])
+        self.closeEvent(None)
 
-
-    def populateFromPath(self,path='SET PATH'):
-        if not os.path.exists(path):
+    def populateFromPath(self):
+        if not os.path.exists(self.path):
             return
+        else:
+            self.btnPath.setText("scanning folder...")
+            self.listWidget.clear()
+            QtGui.QApplication.processEvents() #this might get slow, so update now
+            filesABF,filesSWH,groups=cm.scanABFfolder(self.path)
+            for fname in sorted(filesABF):
+                if fname.endswith(".abf"):
+                    abf=os.path.basename(fname).replace(".abf","")
+                    parent=cm.getParent2(abf,groups)
+                    text="%s\t%s"%(abf,cm.determineProtocol(fname))
+                    bold,fg,bg=False,(0,0,0,255),(255,255,255,255)
+                    if abf==parent:
+                        bold=True
+                    if not self.isVisible():
+                        print("CLOSING EARLY")
+                        #self.closeEvent(None)
+                        return # we have already closed
+                    self.listWidget.addItem(getListItem(text,bold,bg,fg))
+                    QtGui.QApplication.processEvents()
+            self.btnPath.setText(self.path)
 
-        self.btnPath.setText("scanning folder...")
-        self.listWidget.clear()
-        QtGui.QApplication.processEvents() #this might get slow, so update now
-        filesABF,filesSWH,groups=cm.scanABFfolder(path)
-        for fname in sorted(filesABF):
-            if fname.endswith(".abf"):
-                abf=os.path.basename(fname).replace(".abf","")
-                parent=cm.getParent2(abf,groups)
-                text="%s\t%s"%(abf,cm.determineProtocol(fname))
-                bold,fg,bg=False,(0,0,0,255),(255,255,255,255)
-                if abf==parent:
-                    bold=True
-                self.listWidget.addItem(getListItem(text,bold,bg,fg))
-                QtGui.QApplication.processEvents()
-                #print(dir(self.MainWindow))
-        self.btnPath.setText(path)
+
+def getABFlist(path):
+    app = QtGui.QApplication(sys.argv)
+    form = ExampleApp()
+    form.show()
+    form.path=path
+    QtCore.QTimer.singleShot(0, form.populateFromPath) # shoot this off from inside the main loop
+    app.exec() # do the main program loop
+    #print("ABFS:",form.ABFS)
+    return form.ABFS
 
 if __name__=="__main__":
-    if not len(sys.argv)==2:
-        print("this script needs to be called with a path.")
-        sys.argv.append(['./'])
-    if not os.path.exists(sys.argv[1]):
-        print("path does not exist:",sys.argv[1])
-    else:
-        print("launching gui at path:",sys.argv[1])
-        app = QtGui.QApplication(sys.argv)
-        form = ExampleApp()
-        form.show()
-        form.populateFromPath(sys.argv[1])
-        app.exec_()
+    print("DONT RUN THIS DIRECTLY!")
+    getABFlist(r"X:\Data\2P01\2016\2016-07-11 PIR TR IHC")

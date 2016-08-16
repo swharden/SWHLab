@@ -29,24 +29,29 @@ import os
 
 #TODO: what happens if < makes it in a string?
 
+verbose=False
+
 class OriginXML():
     def __init__(self,xml):
         """Initiate with a string or XML file path."""
         if "<" in xml:
-            print("initializing with XML from string")
+            if verbose:
+                print("initializing with XML from string")
             self.path=None
             self.PREFIX="OriginStorage."
         else:
             self.PREFIX="?xml.OriginStorage."
             self.path=os.path.abspath(xml)
-            print("loading XML from:",self.path)
+            if verbose:
+                print("loading XML from:",self.path)
             if os.path.exists(xml):
                 with open(xml) as f:
                     xml=f.read()
             else:
                 print("ERROR! path not found:",xml)
                 return
-        print("xml input string is %d bytes"%len(xml))
+        if verbose:
+            print("xml input string is %d bytes"%len(xml))
         if not "OriginStorage" in xml:
             print("WARNING: this doesn't look like an origin tree!")
         xml=xml.replace("<","\n<").split("\n")
@@ -79,7 +84,8 @@ class OriginXML():
             #print(">>",pos,key,val)
             self.values[key]=[pos,val]
         self.xml=xml
-        print("xml now has %d lines and %d keys"%(len(self.xml),len(self.values.keys())))
+        if verbose:
+            print("xml now has %d lines and %d keys"%(len(self.xml),len(self.values.keys())))
 
     def save(self):
         """if XML was initiated with a filename, write it back to that file."""
@@ -152,7 +158,8 @@ class OriginXML():
     def toString(self,saveAs=False):
         """return or save XML in the format Origin wants."""
         xml="".join(self.xml)
-        print("xml output string is %d bytes"%len(xml))
+        if verbose:
+            print("xml output string is %d bytes"%len(xml))
         if type(saveAs) == str:
             with open(saveAs,'w') as f:
                 f.write(xml)
