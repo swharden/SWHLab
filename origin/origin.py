@@ -54,10 +54,16 @@ def html_temp_launch(html):
 
 
 def cmd_test(*args):
-    #OR.cjf_gs_set(phasic=True)
-
-    tree=PyOrigin.GetTree("PYVALS")
-    tree.SetStrValue("type omg this worked?;","runAfter")
+    return
+#    #OR.cjf_gs_set(phasic=True)
+#    tree=PyOrigin.GetTree("PYVALS")
+#    treeHeader = tree.FirstChild()
+#    while not treeHeader.GetLongName()=="ABFheader":
+#        treeHeader=treeHeader.NextSibling()
+#    assert treeHeader.GetLongName()=="ABFheader"
+#    graphFile=treeHeader.GetStrValue("fname")
+#    print("FNAME:",graphFile)
+#    #tree.SetStrValue("type omg this worked?;","runAfter")
 
 def cmd_GSupdate(*args):
     """
@@ -66,7 +72,7 @@ def cmd_GSupdate(*args):
     default tree settings, and imports settings one by one from the old XML.
     >>> sc GSupdate
     """
-    return
+    OR.cjf_GS_update()
 
 def cmd_extractAP(*args):
     """
@@ -130,22 +136,6 @@ def addClamps(abfFile,pointSec=None):
     print(" -- clamp values:",vals)
     OR.sheet_fillCol([vals],addcol=True, name="command",units=abf.unitsCommand,
                      comments="%d ms"%(pointSec*1000))
-
-def checkCversion(need=1.0):
-    """show information about the version of the C code SWHLab is using."""
-    msg=None
-    try:
-        LT('SWHCVERSION')
-        cVer=OR.LT_get("SWHCVERSION",False)
-        if cVer<need:
-            msg="SWH.C [%s] is older than we want [%s]"%(cVer,need)
-        else:
-            print(" -- SWH.C [%s] seems to be good enough..."%cVer)
-    except:
-        msg="!!! Your SWH.C is not set up !!!"
-    if msg:
-        print("#"*50,"\n"+msg,"\n"+"#"*50)
-checkCversion() # CHECKED ON IMPORT
 
 ##########################################################
 ### PROCEDURES
