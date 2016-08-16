@@ -1143,9 +1143,13 @@ def swhcmd(abfFile,cmd):
         abfFile=None
     if cmd == '':
         print("""
-        Documentation exists at http://swhlab.swharden.com
-        Type 'sc help' for a list of commands.
-        Type 'sc docs' to learn how to use them.
+        DEBUGGING:
+            type 'sc echo' to enable/disable verbose mode
+
+        DOCUMENTATION:
+            Type 'sc help' for a list of commands.
+            Type 'sc docs' to learn how to use them.
+
         """)
     else:
         cmd="cmd_"+cmd

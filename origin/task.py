@@ -527,7 +527,7 @@ def cjf_events_set(area=False,positive=False,threshold=False,saveData=False,
     if decayTime: XML.set("GetN.tDecayTime",decayTime)
     if decayValue: XML.set("GetN.tDecayValue",decayValue)
     if localMax: XML.set("GetN.tLocalMax",localMax)
-    tree.FirstChild().NextSibling().SetStrValue(XML.toString())
+    tree.FirstChild().NextSibling().SetStrValue(XML.toString()) #TODO: STRONGER
     LT('XML_to_minip("XML_MINIP")')
     LT('del -vs XML_MINIP')
     LT('testmini') # to redraw graph window
@@ -544,7 +544,7 @@ def cjf_gs_set(decimateBy=False,phasic=False):
         if decimateBy and "bDecimate.dDecBy" in key:
             XML.set(key)
 
-    tree.FirstChild().NextSibling().SetStrValue(XML.toString())
+    tree.FirstChild().NextSibling().SetStrValue(XML.toString()) #TODO: STRONGER
     LT('XML_to_gs("XML_GS")')
     LT('del -vs XML_GS')
 
@@ -552,8 +552,12 @@ def cjf_GS_update():
     """save existing graph settings, reload, import old settings."""
 
     # prepare LT editor objects containing tree/xml pairs
-    LT('XML_from_gs("XML_OLD")') #TODO: I think this is wrong. It should be from the worksheet, right?
+    cjf_selectAbfGraph()
+    #fname=os.path.join(LT_get("PATH",True),LT_get("FILE",True))
+    LT('XML_from_gs("XML_OLD")')
+    #LT('setpath "%s"'%(fname))
     LT('gs default')
+    cjf_selectAbfGraph()
     LT('XML_from_gs("XML_NEW")')
 
     # load XML string from an editor object
@@ -565,17 +569,21 @@ def cjf_GS_update():
     xml_new=tree_new.GetStrValue("xml")
 
     # pull values from the old tree into the new tree
+    #XML=pyOriginXML.OriginXML(xml_new)
+    #xml_new=XML.toString()
     xml_new=pyOriginXML.updateTree(xml_old,xml_new)
-    xml_new=xml_new.replace("><",">\n<") # linebreaks so origin doesnt crash
+    #xml_new=xml_new.replace("><",">\n<") # linebreaks so origin doesnt crash
     xml_new=xml_new.replace("MemTests","SCOTTS THING WORKS")
-    tree_new.FirstChild().NextSibling().SetStrValue(xml_new)
+
+    # update the new editor XML
+    tree_new.SetStrValue(xml_new,"xml")
 
     # update graph settings from the XML editor
     LT('XML_to_gs("XML_NEW")')
 
     # clean up
-    LT('del -vs XML_NEW')
-    LT('del -vs XML_OLD')
+    #LT('del -vs XML_NEW')
+    #LT('del -vs XML_OLD')
 
 
 

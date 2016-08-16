@@ -142,15 +142,12 @@ class OriginXML():
         pos,oldVal=self.values[key]
         val=self.xml[pos].split(">")[-1]
         line=self.xml[pos][:-len(val)]+newVal
-        #print(" -- XML WAS:",self.xml[pos])♠
-        #print(" -- XML NOW:",line)
-        if self.xml[pos]==line:
-            #print(" -- key [%s] has been left at [%s]"%(key,newVal))
+        if oldVal==newVal or oldVal+"."==newVal:
+            print('    "%s" left at %s'%(key,oldVal))
             return
         self.xml[pos]=line
         self.values[key]=pos,newVal
-        #print(" -- key [%s] has been changed to [%s]"%(key,newVal))
-        print(' -- "%s" changed from %s to %s'%(key,oldVal,newVal))
+        print(' -> "%s" changed from %s to %s'%(key,oldVal,newVal))
 
     def toString(self,saveAs=False):
         """return or save XML in the format Origin wants."""
@@ -164,7 +161,7 @@ class OriginXML():
 
 def updateTree(fnameOLD,fnameNEW):
     """Pull values from an old XML tree file into a new XML tree file."""
-    XMLOLD,XMLNEW=OriginXML(fnameOLD),OriginXML(fnameOLD)
+    XMLOLD,XMLNEW=OriginXML(fnameOLD),OriginXML(fnameNEW)
     for key in XMLOLD.keys():
         if key in XMLNEW.keys():
             XMLNEW.set(key,XMLOLD.value(key))
