@@ -432,7 +432,7 @@ def cmd_auto(abfFile,cmd,args):
         LT("tau")
         OR.book_new("tau","%s_%s"%(parentID,abf.ID))
         tau=OR.LT_get('tauval')
-        log(" -- TAU:",tau)
+        log(" -- TAU: %s"%tau,4)
         OR.sheet_fillCol([[tau]],addcol=True, name="tau",units="ms")
 
     elif abf.protoComment.startswith("02-01-MT"):
@@ -486,6 +486,14 @@ def cmd_auto(abfFile,cmd,args):
 
 ##########################################################
 ### WORKSHEET MANIPULATION
+
+def cmd_pickle(*args):
+    """save the selected workbook as a pickled dictionary."""
+    LT('dlgSave picklePath ext:=*.pkl title:="Where do you want your pickle?"')
+    fname=OR.LT_get('picklePath',True)
+    book,sheet=OR.getSelectedBookAndSheet()
+    cm.pickle_save(OR.book_toDict(book),fname)
+    log("pickle saved as: %s"%fname,2)
 
 def cmd_alignXY(abfFile,cmd,args):
     """
