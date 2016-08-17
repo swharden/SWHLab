@@ -27,16 +27,24 @@ except:
 
 ### LABTALK
 
-VERBOSE=False #set to TRUE to show all labtalk being executed
+def log(msg,level=3):
+    cmd='log [%s] %d'%(msg,level)
+    LT(cmd,False)
 
-def LT(cmd):
+def log_level(level=None):
+    if type(level) is int:
+        LT('log_level %d'%(level))
+    return LT_get("LOGLEVEL")
+
+
+def LT(cmd,logit=True):
     """execute a labtalk command."""
     cmd=cmd.replace("\\","/") #I know, right?
     cmd=cmd.strip()
     if not cmd.endswith(";"):
         cmd=cmd+";"
-    if VERBOSE:
-        print("~>%s"%cmd)
+    if logit:
+        log("~>%s"%cmd,4)
     PyOrigin.LT_execute(cmd)
 
 def LT_set(name,val):
@@ -55,8 +63,7 @@ def LT_get(name,string=False):
         val=str(PyOrigin.LT_get_str(name.upper()))
     else:
         val=float(PyOrigin.LT_get_var(name.upper())) #MUST BE ALL CAPS
-    if VERBOSE:
-        print(" -- LT [%s]=%s"%(name.upper(),val),type(val))
+    log(" -- LT [%s]=%s"%(name.upper(),val),4)
     return val
 
 ### CONVERSIONS
@@ -68,7 +75,7 @@ def treeToDict(s):
     dictionary pyvals{}, then return it. Technically malicious code
     could be inserted in strings in the pyvals, and it will be evaluated.
     """
-    print(" -- treeToDict() is old! use XML methods!")
+    log(" -- treeToDict() is old! use XML methods!")
     def levelFromLine(s):
         """yes I'm putting a function inside a function."""
         level=0
@@ -103,7 +110,7 @@ def treeToDict(s):
             s[i]+=' = {}'
     for line in sorted(s):
         if VERBOSE:
-            print(line)
+            log(line)
         exec(line)
     return pyvals
 
@@ -198,9 +205,9 @@ def book_fromDict(bookName="ABFBook"):
 def book_dictInfo(d):
     """print stats about a workbook dictionary."""
     assert type(d) is dict
-    print("workbook dictionary of size %.02f kb"%(sys.getsizeof(d)/1000))
-    print(' -- called "%s"'%d["name"])
-    print(" -- contains %d sheets:"%(len(d.keys())-1))
+    log("workbook dictionary of size %.02f kb"%(sys.getsizeof(d)/1000))
+    log(' -- called "%s"'%d["name"])
+    log(" -- contains %d sheets:"%(len(d.keys())-1))
     msg=""
     for item in sorted(d.keys()):
         if not item is "name":
@@ -208,13 +215,13 @@ def book_dictInfo(d):
             sheet=item
     if len(msg)>75:
         msg=msg[:75]+"..."
-    print(" -- "+msg)
-    print(' -- looking closer at sheet "%s" ...'%sheet)
-    print(" --- %d rows, %d columns"%(len(d[sheet]["data"]),len(d[sheet]["units"])))
-    print(" --- names:",d[sheet]["names"])
-    print(" --- units:",d[sheet]["units"])
-    print(" --- comments:",d[sheet]["comments"])
-    print(" --- data shape:",d[sheet]["data"].shape)
+    log(" -- "+msg)
+    log(' -- looking closer at sheet "%s" ...'%sheet)
+    log(" --- %d rows, %d columns"%(len(d[sheet]["data"]),len(d[sheet]["units"])))
+    log(" --- names: %s"%d[sheet]["names"])
+    log(" --- units: %s"%d[sheet]["units"])
+    log(" --- comments: %s"%d[sheet]["comments"])
+    log(" --- data shape: %s"%d[sheet]["data"].shape)
 
 def book_getSheetNames():
     """return list of sheet names in the current workbook."""
@@ -250,8 +257,7 @@ def sheet_move(toBook, fromBook=None, fromSheet=None, deleteOldBook=False):
         fromSheet=PyOrigin.ActiveLayer().GetName()
     sheet_select(fromSheet)
     sheet_rename("~"+fromSheet)
-    if VERBOSE:
-        print("moving [%s](%s) to [%s](%s)"%(fromBook,fromSheet,toBook,fromSheet))
+    log("moving [%s](%s) to [%s](%s)"%(fromBook,fromSheet,toBook,fromSheet),4)
     LT("ExtractByString %s %s 0"%("~"+fromSheet,toBook))
     book_select(toBook)
     LT('layer -d "%s";'%fromSheet)
@@ -263,8 +269,7 @@ def sheet_move(toBook, fromBook=None, fromSheet=None, deleteOldBook=False):
 def sheet_select(sheet=None):
     """select the sheet in the current book. Return False if doesnt exist."""
     if not sheet in book_getSheetNames():
-        if VERBOSE:
-            print("sheet (%s) doesn't exist so I can't select it."%(sheet))
+        log("sheet (%s) doesn't exist so I can't select it."%(sheet),4)
         return False
     LT('page.active$ = "%s";'%sheet)
     #redraw() this is slow
@@ -307,7 +312,7 @@ def sheet_fillCol(data=None,index=-1,name="",units="",comments="",
     if coltype=="":
         coltype=0
     if not type(coltype) == int:
-        print("WARNING: column type is not understood.")
+        log("WARNING: column type is not understood.")
     data=np.array(data)
     if addcol:
         sheet_addCol()
@@ -343,8 +348,7 @@ def sheet_getColData(col=0):
     if type(col) is str:
         for i,name in enumerate(sheet_getColNames()):
             if col in name:
-                if VERBOSE:
-                    print("[%s] matched to column %d (%s)"%(col,i,name))
+                log("[%s] matched to column %d (%s)"%(col,i,name),4)
                 col=i
                 break
     if type(col) is str:
@@ -417,7 +421,7 @@ def window_minimize():
 
 def redraw():
     """force redraw of the selected graph or workbook"""
-    print("WARNING: performing ManualRefresh() which is slow...")
+    log(" ### WARNING: performing ManualRefresh() which is slow...",4)
     LT('ManualRefresh')
     # PyOrigin.ActivePage().Refresh() # doesn't exist in PyOrigin
 
@@ -455,7 +459,7 @@ def cjf_marksOff():
 
 def cjf_eventsOn():
     """forcably enables event detection."""
-    print(" -- turning event detection ON")
+    log("turning event detection ON")
     cmd="""if (btnEventDetection.color==1){
     btn_ToggleCJFMiniControls;
     btnEventDetection.color = 2;
@@ -465,12 +469,16 @@ def cjf_eventsOn():
 
 def cjf_eventsOff():
     """forcably disables event detection."""
-    print(" -- turning event detection OFF")
-    cmd="""if (btnEventDetection.color==2){
-    btn_ToggleCJFMiniControls;
-    btnEventDetection.color = 1;
-    MiniPrep_CheckOtherSettings;
-    testmini;}"""
+    log(" -- turning event detection OFF")
+    cmd="""
+    if (btnEventDetection.color==2) {
+        btn_ToggleCJFMiniControls;
+        btnEventDetection.color = 1;
+        MiniPrep_CheckOtherSettings;
+        testmini;
+        hideeventmarkers;
+    }
+    """
     LT(cmd)
 
 def cjf_selectAbfGraph():

@@ -27,20 +27,17 @@ import pylab
 #from swhlab.origin import pyOriginXML
 from swhlab.origin import task as OR
 from swhlab.origin.task import LT
+from swhlab.origin.task import log
 
 try:
     import PyOrigin #allows spyder to access PyOrigin documentation
 except:
     pass
 
-def print2(message):
-    """print something that's very important"""
-    print("#"*60)
-    for line in str(message).split("\n"):
-        print("#",line)
-    print("#"*60)
-
 ### DEVELOPMENT COMMANDS
+
+def cmd_test(*args):
+    OR.cjf_setpath(r"X:\Data\2P01\2016\non-publish\2016-07-01 newprotos\16701012.abf")
 
 def cmd_checkout(*args):
     cm.checkOut(PyOrigin)
@@ -53,11 +50,34 @@ def html_temp_launch(html):
 
 def cmd_code_pb():
     """demonstrate how to do an interactive progressbar in labtalk."""
-
     return
 
-def cmd_test(*args):
-    return
+def cmd_logtest(*args):
+    """
+    show how different log levels work from within python.
+    It just so happens that the syntax is identical to C (without ;)
+    >>> sc logtest
+    """
+    log("I just set the log level to 10.")
+    log("I'm about the clear the screen...")
+    log("clear")
+    log("I just cleared the screen.")
+    log("I'm about to start the log test now")
+    log("let's\ntry\na cool\nmultiline\nmessage w00t!")
+    log("okay for real now")
+    log("here I go")
+    log("this is less important",4)
+    log("this is\neven\nless important",5)
+    log("this is normal")
+    log("this is important",2)
+    log("this is some more normal")
+    log("this is REALLY important",1)
+    log("this is worth stopping for",0)
+    log("we are all done now")
+    log("phew!",4)
+    log("Setting log level back to 3")
+    log_level(3)
+    log("you shouldn't be able to see this",4)
 
 def cmd_GSupdate(*args):
     """
@@ -401,22 +421,22 @@ def cmd_auto(abfFile,cmd,args):
 
 
     if abf.protoComment.startswith("01-13-"):
-        print("looks like a dual gain protocol")
+        log("looks like a dual gain protocol")
         OR.cjf_eventsOn()
         OR.cjf_events_default_AP()
         gain( 132.44, 658.63,"gain","%s_%s_step1"%(parentID,abf.ID))
         gain(1632.44,2158.63,"gain","%s_%s_step2"%(parentID,abf.ID))
 
     elif abf.protoComment.startswith("01-01-HP"):
-        print("looks like current clamp tau protocol")
+        log("looks like current clamp tau protocol")
         LT("tau")
         OR.book_new("tau","%s_%s"%(parentID,abf.ID))
         tau=OR.LT_get('tauval')
-        print(" -- TAU:",tau)
+        log(" -- TAU:",tau)
         OR.sheet_fillCol([[tau]],addcol=True, name="tau",units="ms")
 
     elif abf.protoComment.startswith("02-01-MT"):
-        print("looks like a memtest protocol") #TODO: event detection?
+        log("looks like a memtest protocol") #TODO: event detection?
         OR.book_close("MemTests")
         LT("memtest;")
         OR.book_select("MemTests")
@@ -424,7 +444,7 @@ def cmd_auto(abfFile,cmd,args):
         OR.sheet_move("MT",deleteOldBook=True)
 
     elif abf.protoComment.startswith("02-02-IV"):
-        print("looks like a voltage clamp IV protocol")
+        log("looks like a voltage clamp IV protocol")
         OR.cjf_gs_set(phasic=True)
         VCIV( 900,1050,"IV","%s_%s_step1"%(parentID,abf.ID))
         addClamps(abfFile,.900)
@@ -432,14 +452,14 @@ def cmd_auto(abfFile,cmd,args):
         addClamps(abfFile,2.400)
 
     elif abf.protoComment.startswith("01-11-rampStep"):
-        print("looks like a current clamp ramp protocol")
+        log("looks like a current clamp ramp protocol")
         OR.cjf_eventsOn()
         OR.cjf_events_default_AP()
         OR.cjf_events_set(saveData=1)
         ramp("RAMP","%s_%s"%(parentID,abf.ID))
 
     elif abf.protoComment.startswith("04-01-MTmon"):
-        print("looks like a memtest protocol where drugs are applied")
+        log("looks like a memtest protocol where drugs are applied")
         OR.cjf_gs_set(phasic=True)
         LT("varTags")
         OR.book_close("MemTests")
@@ -450,15 +470,11 @@ def cmd_auto(abfFile,cmd,args):
         OR.sheet_move("drugVC",deleteOldBook=True)
 
     else:
-        print2("I don't know how to analyze protocol: [%s]"%abf.protoComment)
+        log("I don't know how to analyze protocol: [%s]"%abf.protoComment,2)
         addToGroups=False
 
     if addToGroups:
         group_addParent(parentID)
-
-    #OR.redraw()
-    #OR.book_select("ABFBook")
-    #OR.window_minimize()
 
     # clean up
     OR.cjf_eventsOff()
@@ -765,12 +781,18 @@ def cmd_echo(*args):
     It's good for troubleshooting, but gets in the way most of the time.
     >>> sc echo
     """
-    if OR.VERBOSE:
-        print(" -- reverted to regular output mode")
-        OR.VERBOSE=False
+    log("OLD log level: %s"%OR.log_level())
+    if OR.log_level()==3:
+        OR.log_level(10)
     else:
-        print(" ### VERBOSE MODE ACTIVATED ###")
-        OR.VERBOSE=True
+        OR.log_level(3)
+    log("NEW log level: %s"%OR.log_level())
+    if OR.log_level()>3:
+        log("### DEBUG MODE ENABLED ###")
+    else:
+        log("--- REGULAR LOG MODE ---")
+
+
 
 def cmd_run(run,cmd,args):
     """
@@ -864,7 +886,7 @@ def cmd_gain(abfFile,cmd,args):
         i=min(int(args)-1,len(filenames))
     except:
         i=0
-    print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
+    log("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
     OR.cjf_setpath(filenames[i])
     OR.book_setHidden("ABFBook")
     LT("plotsweep -1")
@@ -893,7 +915,7 @@ def cmd_tau(abfFile,cmd,args):
         i=min(int(args)-1,len(filenames))
     except:
         i=0
-    print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
+    log("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
     OR.cjf_setpath(filenames[i])
     OR.book_setHidden("ABFBook")
 
@@ -915,7 +937,7 @@ def cmd_iv(abfFile,cmd,args):
         i=min(int(args)-1,len(filenames))
     except:
         i=0
-    print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
+    log("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
     OR.cjf_setpath(filenames[i])
     OR.book_setHidden("ABFBook")
 
@@ -937,7 +959,7 @@ def cmd_mt(abfFile,cmd,args):
         i=min(int(args)-1,len(filenames))
     except:
         i=0
-    print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
+    log("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
     OR.cjf_setpath(filenames[i])
     OR.book_setHidden("ABFBook")
 
@@ -960,7 +982,7 @@ def cmd_ramp(abfFile,cmd,args):
         i=min(int(args)-1,len(filenames))
     except:
         i=0
-    print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
+    log("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
     OR.cjf_setpath(filenames[i])
     OR.book_setHidden("ABFBook")
     #viewContinuous(True)
@@ -983,7 +1005,7 @@ def cmd_drug(abfFile,cmd,args):
         i=min(int(args)-1,len(filenames))
     except:
         i=0
-    print("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
+    log("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
     OR.cjf_setpath(filenames[i])
     OR.book_setHidden("ABFBook")
 

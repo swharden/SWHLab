@@ -47,7 +47,7 @@ class ABF():
     maybe basic event detecton.
     """
 
-    def __init__(self,ABFfname=None,debugLevel=1,saveInfo=True):
+    def __init__(self,ABFfname=None,debugLevel=0,saveInfo=False):
         """SWHLab4 ABF class.
         Basic usage:
             1.) call this with an ABF filename
