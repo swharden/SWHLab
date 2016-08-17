@@ -29,31 +29,28 @@ import os
 
 #TODO: what happens if < makes it in a string?
 
-verbose=False
 
 class OriginXML():
     def __init__(self,xml):
         """Initiate with a string or XML file path."""
+        self.thelog=[]
         if "<" in xml:
-            if verbose:
-                print("initializing with XML from string")
+            self.log("initializing with XML from string",4)
             self.path=None
             self.PREFIX="OriginStorage."
         else:
             self.PREFIX="?xml.OriginStorage."
             self.path=os.path.abspath(xml)
-            if verbose:
-                print("loading XML from:",self.path)
+            self.log("loading XML from: "+self.path,4)
             if os.path.exists(xml):
                 with open(xml) as f:
                     xml=f.read()
             else:
-                print("ERROR! path not found:",xml)
+                self.log("ERROR! path not found: "+xml,1)
                 return
-        if verbose:
-            print("xml input string is %d bytes"%len(xml))
+        self.log("xml input string is %d bytes"%len(xml),4)
         if not "OriginStorage" in xml:
-            print("WARNING: this doesn't look like an origin tree!")
+            self.log("WARNING: this doesn't look like an origin tree!",3)
         xml=xml.replace("<","\n<").split("\n")
         for pos,line in enumerate(xml):
             if not line.startswith("<") and len(line):
@@ -77,20 +74,22 @@ class OriginXML():
                 if ("/>") in line:
                     levels.pop()
             else:
-                print("I DONT KNOW WHAT TO DO WITH THIS LINE")
-                print(pos,line,"=",val)
+                self.log("I DONT KNOW WHAT TO DO WITH THIS XML LINE:")
+                self.log("%d: %s = %s"%(pos,line,val))
             if val is None:
                 continue
-            #print(">>",pos,key,val)
             self.values[key]=[pos,val]
         self.xml=xml
-        if verbose:
-            print("xml now has %d lines and %d keys"%(len(self.xml),len(self.values.keys())))
+        self.log("xml now has %d lines and %d keys"%(len(self.xml),len(self.values.keys())),4)
+
+    def log(self,msg,level=3):
+        """populate a log array to print later"""
+        self.thelog.append([msg,level])
 
     def save(self):
         """if XML was initiated with a filename, write it back to that file."""
         if not self.path:
-            print("XML object wasn't initiated with a filename!")
+            self.log("XML object wasn't initiated with a filename!")
             return
         self.toString(saveAs=self.path)
 
@@ -105,7 +104,7 @@ class OriginXML():
             out=out.replace("<","&lt;").replace(">","&gt;").replace("\n","<br>")
             out="<html><body><code>%s</code></body></html>"%out
         else:
-            print(out)
+            self.log(out)
         return out
 
     def keys(self):
@@ -118,7 +117,7 @@ class OriginXML():
             if self.PREFIX+key in self.values.keys():
                 key=self.PREFIX+key
             else:
-                print("key [%s] is not in the XML keys"%key)
+                self.log("key [%s] is not in the XML keys"%key)
                 return None
         pos,val=self.values[key]
         return val
@@ -134,7 +133,7 @@ class OriginXML():
                     self.xml[i]=self.xml[i].replace('Use="0"','Use="1"')
                 else:
                     self.xml[i]=self.xml[i].replace('Use="1"','Use="0"')
-                print("setting use of XML line %d matching %s to %s"%(i,matching,str(use)))
+                self.log("setting use of XML line %d matching %s to %s"%(i,matching,str(use)))
 
     def set(self,key,newVal):
         """given a key, set its value"""
@@ -142,28 +141,27 @@ class OriginXML():
             if self.PREFIX+key in self.values.keys():
                 key=self.PREFIX+key
             else:
-                print("key [%s] is not in the XML keys"%key)
+                self.log("key [%s] is not in the XML keys"%key)
                 return None
         newVal=str(newVal) #everything in an xml string is a string
         pos,oldVal=self.values[key]
         val=self.xml[pos].split(">")[-1]
         line=self.xml[pos][:-len(val)]+newVal
         if oldVal==newVal or oldVal+"."==newVal:
-            print('    "%s" left at %s'%(key,oldVal))
+            self.log('    "%s" left at %s'%(key,oldVal),4)
             return
         self.xml[pos]=line
         self.values[key]=pos,newVal
-        print(' -> "%s" changed from %s to %s'%(key,oldVal,newVal))
+        self.log(' -> "%s" changed from %s to %s'%(key,oldVal,newVal),4)
 
     def toString(self,saveAs=False):
         """return or save XML in the format Origin wants."""
         xml="".join(self.xml)
-        if verbose:
-            print("xml output string is %d bytes"%len(xml))
+        self.log("xml output string is %d bytes"%len(xml),4)
         if type(saveAs) == str:
             with open(saveAs,'w') as f:
                 f.write(xml)
-            print(" -- saved XML to:",saveAs)
+            self.log(" -- saved XML to:",saveAs)
         return xml
 
 def updateTree(fnameOLD,fnameNEW):
@@ -172,7 +170,7 @@ def updateTree(fnameOLD,fnameNEW):
     for key in XMLOLD.keys():
         if key in XMLNEW.keys():
             XMLNEW.set(key,XMLOLD.value(key))
-    return XMLNEW.toString(XMLNEW.path)
+    return XMLNEW.toString(XMLNEW.path),XMLNEW.thelog
 
 if __name__=="__main__":
     print("do not run this program directly")

@@ -28,7 +28,10 @@ except:
 ### LABTALK
 
 def log(msg,level=3):
-    cmd='log [%s] %d'%(msg,level)
+    if type(msg) in [str,int,float]:
+        msg=[[msg,level]]
+    for item in msg:
+        cmd='log [%s] %d'%(item[0],item[1])
     LT(cmd,False)
 
 def log_level(level=None):
@@ -537,6 +540,7 @@ def cjf_events_set(area=False,positive=False,threshold=False,saveData=False,
     if decayTime: XML.set("GetN.tDecayTime",decayTime)
     if decayValue: XML.set("GetN.tDecayValue",decayValue)
     if localMax: XML.set("GetN.tLocalMax",localMax)
+    log(XML.thelog)
     tree.FirstChild().NextSibling().SetStrValue(XML.toString()) #TODO: STRONGER
     LT('XML_to_minip("XML_MINIP")')
     LT('del -vs XML_MINIP')
@@ -547,13 +551,11 @@ def cjf_gs_set(decimateBy=False,phasic=False):
     LT('XML_from_gs("XML_GS")')
     tree=PyOrigin.GetTree("XML_GS")
     XML=pyOriginXML.OriginXML(tree.GetStrValue("xml"))
-
     XML.use("phasic/tonic",phasic)
-
     for key in XML.keys():
         if decimateBy and "bDecimate.dDecBy" in key:
             XML.set(key)
-
+    log(XML.thelog)
     tree.FirstChild().NextSibling().SetStrValue(XML.toString()) #TODO: STRONGER
     LT('XML_to_gs("XML_GS")')
     LT('del -vs XML_GS')
@@ -577,8 +579,9 @@ def cjf_GS_update():
     xml_new=tree_new.GetStrValue("xml")
 
     # pull values from the old tree into the new tree
-    xml_new=pyOriginXML.updateTree(xml_old,xml_new)
+    xml_new,thelog=pyOriginXML.updateTree(xml_old,xml_new)
     xml_new=xml_new.replace("MemTests","SCOTTS THING WORKS")
+    log(thelog)
 
     # update the new editor XML
     tree_new.SetStrValue(xml_new,"xml")
