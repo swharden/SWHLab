@@ -36,6 +36,18 @@ except:
 
 ### DEVELOPMENT COMMANDS
 
+def cmd_avUp(*args):
+    """
+    Averages 2D data vertically. Runs on the selected worksheet.
+
+    >>> avUp
+    ^^^ default usage is to delete original data and replace it with averages
+
+    >>> avUp keep
+    ^^^ if you do this, it keeps original data and just shifts it down. Don't do this twice.
+    """
+    OR.averageVertically("keep" in str(args)) # idiomatic python
+
 def cmd_getgroup(*args):
     """
     perform stats on certain columns of a large worksheet organized by group.
@@ -59,12 +71,23 @@ def cmd_onex(*args):
     """
     If you have XYXYXYXY keep the first X column but delete all other Xs.
     This is usually called after getcols if all Xs are the same.
+
     >>> sc onex
+    ^^^ the default is to delete every other column (2)
+
+    >>> sc onex 3
+    ^^^ deletes every third column
     """
+    abf,cmd,args=args
+    delEvery=2 #default
+    if len(args):
+        delEvery=int(args)
+    skip=delEvery-1
+    log("deleting every %d column (skipping %d at a time)"%(delEvery,skip),4)
     if len(OR.sheet_getColNames())<3:
         log("not reducing xy pairs because there arent many columns",4)
         return
-    LT('wreducecols start:=3 skip:=1')
+    LT('wreducecols start:=%d skip:=%d'%(delEvery+1,skip))
 
 def cmd_groupstats(*args):
     """
@@ -103,7 +126,7 @@ def cmd_groupstats(*args):
         script+="ccave;\n"
 
     script+='sc getcols;\n' #icing on the cake
-    script+='win -r collected %d;\n'%time.time() # unique short name
+    script+='win -r collected;\n'
     script+='page.longname$=collected group %s;\n'%GET_FROM_COLUMN # custom short name
     print("SHOULD NAME TO:",GET_FROM_COLUMN)
     script+='type if you can read this, nothing was cut off this script;'
@@ -207,7 +230,7 @@ def viewContinuous(enable=True):
     else:
         LT("iSweepScale=1;plotsweep(1);AutoX;AutoY;")
 
-def addClamps(abfFile,pointSec=None):
+def addClamps(abfFile,pointSec=None,replaceFirstCol=True):
     """
     given a time point (in sec), add a column to the selected worksheet
     that contains the clamp values at that time point.
@@ -219,8 +242,10 @@ def addClamps(abfFile,pointSec=None):
         pointSec=abf.protoSeqX[1]/abf.rate+.001
     vals=abf.clampValues(pointSec)
     log("determined clamp values: [%s]"%str(vals),5)
-    OR.sheet_fillCol([vals],addcol=True, name="command",units=abf.unitsCommand,
-                     comments="%d ms"%(pointSec*1000))
+    if replaceFirstCol:
+        OR.sheet_fillCol([vals],index=0, name="command",units=abf.unitsCommand,coltype="X")
+    else:
+        OR.sheet_fillCol([vals],addcol=True, name="command",units=abf.unitsCommand,coltype="X")
 
 ##########################################################
 ### PROCEDURES
@@ -478,23 +503,23 @@ def cmd_auto(abfFile,cmd,args):
     OR.cjf_selectAbfGraph() # you may have to keep doing this!
     parent=cm.getParent(abfFile)
     parentID=os.path.basename(parent).replace(".abf","")
-    print("analyzing",abfFile)
     abf=swhlab.ABF(abfFile)
-    print("protocol:",abf.protoComment)
+    log("protocol: [%s]"%abf.protoComment,4)
     addToGroups=True
 
     # by default events and markers are set to OFF
     OR.cjf_eventsOff()
-    OR.cjf_events_set(saveData=0)
     OR.cjf_marksOff()
 
 
     if abf.protoComment.startswith("01-13-"):
         log("looks like a dual gain protocol")
-        OR.cjf_eventsOn()
+        OR.cjf_eventsOn(1)
         OR.cjf_events_default_AP()
-        gain( 132.44, 658.63,"gain","%s_%s_step1"%(parentID,abf.ID))
-        gain(1632.44,2158.63,"gain","%s_%s_step2"%(parentID,abf.ID))
+        #OR.cjf_events_draw() # call this manually if you make changes
+        t=abf.protoComment.split("steps")[1].split("dual")[0]
+        gain( 132.44, 658.63,"gain","%s_%s_%s_step1"%(parentID,abf.ID,t))
+        gain(1632.44,2158.63,"gain","%s_%s_%s_step2"%(parentID,abf.ID,t))
 
     elif abf.protoComment.startswith("01-01-HP"):
         log("looks like current clamp tau protocol")
@@ -509,6 +534,7 @@ def cmd_auto(abfFile,cmd,args):
         OR.book_close("MemTests")
         LT("memtest;")
         OR.book_select("MemTests")
+        OR.averageVertically(False)
         OR.sheet_rename("%s_%s"%(parentID,abf.ID))
         OR.sheet_move("MT",deleteOldBook=True)
 
@@ -522,9 +548,8 @@ def cmd_auto(abfFile,cmd,args):
 
     elif abf.protoComment.startswith("01-11-rampStep"):
         log("looks like a current clamp ramp protocol")
-        OR.cjf_eventsOn()
+        OR.cjf_eventsOn(1)
         OR.cjf_events_default_AP()
-        OR.cjf_events_set(saveData=1)
         ramp("RAMP","%s_%s"%(parentID,abf.ID))
 
     elif abf.protoComment.startswith("04-01-MTmon"):
@@ -682,10 +707,10 @@ def cmd_getcols(abfFile,cmd,args):
     CCAVEs=False
     if OR.book_getActive() == "collected" and args=="":
         log("special case usage (see docs): overriding arguments")
-        args="* Average SE"
+        args="* 0 Average SE"
         OR.sheet_delete("_CCAVEs_")
         CCAVEs=True
-    if not " " in args or len(args.split(" "))<2:
+    elif not " " in args or len(args.split(" "))<2:
         print("at least 2 arguments required. read docs!")
         return
     if "[" in args and "]" in args:
@@ -705,17 +730,20 @@ def cmd_getcols(abfFile,cmd,args):
     OR.collectCols(cols,matching=matching)
     if len(args)==2 and CCAVEs==False:
         log("turning XYXYXY into XYYY")
-        cmd_onex(None)
+        cmd_onex(None,None,None)
     if CCAVEs:
         OR.sheet_rename("_CCAVEs_")
         log("special case usage (see docs): setting column types")
         wks=PyOrigin.ActiveLayer()
         for col in range(wks.GetColCount()):
-            if col%2==0:
-                wks.Columns(col).SetType(0) # Y
-            else:
+            print("COL LENGTH:",len(cols))
+            if col%len(cols)==0:
+                wks.Columns(col).SetType(3) #X
+            elif col%len(cols)==len(cols)-1:
                 wks.Columns(col).SetType(2) #yEr
-    return
+            else:
+                wks.Columns(col).SetType(0) #Y
+        cmd_onex(None,None,"3")
 
 def cmd_addc(*args):
     """
@@ -1038,6 +1066,8 @@ def cmd_tau(abfFile,cmd,args):
         i=0
     log("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
     OR.cjf_setpath(filenames[i])
+    OR.cjf_eventsOff()
+    OR.cjf_marksOff()
     OR.book_setHidden("ABFBook")
 
 def cmd_iv(abfFile,cmd,args):
@@ -1060,6 +1090,8 @@ def cmd_iv(abfFile,cmd,args):
         i=0
     log("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
     OR.cjf_setpath(filenames[i])
+    OR.cjf_eventsOff()
+    OR.cjf_marksOff()
     OR.book_setHidden("ABFBook")
 
 def cmd_mt(abfFile,cmd,args):
@@ -1082,6 +1114,8 @@ def cmd_mt(abfFile,cmd,args):
         i=0
     log("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
     OR.cjf_setpath(filenames[i])
+    OR.cjf_eventsOff()
+    OR.cjf_marksOff()
     OR.book_setHidden("ABFBook")
 
 
@@ -1105,6 +1139,8 @@ def cmd_ramp(abfFile,cmd,args):
         i=0
     log("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
     OR.cjf_setpath(filenames[i])
+    OR.cjf_eventsOff()
+    OR.cjf_marksOff()
     OR.book_setHidden("ABFBook")
     #viewContinuous(True)
 
@@ -1128,7 +1164,8 @@ def cmd_drug(abfFile,cmd,args):
         i=0
     log("setting preprogrammed ABF %d of %d"%(i+1,len(filenames)+1))
     OR.cjf_setpath(filenames[i])
-    OR.book_setHidden("ABFBook")
+    OR.cjf_eventsOff()
+    OR.cjf_marksOff()
 
 
 
@@ -1266,8 +1303,13 @@ def availableCommands(commentsAndCode=False):
 
 def swhcmd(abfFile,cmd):
     """this is called directly by origin."""
-    OR.LT("pyABF_update") # populate pyABF labtalk tree with abf data
-    #print(OR.treeToDict(str(PyOrigin.GetTree("PYABF")),verbose=True))
+    try:
+        #OR.LT("pyABF_update") # populate pyABF labtalk tree with abf data
+        if "Book1" in OR.book_getNames():
+            if len(OR.sheet_getColData(0)[0])+len(OR.sheet_getColData(1)[0])==0:
+                LT('win -c Book1;')
+    except:
+        pass
     cmd=cmd.replace("\n"," ").strip()
     if " " in cmd:
         cmd,args=cmd.split(" ",1)
@@ -1277,12 +1319,13 @@ def swhcmd(abfFile,cmd):
         abfFile=None
     if cmd == '':
         print("""
-        DEBUGGING:
-            type 'sc echo' to enable/disable verbose mode
 
         DOCUMENTATION:
             Type 'sc help' for a list of commands.
             Type 'sc docs' to learn how to use them.
+
+        DEBUGGING:
+            type 'sc echo' to enable/disable verbose mode
 
         """)
     else:
@@ -1293,6 +1336,8 @@ def swhcmd(abfFile,cmd):
             log("sending args: [%s]"%args,4)
             try:
                 globals()[cmd](abfFile,cmd,args)
+                if "ABFBook" in OR.book_getNames():
+                    OR.book_setHidden("ABFBook")
             except:
                 log("sc command terminated unexpectedly.\n"+\
                     " use 'sc docs' to review command usage.\n"

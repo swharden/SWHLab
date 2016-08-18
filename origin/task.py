@@ -50,7 +50,7 @@ def LT(cmd,logit=True):
     if not cmd.endswith(";"):
         cmd=cmd+";"
     if logit:
-        log("~>%s"%cmd,4)
+        log(">>%s"%cmd,4)
     PyOrigin.LT_execute(cmd)
 
 def LT_set(name,val):
@@ -518,13 +518,19 @@ def cjf_getLast():
     return pyvals["pyNameBookShort"],pyvals["pyNameSheetShort"]
 
 def cjf_marksOn():
+    cjf_selectAbfGraph()
     LT("marks on")
 def cjf_marksOff():
+    cjf_selectAbfGraph()
     LT("marks off")
 
-def cjf_eventsOn():
+def cjf_eventsOn(saveData=None):
     """forcably enables event detection."""
-    log("turning event detection ON")
+    if saveData==True:
+        cjf_events_set(saveData=1)
+    if saveData==False:
+        cjf_events_set(saveData=0)
+    log("turning event detection ON",4)
     cmd="""if (btnEventDetection.color==1){
     btn_ToggleCJFMiniControls;
     btnEventDetection.color = 2;
@@ -534,17 +540,16 @@ def cjf_eventsOn():
 
 def cjf_eventsOff():
     """forcably disables event detection."""
-    log(" -- turning event detection OFF")
+    log("turning event detection OFF",4)
     cmd="""
     if (btnEventDetection.color==2) {
         btn_ToggleCJFMiniControls;
         btnEventDetection.color = 1;
         MiniPrep_CheckOtherSettings;
-        testmini;
-        hideeventmarkers;
     }
     """
     LT(cmd)
+    LT('hideeventmarkers;')
 
 def cjf_selectAbfGraph():
     """force the ABFGraph to be selected."""
@@ -580,11 +585,16 @@ def cjf_events_default_GABA():
     """enable event detection with default GABA settings."""
     cjf_events_set(area=60, positive=0, threshold=10, saveData=1, baseline=10,
                    baselineTime=.5, decayTime=30, decayValue=37, localMax=10)
+    cjf_events_draw()
 
 def cjf_events_default_AP():
     """enable event detection with default AP settings."""
     cjf_events_set(area=0, positive=1, threshold=10, saveData=1, baseline=2,
                    baselineTime=.5, decayTime=10, decayValue=5, localMax=5)
+    cjf_events_draw()
+
+def cjf_events_draw():
+    LT('testmini')
 
 def cjf_events_set(area=False,positive=False,threshold=False,saveData=False,
                    baseline=False,baselineTime=False,decayTime=False,
@@ -606,7 +616,7 @@ def cjf_events_set(area=False,positive=False,threshold=False,saveData=False,
     tree.FirstChild().NextSibling().SetStrValue(XML.toString()) #TODO: STRONGER
     LT('XML_to_minip("XML_MINIP")')
     LT('del -vs XML_MINIP')
-    LT('testmini') # to redraw graph window
+    #LT('testmini') # forces events to show
 
 def cjf_gs_set(decimateBy=False,phasic=False):
     """set graph settings."""
@@ -660,6 +670,32 @@ def cjf_GS_update():
 #############################################################################
 ### COMMON TASKS
 # This is really the point of this module.
+
+def averageVertically(keepOriginalData=False):
+    """Averages 2D data vertically. Runs on the selected worksheet."""
+    if keepOriginalData:
+        log("averaging vertically and down-shifting the old data.",4)
+    else:
+        log("averaging vertically and discarding old data.",4)
+    book,sheet=getSelectedBookAndSheet()
+    wks=PyOrigin.ActiveLayer()
+    for col in range(wks.GetColCount()):
+        data=np.array(wks.Columns(col).GetData()).astype(np.object)
+        for i in range(len(data)):
+            try:
+                data[i]=float(data[i])
+            except:
+                data[i]=np.nan
+        data=data.astype(float)
+        av=np.nanmean(data)
+        if keepOriginalData:
+            data=np.concatenate(([av],[np.nan],data))
+        else:
+            data=data*np.nan
+            data[0]=av
+        data=data.astype('U32')
+        data[np.where(data=='nan')]=''
+        wks.SetData([data],0,col)
 
 def collectCols(cols=["command","Freq"],book=None,newBook="collected",
                 matching=False,newSheet=False):
