@@ -213,11 +213,12 @@ def addClamps(abfFile,pointSec=None):
     that contains the clamp values at that time point.
     """
     #TODO: warn and exit if a worksheet isn't selected.
+    #TODO: if OR.notWorksheet(): return
     abf=swhlab.ABF(abfFile)
     if not type(pointSec) in [int,float]:
         pointSec=abf.protoSeqX[1]/abf.rate+.001
     vals=abf.clampValues(pointSec)
-    print(" -- clamp values:",vals)
+    log("determined clamp values: [%s]"%str(vals),5)
     OR.sheet_fillCol([vals],addcol=True, name="command",units=abf.unitsCommand,
                      comments="%d ms"%(pointSec*1000))
 
@@ -447,9 +448,9 @@ def group_addParent(parentID,group="uncategorized"):
         """.replace("        ","")
         OR.note_append(msg)
     if parentID in existing:
-        print(" -- group skip",parentID)
+        log("parent %s is already in the groups note"%parentID,4)
     else:
-        print(" -- group add",parentID)
+        log("adding %s to the groups note"%parentID,4)
         if not "GROUP: %s"%(group) in existing:
             OR.note_append("\nGROUP: %s"%(group))
         existing=OR.note_read().split("\n")

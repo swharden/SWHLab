@@ -46,11 +46,8 @@ ABF = abf.ABF
 from swhlab.core import common
 from swhlab.core import plot
 from swhlab.core import ap, memtest
-#from swhlab.core import origin
 from swhlab.origin import origin
 from swhlab.core import version
-
-print(" ~~ Loaded SWHLab (version %d)"%VERSION)
 
 if __name__=="__main__":
     reload()
