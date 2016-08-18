@@ -43,7 +43,10 @@ def cmd_getgroup(*args):
     read the workflow overview document for how to truly use this function.
     this is a groups-aware wrapper for ccave.
 
-    >>> sc getgroup collected sheetName [16711025_16711028, 16711039_16711045, 16718034_16718038, 16725007_16725012, 16725016_16725020, 16725031_16725035, 16725045_16725049, 16725059_16725063, 16803031_16803035, 16803052_16803057, 16803060_16803064, 16803067_16803071]
+    >>> sc getgroup collected sheetName [16711025_16711028, 16711039_16711045,
+    16718034_16718038, 16725007_16725012, 16725016_16725020, 16725031_16725035,
+    16725045_16725049, 16725059_16725063, 16803031_16803035, 16803052_16803057,
+    16803060_16803064, 16803067_16803071]
 
 
     """
@@ -52,10 +55,30 @@ def cmd_getgroup(*args):
     print("CMD:",cmd)
     print("ARGS:",args)
 
-def cmd_test(*args):
+def cmd_onex(*args):
+    """
+    If you have XYXYXYXY keep the first X column but delete all other Xs.
+    This is usually called after getcols if all Xs are the same.
+    >>> sc onex
+    """
+    if len(OR.sheet_getColNames())<3:
+        log("not reducing xy pairs because there arent many columns",4)
+        return
+    LT('wreducecols start:=3 skip:=1')
 
-    GET_FROM_BOOK="MT"
-    GET_FROM_COLUMN="iHold"
+def cmd_groupstats(*args):
+    """
+    This is a glorified 'getcols' that is group-aware and uses ccave.
+    Run this on a workbook where every sheet is a sheet named PARENT_ABF.
+    Runs on every sheet of the selected workbook.
+    >>> sc groupstats iHold
+    """
+    abfFile,cmd,args=args
+    GET_FROM_BOOK=OR.getSelectedBookAndSheet()[0]
+    GET_FROM_COLUMN=args
+    log("looking in book: "+GET_FROM_BOOK,4)
+    log("Grouping stats from column:"+GET_FROM_COLUMN,4)
+    log("I found %d sheets (cells)"%len(OR.book_getSheetNames()),4)
 
     # get groups from the groups note
     groups=OR.note_to_groups(OR.note_read("groups"))
@@ -75,9 +98,15 @@ def cmd_test(*args):
         script+='\n'
         script+='win -a %s;\n'%GET_FROM_BOOK
         script+='sc getcols [%s] %s;\n'%(", ".join(groups_sheets[group]),GET_FROM_COLUMN)
+        OR.sheet_delete(group) # go ahead and remove old stuff
         script+="wks.name$ = %s;\n"%group
+        script+="ccave;\n"
 
-    print(script)
+    script+='sc getcols;\n' #icing on the cake
+    script+='win -r collected %d;\n'%time.time() # unique short name
+    script+='page.longname$=collected group %s;\n'%GET_FROM_COLUMN # custom short name
+    print("SHOULD NAME TO:",GET_FROM_COLUMN)
+    script+='type if you can read this, nothing was cut off this script;'
     OR.runAfter(script)
 
 def cmd_checkout(*args):
@@ -610,6 +639,8 @@ def cmd_getcols(abfFile,cmd,args):
         ^^^ finds the first column with a name containing "Freq" and puts that
         same column in every worksheet and copies that data into a new sheet
         of a "collected" workbook.
+        ^^^ this now automatically generates XY pairs using the first column as X
+        would there be a need for 'sc getcols nox Freq'?
 
         >>> sc getcols _E Freq
         ^^^ same as above, but only return data from sheets with _E in them
@@ -624,7 +655,7 @@ def cmd_getcols(abfFile,cmd,args):
         >>> sc getcols * command Freq Area Events
         ^^^ if more items are given, XYYYY sets are made. I doubt this is useful.
 
-    Advanced:
+    Advanced Scripting:
         This probably should only be used inside scripts, but note that
         matching works both ways! The matching string be something like "_EVN",
         or a huge string containing a list of sheet names like:
@@ -636,10 +667,23 @@ def cmd_getcols(abfFile,cmd,args):
         >>> sc getcols [16711025, 16711028, 16711039] iHold
         ^^^ sc commands now allow multiline inputs so this can be 100s of ABFs
 
+    Special Case: accumulating statistics by group
+        Running 'sc getcols' on a selected workbook dumps output into a new
+        'collected' workbook. Therefore, 'sc getcols' never has any use if it
+        is run with the 'collected' workbook selected. A special case is
+        therefore called when this happens...
+            >>> sc getcols
+            - assumes ccave has been run on every sheet of the 'collected' book
+            - creates a summary sheet with Y,yEr pairs of all ccave results
+            ^^^ this is a HUGE time savings and a major advantage of SWHLab
+
     """
-    if OR.book_getActive() == "collected":
-        print("you can't run getcols on the collected worksheet!")
-        return
+    CCAVEs=False
+    if OR.book_getActive() == "collected" and args=="":
+        log("special case usage (see docs): overriding arguments")
+        args="* Average SE"
+        OR.sheet_delete("_CCAVEs_")
+        CCAVEs=True
     if not " " in args or len(args.split(" "))<2:
         print("at least 2 arguments required. read docs!")
         return
@@ -657,9 +701,19 @@ def cmd_getcols(abfFile,cmd,args):
             cols[i]=int(val) #turn string integers into integers
         except:
             pass #don't worry if it doesn't work, leave it a string
-    log("COLS: "+str(cols),4)
-    log("MATCHING: "+str(matching),4)
     OR.collectCols(cols,matching=matching)
+    if len(args)==2 and CCAVEs==False:
+        log("turning XYXYXY into XYYY")
+        cmd_onex(None)
+    if CCAVEs:
+        OR.sheet_rename("_CCAVEs_")
+        log("special case usage (see docs): setting column types")
+        wks=PyOrigin.ActiveLayer()
+        for col in range(wks.GetColCount()):
+            if col%2==0:
+                wks.Columns(col).SetType(0) # Y
+            else:
+                wks.Columns(col).SetType(2) #yEr
     return
 
 def cmd_addc(*args):

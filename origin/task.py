@@ -273,8 +273,12 @@ def book_getSheetNames(selectBook=False):
     if selectBook:
         book_select(selectBook)
     names=[]
-    for i in range(PyOrigin.ActivePage().Layers().GetCount()):
-        names.append(PyOrigin.ActivePage().Layers(i).GetName())
+    try:
+        for i in range(PyOrigin.ActivePage().Layers().GetCount()):
+            names.append(PyOrigin.ActivePage().Layers(i).GetName())
+    except:
+        log("book_getSheetNames() exception probably due to empty state",5)
+        pass
     return names
 
 ### SHEET ACTIONS
@@ -397,7 +401,7 @@ def sheet_getColNames():
 def sheet_getColData(col=0):
     """return [data,colname] from column (index or matching string)"""
     #TODO: make separate functions for data and name/units/comments
-    name=""
+    name="_noName_"
     if type(col) is str:
         for i,name in enumerate(sheet_getColNames()):
             if col in name:
@@ -658,7 +662,7 @@ def cjf_GS_update():
 # This is really the point of this module.
 
 def collectCols(cols=["command","Freq"],book=None,newBook="collected",
-                matching=False):
+                matching=False,newSheet=False):
     """
     assume each sheet is a cell and grab a column (or columns) to combine
     into a new workbook/worksheet. Columns can be in index values (starting
@@ -672,6 +676,8 @@ def collectCols(cols=["command","Freq"],book=None,newBook="collected",
         collectCols([0,"Freq"]) # partial string matches also work
         collectCols(["Freq"],matching="_step1") # string matching
 
+    Update: As of Aug2016 this always returns XY pairs.
+
     Matching works both ways!
         matching could be something like "_EVN" or a huge string containing
         a list of sheet names like:
@@ -681,14 +687,21 @@ def collectCols(cols=["command","Freq"],book=None,newBook="collected",
     """
     if type(cols) is str:
         cols=[cols]
+    if len(cols)==1:
+        log("collectCols() forcing XY pair using column 0",5)
+        cols=[sheet_getColNames()[0]]+cols
     if book:
         book_select(book)
     book=book_getActive()
     sheets=book_getSheetNames()
-    newSheet="%.02f"%time.time()
+    if not newSheet:
+        newSheet="%.02f"%time.time()
     book_new(newBook,newSheet)
     data=[]
     for sheet in sheets:
+        if sheet=="_CCAVEs_":
+            log("not collecting cols from "+sheet,5)
+            continue
         if matching and not matching in sheet and not sheet in matching:
             continue
         for col in cols:
