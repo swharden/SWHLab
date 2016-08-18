@@ -31,7 +31,10 @@ def log(msg,level=3):
     if type(msg) in [str,int,float]:
         msg=[[msg,level]]
     for item in msg:
-        cmd='log [%s] %d'%(item[0],item[1])
+        line=str(item[0])+" "+str(item[1])
+        line=" ".join(line.split(" "))
+        # by now the last single character is the loglevel
+        cmd='log [%s] %s'%(line[:-2],line[-1])
     LT(cmd,False)
 
 def log_level(level=None):
@@ -202,14 +205,20 @@ def book_new(book,sheet=False):
 
 def book_select(book,sheet=False):
     """select the given workbook."""
-    LT('win -a "%s";'%book) #TODO: warn if book doesn't eixst
+    LT('win -a %s;'%book) #TODO: warn if book doesn't eixst
     #redraw() this is slow
     if sheet:
         sheet_select(sheet)
 
 def book_getActive():
-    """returns the name of the selected book."""
-    return PyOrigin.ActivePage().GetName()
+    """
+    returns the name of the selected book.
+    returns False if no book is selected.
+    """
+    try:
+        return PyOrigin.ActivePage().GetName()
+    except:
+        return False
 
 def book_close(book):
     """close the given book, delete data"""
@@ -259,8 +268,10 @@ def book_dictInfo(d):
     log(" --- comments: %s"%d[sheet]["comments"])
     log(" --- data shape: %s"%d[sheet]["data"].shape)
 
-def book_getSheetNames():
+def book_getSheetNames(selectBook=False):
     """return list of sheet names in the current workbook."""
+    if selectBook:
+        book_select(selectBook)
     names=[]
     for i in range(PyOrigin.ActivePage().Layers().GetCount()):
         names.append(PyOrigin.ActivePage().Layers(i).GetName())
@@ -312,8 +323,14 @@ def sheet_select(sheet=None):
     return True
 
 def sheet_getActive():
-    """returns the name of the active sheet."""
-    return PyOrigin.ActivePage().Layers(0).GetName()
+    """
+    returns the name of the active sheet.
+    returns Fasle if no sheet is active (well, if no book is active)
+    """
+    try:
+        return PyOrigin.ActivePage().Layers(0).GetName()
+    except:
+        return False
 
 def sheet_rename(newname):
     """rename the currently selected sheet to something (spaces OK)"""
@@ -455,6 +472,14 @@ def window_minimize():
 
 ### ORIGIN HIGH LEVEL
 
+def runAfter(script):
+    """add commands to be run after this python script exits."""
+    tree=PyOrigin.GetTree("PYVALS")
+    tree.SetStrValue(script,"runAfter") # this crashes if the string is too long
+    log("runAfter loaded with %d characters"%len(script),4)
+    if len(script)>5000:
+        log(" ^^^ THATS KIND OF A LOT!"%len(script),4)
+
 def redraw():
     """force redraw of the selected graph or workbook"""
     log(" ### WARNING: performing ManualRefresh() which is slow...",4)
@@ -525,7 +550,7 @@ def cjf_selectAbfGraph():
 def cjf_selectLast():
     """force active of the last made worksheet."""
     book,sheet=cjf_getLast()
-    LT('win -a "%s";'%book)
+    LT('win -a %s;'%book)
     LT('page.active$ = "%s";'%sheet)
 
 def cjf_setpath(fname):

@@ -54,21 +54,15 @@ def cmd_getgroup(*args):
 
 def cmd_test(*args):
 
-    colName="iHold"
+    GET_FROM_BOOK="MT"
+    GET_FROM_COLUMN="iHold"
 
-    # we aren't in origin, so simulate having access to groups and a worksheet
+    # get groups from the groups note
     groups=OR.note_to_groups(OR.note_read("groups"))
-
-    d=OR.book_toDict("collected")
-    dBook=d['name'] # this will always be the name of the workbook
-    dSheets=list(d.keys()) # name of all sheets in the workbook
-    dSheets.remove('name') # find a more idiomatic way to do this
-    dSheetName=dSheets[0] # select the first worksheet of our workbook
-    dSheet=d[dSheetName] # now dSheet is the dictionary with all the data
 
     # make groups from the sheets we have in the selected workbook
     groups_sheets={} # this will contain all sheets we will work on
-    for sheet in dSheet["comments"]: # each column is a sheet name
+    for sheet in OR.book_getSheetNames(GET_FROM_BOOK):
         for group in groups:
             if sheet.split("_")[0] in groups[group]:
                 if not group in groups_sheets.keys():
@@ -76,12 +70,15 @@ def cmd_test(*args):
                 groups_sheets[group]=groups_sheets[group]+[sheet]
 
     # generate some commands to do what we want
+    script=""
     for group in groups_sheets:
-        cmd='sc getgroup %s %s %s [%s]'%(dBook,dSheetName,colName,
-                                    ", ".join(groups_sheets[group]))
-        print("\n"+cmd+"\nccave;")
-    print("\nsc ccaveCollect;")
+        script+='\n'
+        script+='win -a %s;\n'%GET_FROM_BOOK
+        script+='sc getcols [%s] %s;\n'%(", ".join(groups_sheets[group]),GET_FROM_COLUMN)
+        script+="wks.name$ = %s;\n"%group
 
+    print(script)
+    OR.runAfter(script)
 
 def cmd_checkout(*args):
     cm.checkOut(PyOrigin)
@@ -387,9 +384,7 @@ def cmd_setpaths(abfFile,cmd,args):
     }
     break -end;
     """
-    #TODO: should this be a macro?
-    tree=PyOrigin.GetTree("PYVALS")
-    tree.SetStrValue(script,"runAfter") # this crashes if the string is too long
+    OR.runAfter(script) # load it into the runafter spot
 
 
 def cmd_egg(*args):
@@ -638,10 +633,8 @@ def cmd_getcols(abfFile,cmd,args):
         of the group worksheet names. When sending huge strings with spaces
         from labtalk commands, wrap it in [a, b, c] instead of "a, b, c"
 
-    >>> sc getcols [16711025_16711028, 16711039_16711045, 16803067_16803071,
-                    16718034_16718038, 16725007_16725012, 16725016_16725020,
-                    16725031_16725035, 16725045_16725049, 16725059_16725063,
-                    16803031_16803035, 16803052_16803057] iHold
+        >>> sc getcols [16711025, 16711028, 16711039] iHold
+        ^^^ sc commands now allow multiline inputs so this can be 100s of ABFs
 
     """
     if OR.book_getActive() == "collected":
@@ -659,14 +652,13 @@ def cmd_getcols(abfFile,cmd,args):
     matching,cols=args[0],args[1:]
     if matching == "*":
         matching=False
-    print("COLS:",cols)
     for i,val in enumerate(cols):
         try:
             cols[i]=int(val) #turn string integers into integers
         except:
             pass #don't worry if it doesn't work, leave it a string
-    print("COLS:",cols)
-    print("MATCHING:",matching)
+    log("COLS: "+str(cols),4)
+    log("MATCHING: "+str(matching),4)
     OR.collectCols(cols,matching=matching)
     return
 
@@ -1241,7 +1233,18 @@ def swhcmd(abfFile,cmd):
     else:
         cmd="cmd_"+cmd
         if cmd in availableCommands():
-            globals()[cmd](abfFile,cmd,args)
+            log("calling python function: %s()"%(cmd),4)
+            log("sending ABF: %s"%abfFile,4)
+            log("sending args: [%s]"%args,4)
+            try:
+                globals()[cmd](abfFile,cmd,args)
+            except:
+                log("sc command terminated unexpectedly.\n"+\
+                    " use 'sc docs' to review command usage.\n"
+                    " use 'sc echo' to enable/disable debug mode.",1)
+                log("#"*10+" TRACEBACK "+"#"*10,4)
+                log(traceback.format_exc(),4)
+                log("#"*50,4)
         else:
             #print(" -- %s() doesn't exist!"%cmd)
             print()
