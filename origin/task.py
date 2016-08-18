@@ -134,8 +134,13 @@ def note_select(name):
     """select a note window."""
     LT('win -an %s'%name)
 
-def note_read():
-    """return contents of the active notes page."""
+def note_read(selectNote=False):
+    """
+    Return contents of the active notes page.
+    If a note name is given, select that notes page first.
+    """
+    if selectNote:
+        note_select(selectNote)
     return PyOrigin.ActiveNotePage().GetText()
 
 def note_set(text):
@@ -145,6 +150,29 @@ def note_set(text):
 def note_append(text,pre="\n"):
     """append text to the active notes page."""
     note_set(note_read()+pre+text)
+
+def note_to_groups(text,d={}):
+    """
+    given text from a note objet, return a groups dictionary.
+    optionally give this a dictionary to add to.
+    if text is a .txt filename, load its contents.
+    """
+    if text.endswith(".txt") and os.path.exists(text):
+        with open(text) as f:
+            text=f.read()
+    text=text.split("\n")
+    currentGroup=["NOTES MUST START WITH A GROUP"]
+    for line in text:
+        if len(line)<3 or line.startswith("#"):
+            continue
+        line=line.upper()
+        if line.startswith("GROUP:"):
+            currentGroup=line.replace("GROUP:","").strip()
+        else:
+            if not currentGroup in d.keys():
+                d[currentGroup]=[]
+            d[currentGroup]=d[currentGroup]+[line.strip()]
+    return d
 
 ### BOOK ACTIONS
 
@@ -192,8 +220,13 @@ def book_rename(newname,workbook=None):
     #TODO: active book
     LT("win -r %s %s;"%(workbook,newname))
 
-def book_toDict(bookName="ABFBook"):
-    """given the name of a workbook, return all its contents as a dict"""
+def book_toDict(bookName=None):
+    """
+    given the name of a workbook, return all its contents as a dict.
+    if no book name is given, use the active workbook.
+    """
+    if bookName is None:
+        bookName=book_getActive()
     book_select(bookName) #make it active by its name
     book={"name":bookName}
     for sheetNum in range(PyOrigin.Pages(bookName).Layers().GetCount()):
@@ -613,6 +646,13 @@ def collectCols(cols=["command","Freq"],book=None,newBook="collected",
         collectCols([0,3]) # same thing, but for X,Y pairs
         collectCols([0,"Freq"]) # partial string matches also work
         collectCols(["Freq"],matching="_step1") # string matching
+
+    Matching works both ways!
+        matching could be something like "_EVN" or a huge string containing
+        a list of sheet names like:
+            "16711025_16711028, 16711039_16711045, 16718034_16718038..."
+        this way you can select all columns from a group by sending it all
+        of the group worksheet names.
     """
     if type(cols) is str:
         cols=[cols]
@@ -624,7 +664,7 @@ def collectCols(cols=["command","Freq"],book=None,newBook="collected",
     book_new(newBook,newSheet)
     data=[]
     for sheet in sheets:
-        if matching and not matching in sheet:
+        if matching and not matching in sheet and not sheet in matching:
             continue
         for col in cols:
             book_select(book,sheet) #old book

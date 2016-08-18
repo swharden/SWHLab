@@ -36,8 +36,52 @@ except:
 
 ### DEVELOPMENT COMMANDS
 
+def cmd_getgroup(*args):
+    """
+    perform stats on certain columns of a large worksheet organized by group.
+    groups live in a note called 'groups' in the same folder.
+    read the workflow overview document for how to truly use this function.
+    this is a groups-aware wrapper for ccave.
+
+    >>> sc getgroup collected sheetName [16711025_16711028, 16711039_16711045, 16718034_16718038, 16725007_16725012, 16725016_16725020, 16725031_16725035, 16725045_16725049, 16725059_16725063, 16803031_16803035, 16803052_16803057, 16803060_16803064, 16803067_16803071]
+
+
+    """
+    abf,cmd,args=args
+    print("ABF:",abf)
+    print("CMD:",cmd)
+    print("ARGS:",args)
+
 def cmd_test(*args):
-    OR.cjf_setpath(r"X:\Data\2P01\2016\non-publish\2016-07-01 newprotos\16701012.abf")
+
+    colName="iHold"
+
+    # we aren't in origin, so simulate having access to groups and a worksheet
+    groups=OR.note_to_groups(OR.note_read("groups"))
+
+    d=OR.book_toDict("collected")
+    dBook=d['name'] # this will always be the name of the workbook
+    dSheets=list(d.keys()) # name of all sheets in the workbook
+    dSheets.remove('name') # find a more idiomatic way to do this
+    dSheetName=dSheets[0] # select the first worksheet of our workbook
+    dSheet=d[dSheetName] # now dSheet is the dictionary with all the data
+
+    # make groups from the sheets we have in the selected workbook
+    groups_sheets={} # this will contain all sheets we will work on
+    for sheet in dSheet["comments"]: # each column is a sheet name
+        for group in groups:
+            if sheet.split("_")[0] in groups[group]:
+                if not group in groups_sheets.keys():
+                    groups_sheets[group]=[]
+                groups_sheets[group]=groups_sheets[group]+[sheet]
+
+    # generate some commands to do what we want
+    for group in groups_sheets:
+        cmd='sc getgroup %s %s %s [%s]'%(dBook,dSheetName,colName,
+                                    ", ".join(groups_sheets[group]))
+        print("\n"+cmd+"\nccave;")
+    print("\nsc ccaveCollect;")
+
 
 def cmd_checkout(*args):
     cm.checkOut(PyOrigin)
@@ -584,6 +628,21 @@ def cmd_getcols(abfFile,cmd,args):
 
         >>> sc getcols * command Freq Area Events
         ^^^ if more items are given, XYYYY sets are made. I doubt this is useful.
+
+    Advanced:
+        This probably should only be used inside scripts, but note that
+        matching works both ways! The matching string be something like "_EVN",
+        or a huge string containing a list of sheet names like:
+            "16711025_16711028, 16711039_16711045, 16718034_16718038..."
+        this way you can select all columns from a group by sending it all
+        of the group worksheet names. When sending huge strings with spaces
+        from labtalk commands, wrap it in [a, b, c] instead of "a, b, c"
+
+    >>> sc getcols [16711025_16711028, 16711039_16711045, 16803067_16803071,
+                    16718034_16718038, 16725007_16725012, 16725016_16725020,
+                    16725031_16725035, 16725045_16725049, 16725059_16725063,
+                    16803031_16803035, 16803052_16803057] iHold
+
     """
     if OR.book_getActive() == "collected":
         print("you can't run getcols on the collected worksheet!")
@@ -591,7 +650,12 @@ def cmd_getcols(abfFile,cmd,args):
     if not " " in args or len(args.split(" "))<2:
         print("at least 2 arguments required. read docs!")
         return
-    args=args.split(" ")
+    if "[" in args and "]" in args:
+        # it contains a huge list. tread carefully.
+        args=args.split("] ")
+    else:
+        # it's a simple argument list
+        args=args.split(" ")
     matching,cols=args[0],args[1:]
     if matching == "*":
         matching=False
@@ -601,6 +665,8 @@ def cmd_getcols(abfFile,cmd,args):
             cols[i]=int(val) #turn string integers into integers
         except:
             pass #don't worry if it doesn't work, leave it a string
+    print("COLS:",cols)
+    print("MATCHING:",matching)
     OR.collectCols(cols,matching=matching)
     return
 
@@ -1155,7 +1221,7 @@ def swhcmd(abfFile,cmd):
     """this is called directly by origin."""
     OR.LT("pyABF_update") # populate pyABF labtalk tree with abf data
     #print(OR.treeToDict(str(PyOrigin.GetTree("PYABF")),verbose=True))
-    cmd=cmd.strip()
+    cmd=cmd.replace("\n"," ").strip()
     if " " in cmd:
         cmd,args=cmd.split(" ",1)
     else:
