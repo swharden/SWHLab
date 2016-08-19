@@ -28,6 +28,7 @@ except:
 ### LABTALK
 
 def log(msg,level=3):
+    msg=msg.replace("'","`")
     if type(msg) in [str,int,float]:
         msg=[[msg,level]]
     for item in msg:
@@ -198,20 +199,23 @@ def book_getNames():
 
 def book_new(book,sheet=False):
     if not book in book_getNames():
-        log("creating workbook",4)
+        log("book_new() creating workbook [%s]"%book,4)
         LT('newbook name:=%s sheet:=0 option:=lsname;'%book)
     else:
         log("I already see the workbook",4)
     book_select(book)
     if sheet:
+        log("book_new() whie making the book it seems a sheet [%s] is also wanted"%sheet,4)
         sheet_new(sheet)
         book_select(book)
 
 def book_select(book,sheet=False):
     """select the given workbook."""
+    log("selecting [%s]/%s"%(book,sheet),4)
     if not book in book_getNames():
-        log("CANT FIND BOOK! see log.",1)
+        log("CANT FIND BOOK [%s] see log."%book,1)
     LT('win -a %s;'%book) #TODO: warn if book doesn't eixst
+    fresh()
     if sheet:
         sheet_select(sheet)
 
@@ -289,10 +293,13 @@ def book_getSheetNames(selectBook=False):
 ### SHEET ACTIONS
 def sheet_new(sheet,book=None):
     """makes the sheet, or selects it if already there."""
-    if book is None:
-        book=book_getActive()
-    if not sheet in book_getSheetNames():
-        LT('newsheet name:="%s" book:=%s cols:=0; use:=1;'%(sheet,book))
+    if book:
+        book_select(book)
+    log("sheet_new() wants to make [%s]%s"%(book,sheet),4)
+    if sheet in book_getSheetNames():
+        log('not making sheet [%s] because it already exists.',4)
+    else:
+        LT('newsheet name:="%s" cols:=0 use:=1;'%(sheet))
     sheet_select(sheet)
 
 def sheet_delete(title):
@@ -336,12 +343,12 @@ def sheet_select(sheet=None):
             log("matching [%s] to sheet [%s]"%(sheet,potentialMatch),4)
             sheet=potentialMatch
     if sheet is None:
-        log("CANT FIND SHEET! see log.",1)
+        log("CANT FIND SHEET [%s] see log."%sheet,1)
     if not sheet in sheetNames:
         log("sheet (%s) doesn't exist so I can't select it."%(sheet),4)
         return False
     LT('page.active$ = "%s";'%sheet)
-    #redraw() this is slow
+    fresh()
     return True
 
 def sheet_getActive():
@@ -459,6 +466,7 @@ def sheet_toDict(): #works on active sheet
     while np.all(np.isnan(data[-1])): #trimn off extra rows
         data=data[:-1]
     d={"names":names,"units":units,"comments":comments,"data":data,"types":types}
+    log("turned sheet into a dict with data of shape [%s]"%(str(data.shape)),5)
     return d
 
 def sheet_fromDict(d={},newSheet=False):
@@ -484,6 +492,8 @@ def sheet_fromDict(d={},newSheet=False):
                       comments=d["comments"][col],
                       coltype=d["types"][col],
                       addcol=True)
+    log("made sheet from a dict with data of shape [%s]"%(str(d["data"].shape)),5)
+    fresh()
 
 
 
@@ -573,6 +583,7 @@ def cjf_eventsOff():
 def cjf_selectAbfGraph():
     """force the ABFGraph to be selected."""
     LT("win -a ABFGraph")
+    fresh()
     #redraw() this is slow
 
 def cjf_selectLast():
@@ -782,7 +793,13 @@ def collectCols(cols=["command","Freq"],book=None,newBook="collected",
     sheets=book_getSheetNames()
     if not newSheet:
         newSheet="%.02f"%time.time()
+    log("collectCols()",4)
+    log("  book_from=%s"%book,4)
+    log("  sheets=%d"%len(sheets),4)
+    log("  book_to=%s"%newBook,4)
+    log("  sheet_to=%s"%newSheet,4)
     book_new(newBook,newSheet)
+    print("BOOK AND SHEET SHOULD HAVE BEEN MADE")
     data=[]
     for sheet in sheets:
         if sheet=="_CCAVEs_":
@@ -800,6 +817,13 @@ def collectCols(cols=["command","Freq"],book=None,newBook="collected",
             sheet_fillCol(data,name=colName,comments=sheet,addcol=True,
                           coltype=coltype)
     return
+
+def fresh():
+    """
+    I noticed if I do this a lot, origin crashes less.
+    I think it's a way to let it do idle tasks.
+    """
+    LT("sec -p .01")
 
 if __name__=="__main__":
     print("DO NOT RUN THIS")

@@ -36,8 +36,80 @@ except:
 
 ### DEVELOPMENT COMMANDS
 
+def sheet_merge(sheets,outputSheet="merged",onlyOne=False):
+    """
+    given multiple sheet names (list), merge their data and create a new sheet.
+    It is assumed that columns of all sheets match identically, but rows may differ.
+    merging will occur in the the order that sheets are arranged in the list.
+
+    if onlyOne is True, the first column will be used as a key, and the output
+        sheet will have only one of each key. The first instance of the key
+        will be used, and later ones discarded. This is good for gain functions.
+
+    if onlyOne is False, the first column is treated as any other, and data is
+        just stacked vertically.
+    """
+    d=False
+    for i,sheet in enumerate(sheets): # turn sheet names into dictionaries
+        log("pulling in sheet %s"%sheet,4)
+        OR.sheet_select(sheet)
+        sheets[i]=OR.sheet_toDict()
+        if d is False: # it's the first one so do nothing
+            d=sheets[i]
+        elif onlyOne: # do the key matching thing
+            log("dnno how to do 1",1)
+        else: # just add stuff to the bottom
+            d["data"]=np.vstack((d["data"],sheets[i]["data"]))
+    OR.sheet_fromDict(d,outputSheet)
+    return
+
 def cmd_test(*args):
-    print("TEST")
+    OR.book_select("GAIN")
+    pairs=[]
+    steps=[]
+    exclude="_step2" #TODO: is this the best way?
+    sheets=OR.book_getSheetNames()
+    for sheet in sheets:
+        if sheet.endswith("merged"):
+            OR.sheet_delete(sheet)
+    sheets=OR.book_getSheetNames()
+    for sheet in sheets:
+        if sheet.endswith("merged"):
+            OR.sheet_delete(sheet)
+        if not "step" in sheet:
+            log("I found a sheet that doesn't have [_merged] or [step] in it... so I'm skipping it",1)
+            continue
+        prefix=sheet.split("_")[0]
+        step="_"+sheet.split("_")[-2]+"_"
+        if not prefix in pairs:
+            pairs.append(prefix)
+        if not step in steps:
+            steps.append(step)
+    for pair in pairs:
+        log("",4)
+        log("creating merge for %s"%pair,4)
+        matchingSheets=[]
+        for sheet in sheets:
+            if sheet.startswith(pair):
+                if not exclude in sheet:
+                    matchingSheets.append(sheet)
+        # let's keep only the last 1 of each step
+        matchingSheets.sort()
+        #log("I HAVE: %s"%matchingSheets)
+        for step in sorted(steps):
+            #log("ELIMINATING DUPLICATES OF STEP:"+step)
+            while str(matchingSheets).count(step)>1: # multiple of a step
+                for i,sheetName in enumerate(matchingSheets):
+                    if step in sheetName and str(matchingSheets).count(step)>1:
+                        log("ignoring data from extra sheet %s"%sheetName,4)
+                        matchingSheets[i]=""
+        while "" in matchingSheets:
+            matchingSheets.remove("")
+        log("I will create %s from %s"%(pair,matchingSheets),4)
+        if steps[0] in matchingSheets[0]:
+            sheet_merge(matchingSheets,pair+"_merged")
+        else:
+            log("not merging from [%s] becuase it skipped [%s]"%(pair,steps[0]))
 
 def cmd_showGS(*args):
     """
@@ -93,7 +165,7 @@ def cmd_onex(*args):
     """
     abf,cmd,args=args
     delEvery=2 #default
-    if len(args):
+    if args and len(args):
         delEvery=int(args)
     skip=delEvery-1
     log("deleting every %d column (skipping %d at a time)"%(delEvery,skip),4)
@@ -134,7 +206,9 @@ def cmd_groupstats(*args):
         script+='\n'
         script+='win -a %s;\n'%GET_FROM_BOOK
         script+='sc getcols [%s] %s;\n'%(", ".join(groups_sheets[group]),GET_FROM_COLUMN)
-        OR.sheet_delete(group) # go ahead and remove old stuff
+        script+='win -a collected;\n'
+        if group in OR.book_getSheetNames(GET_FROM_BOOK):
+            OR.sheet_delete(group) # go ahead and remove old stuff
         script+="wks.name$ = %s;\n"%group
         script+="ccave;\n"
 
@@ -454,6 +528,7 @@ def cmd_auto(abfFile,cmd,args):
             LT("m1 %f; m2 %f; CJFMini;"%(m1,m2))
             OR.book_select("GAIN","_~")
             OR.sheet_rename("%s_%s_%s_step%d"%(parentID,abf.ID,t,step))
+            cmd_addc(None)
 
     elif abf.protoComment.startswith("01-01-HP"):
         ### TODO: TREE SET
