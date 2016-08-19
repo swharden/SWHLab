@@ -198,15 +198,20 @@ def book_getNames():
 
 def book_new(book,sheet=False):
     if not book in book_getNames():
-        LT('newbook name:="%s" sheet:=0 option:=lsname;'%book)
+        log("creating workbook",4)
+        LT('newbook name:=%s sheet:=0 option:=lsname;'%book)
+    else:
+        log("I already see the workbook",4)
     book_select(book)
     if sheet:
         sheet_new(sheet)
+        book_select(book)
 
 def book_select(book,sheet=False):
     """select the given workbook."""
+    if not book in book_getNames():
+        log("CANT FIND BOOK! see log.",1)
     LT('win -a %s;'%book) #TODO: warn if book doesn't eixst
-    #redraw() this is slow
     if sheet:
         sheet_select(sheet)
 
@@ -282,10 +287,12 @@ def book_getSheetNames(selectBook=False):
     return names
 
 ### SHEET ACTIONS
-def sheet_new(sheet):
+def sheet_new(sheet,book=None):
     """makes the sheet, or selects it if already there."""
+    if book is None:
+        book=book_getActive()
     if not sheet in book_getSheetNames():
-        LT('newsheet name:="%s" cols:=0 use:=1;'%sheet)
+        LT('newsheet name:="%s" book:=%s cols:=0; use:=1;'%(sheet,book))
     sheet_select(sheet)
 
 def sheet_delete(title):
@@ -301,6 +308,7 @@ def sheet_move(toBook, fromBook=None, fromSheet=None, deleteOldBook=False):
     if no toSheet is given, it will keep its same name.
     it the toBook doesn't exist, it will be created.
     """
+    log("SHEET IS BEING MOVED THE OLD WAY!",1)
     if fromBook is None:
         fromBook=PyOrigin.ActivePage().GetName()
     book_select(fromBook)
@@ -318,8 +326,18 @@ def sheet_move(toBook, fromBook=None, fromSheet=None, deleteOldBook=False):
         book_close(fromBook)
 
 def sheet_select(sheet=None):
-    """select the sheet in the current book. Return False if doesnt exist."""
-    if not sheet in book_getSheetNames():
+    """
+    select the sheet in the current book. Return False if doesnt exist.
+    if a partial match exists, it uses the first partial match it finds
+    """
+    sheetNames=book_getSheetNames()
+    for potentialMatch in sheetNames:
+        if sheet in potentialMatch:
+            log("matching [%s] to sheet [%s]"%(sheet,potentialMatch),4)
+            sheet=potentialMatch
+    if sheet is None:
+        log("CANT FIND SHEET! see log.",1)
+    if not sheet in sheetNames:
         log("sheet (%s) doesn't exist so I can't select it."%(sheet),4)
         return False
     LT('page.active$ = "%s";'%sheet)
@@ -337,7 +355,12 @@ def sheet_getActive():
         return False
 
 def sheet_rename(newname):
-    """rename the currently selected sheet to something (spaces OK)"""
+    """
+    rename the currently selected sheet to something (spaces OK).
+    deletes the old one if it exists.
+    """
+    if newname in book_getSheetNames():
+        sheet_delete(newname)
     LT("wks.name$ = %s;"%newname)
 
 def sheet_addCol():
@@ -524,12 +547,8 @@ def cjf_marksOff():
     cjf_selectAbfGraph()
     LT("marks off")
 
-def cjf_eventsOn(saveData=None):
+def cjf_eventsOn():
     """forcably enables event detection."""
-    if saveData==True:
-        cjf_events_set(saveData=1)
-    if saveData==False:
-        cjf_events_set(saveData=0)
     log("turning event detection ON",4)
     cmd="""if (btnEventDetection.color==1){
     btn_ToggleCJFMiniControls;
@@ -577,19 +596,15 @@ def cjf_noteGet():
     """get contents of a worksheet note."""
     return
 
-def cjf_events_saveEvents(setTo=1):
-    """modify minip tree to enable/disable saving of events."""
-    cjf_events_set(saveData=1)
-
-def cjf_events_default_GABA():
+def cjf_events_default_GABA(saveData=1):
     """enable event detection with default GABA settings."""
-    cjf_events_set(area=60, positive=0, threshold=10, saveData=1, baseline=10,
+    cjf_events_set(area=60, positive=0, threshold=10, saveData=saveData, baseline=10,
                    baselineTime=.5, decayTime=30, decayValue=37, localMax=10)
     cjf_events_draw()
 
-def cjf_events_default_AP():
+def cjf_events_default_AP(saveData=1):
     """enable event detection with default AP settings."""
-    cjf_events_set(area=0, positive=1, threshold=10, saveData=1, baseline=2,
+    cjf_events_set(area=0, positive=1, threshold=10, saveData=saveData, baseline=2,
                    baselineTime=.5, decayTime=10, decayValue=5, localMax=5)
     cjf_events_draw()
 
@@ -606,7 +621,10 @@ def cjf_events_set(area=False,positive=False,threshold=False,saveData=False,
     if area: XML.set("GetN.Area",area)
     if positive: XML.set("GetN.Polarity",positive)
     if threshold: XML.set("GetN.Threshold",threshold)
-    if saveData: XML.set("GetN.bSaveMarkerData",saveData)
+    if saveData:
+        XML.set("GetN.bSaveMarkerData",1)
+    else:
+        XML.set("GetN.bSaveMarkerData",0)
     if baseline: XML.set("GetN.tBaseline",baseline)
     if baselineTime: XML.set("GetN.tBaselineTime",baselineTime)
     if decayTime: XML.set("GetN.tDecayTime",decayTime)
@@ -618,8 +636,31 @@ def cjf_events_set(area=False,positive=False,threshold=False,saveData=False,
     LT('del -vs XML_MINIP')
     #LT('testmini') # forces events to show
 
+def cjf_gs_set_key(d):
+    """
+    set a specific key of the graph settings.
+    input is a dictionary {'key1':'val1','key2':'val2"}
+    this is slow. It takes about 300ms.
+    To set a use case, make the value True of False rather than a string
+    """
+    if not type(d) is dict:
+        log("SETTING KEY REQUIRES A DICT",1)
+    LT('XML_from_gs("XML_GS")')
+    tree=PyOrigin.GetTree("XML_GS")
+    XML=pyOriginXML.OriginXML(tree.GetStrValue("xml"))
+    for key in d.keys():
+        if d[key] in [True,False]:
+            XML.use(key,d[key]) # set the use case
+        else:
+            XML.set(key,str(d[key])) # set the value
+    log(XML.thelog)
+    tree.FirstChild().NextSibling().SetStrValue(XML.toString()) #TODO: STRONGER
+    LT('XML_to_gs("XML_GS")')
+    LT('del -vs XML_GS')
+
 def cjf_gs_set(decimateBy=False,phasic=False):
     """set graph settings."""
+    log("stop using cjf_gs_set()",1)
     LT('XML_from_gs("XML_GS")')
     tree=PyOrigin.GetTree("XML_GS")
     XML=pyOriginXML.OriginXML(tree.GetStrValue("xml"))
@@ -631,6 +672,15 @@ def cjf_gs_set(decimateBy=False,phasic=False):
     tree.FirstChild().NextSibling().SetStrValue(XML.toString()) #TODO: STRONGER
     LT('XML_to_gs("XML_GS")')
     LT('del -vs XML_GS')
+
+def cjf_gs_show():
+    """show current ABFGraph settings by their keys in a webpage."""
+    cjf_selectAbfGraph()
+    LT('XML_from_gs("XML_OLD")')
+    tree_old=PyOrigin.GetTree("XML_OLD")
+    XML=pyOriginXML.OriginXML(tree_old.GetStrValue("xml"))
+    LT('del -vs XML_OLD')
+    cm.html_temp_launch(XML.keysShow(html=True))
 
 def cjf_GS_update():
     """save existing graph settings, reload, import old settings."""

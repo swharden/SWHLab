@@ -36,6 +36,19 @@ except:
 
 ### DEVELOPMENT COMMANDS
 
+def cmd_test(*args):
+    print("TEST")
+
+def cmd_showGS(*args):
+    """
+    Display a HTML formatted list of all of the editable keys from
+    the graph settings tree. Note that this only displays the keys and their
+    values (not their "use" state) but all can be modified easily using the
+    OriginXML class scott wrote. See pyOriginXML.py for details.
+    >>> sc showGS
+    """
+    OR.cjf_gs_show()
+
 def cmd_avUp(*args):
     """
     Averages 2D data vertically. Runs on the selected worksheet.
@@ -132,18 +145,7 @@ def cmd_groupstats(*args):
     script+='type if you can read this, nothing was cut off this script;'
     OR.runAfter(script)
 
-def cmd_checkout(*args):
-    cm.checkOut(PyOrigin)
 
-def html_temp_launch(html):
-    fname = tempfile.gettempdir()+"/swhlab/temp.html"
-    with open(fname,'w') as f:
-        f.write(html)
-    webbrowser.open(fname)
-
-def cmd_code_pb():
-    """demonstrate how to do an interactive progressbar in labtalk."""
-    return
 
 def cmd_logtest(*args):
     """
@@ -169,7 +171,7 @@ def cmd_logtest(*args):
     log("we are all done now")
     log("phew!",4)
     log("Setting log level back to 3")
-    log_level(3)
+    LT('log_level 3;')
     log("you shouldn't be able to see this",4)
 
 def cmd_GSupdate(*args):
@@ -237,6 +239,7 @@ def addClamps(abfFile,pointSec=None,replaceFirstCol=True):
     """
     #TODO: warn and exit if a worksheet isn't selected.
     #TODO: if OR.notWorksheet(): return
+    #TODO: read this from ABF book
     abf=swhlab.ABF(abfFile)
     if not type(pointSec) in [int,float]:
         pointSec=abf.protoSeqX[1]/abf.rate+.001
@@ -257,84 +260,6 @@ def addSheetNotesFromABF(abfFile):
     These notes come from experiment.txt in the abf folder.
     """
     OR.cjf_noteSet(cm.getNotesForABF(abfFile))
-
-def ramp(book,sheet):
-    """
-    perform AP analysis on a current clamp ramp protocol.
-    almost identical to gain()
-    """
-    #TODO: add function to warn/abort if "EventsEp" worksheet exists.
-    OR.book_close("EventsEp") #TODO: lots of these lines can be eliminated now
-    OR.book_close("EventsEpbyEve")
-    OR.cjf_selectAbfGraph()
-
-    LT("CJFMini;")
-
-    OR.book_select("EventsEp")
-    OR.sheet_select()
-    OR.sheet_rename(sheet)
-    OR.sheet_move(book+"gain")
-    cmd_addc(None)
-    OR.book_close("EventsEp")
-
-    OR.book_select("EventsEpbyEve")
-    OR.sheet_select()
-    OR.sheet_rename(sheet)
-    OR.sheet_move(book+"aps")
-
-    # make event time experiment time
-    LT('col(B)/=1000; col(B)+=col(A)')
-
-    # instantaneous command is needed
-    LT('wks.AddCol(pA)')
-    LT('copy col(B) col(pA); col(pA)/=100; col(pA)+=10*col(A)')
-    LT('wks.col = wks.nCols; wks.col.unit$=pA; wks.col.lname$=command')
-
-    OR.book_close("EventsEpbyEve")
-
-def gain(m1,m2,book,sheet):
-    """
-    perform a standard AP gain analysis. Marker positions required.
-    Optionally give it a sheet name (to rename it to).
-    All sheets will IMMEDIATELY be moved out of EventsEp.
-    Optionally, give noesFromFile and notes will be populated.
-    Note that "Events" worksheets will be deleted, created, and deleted again.
-    -- m1 and m2: marker positions (ms)
-    -- book/sheet: output workbook/worksheet
-    """
-    #TODO: add function to warn/abort if "EventsEp" worksheet exists.
-    OR.book_close("EventsEp") #TODO: lots of these lines can be eliminated now
-    OR.book_close("EventsEpbyEve")
-    OR.cjf_selectAbfGraph()
-
-    LT("m1 %f; m2 %f;"%(m1,m2))
-    LT("CJFMini;")
-    OR.book_select("EventsEp")
-    OR.sheet_select() #select the ONLY sheet in the book
-    OR.sheet_rename(sheet)
-    OR.sheet_move(book)
-
-    OR.book_close("EventsEp")
-    OR.book_close("EventsEpbyEve")
-    OR.book_select(book)
-    cmd_addc(None)
-
-def VCIV(m1,m2,book,sheet):
-    """
-    perform voltage clamp IV analysis on a range of markers.
-    Note that "MarkerStatsEp" worksheets will be deleted.
-    -- m1 and m2: marker positions (ms)
-    -- book/sheet: output workbook/worksheet
-    """
-    #TODO: add function to warn/abort if "MarkerStatsEp" worksheet exists.
-    OR.cjf_selectAbfGraph()
-    LT("m1 %f; m2 %f;"%(m1,m2))
-    OR.book_close("MarkerStatsEp")
-    LT("getstats;")
-    OR.book_select("MarkerStatsEp") #TODO: add command to calculate Rm
-    OR.sheet_rename(sheet)
-    OR.sheet_move(book, deleteOldBook=True)
-
 
 ##########################################################
 # COMMANDS ###############################################
@@ -426,18 +351,21 @@ def cmd_setpaths(abfFile,cmd,args):
         path=os.path.join(os.path.dirname(abfFile),path+".abf")
         LT('ABFS.Add("%s")'%path) # add to the string array
     script="""
+    timeit;
     for (ii = 1; ii <= ABFS.GetSize(); ii++){
         	setpath ABFS.GetAt(ii)$;
         	win -a ABFGraph; // raise it
         	ManualRefresh; // redraw it
          sc auto; // do the thing
+         timeit "analysis so far" ii 2; // show time info
          sec -p .5; // give time for old progress bars to fade away
          break -b SWHLab analyzing abf $(ii) of $(ABFS.GetSize()); // launch new progressbar
          break -r 1 ABFS.GetSize(); // set scale of progress bar
         	break -p ii; // update progress bar value
          sec -p 1.5; // must come at end of for loop to allow breaking
     }
-    break -end;
+    break -end;☺
+    timeit "AUTOMATIC ANALYSIS" ii-1 1;
     """
     OR.runAfter(script) # load it into the runafter spot
 
@@ -469,7 +397,8 @@ def group_addParent(parentID,group="uncategorized"):
         # The first word of each line is considered the ABF ID of a parent.
         # If the line starts with "GROUP: ", a new group is made and
         #   all ABFs (parent IDs) listed below it belong to that group.
-        # Running 'sc auto' adds new parents to this list.
+        # Probably should run 'sc groupExp' before analysis begins.
+        # Running 'sc auto' adds new parents to this list automatically.
         """.replace("        ","")
         OR.note_append(msg)
     if parentID in existing:
@@ -510,58 +439,86 @@ def cmd_auto(abfFile,cmd,args):
     # by default events and markers are set to OFF
     OR.cjf_eventsOff()
     OR.cjf_marksOff()
-
+    OR.cjf_events_draw()
 
     if abf.protoComment.startswith("01-13-"):
         log("looks like a dual gain protocol")
-        OR.cjf_eventsOn(1)
-        OR.cjf_events_default_AP()
-        #OR.cjf_events_draw() # call this manually if you make changes
+        OR.cjf_eventsOn()
+        OR.cjf_events_default_AP(saveData=0) # automatically enables save data
+        OR.cjf_gs_set_key({'GetN.CJFGeneral.CJFBooks.strEventsEp':'GAIN',
+                           'GetN.CJFGeneral.CJFTags.strEPEvents':'_~',
+                           })
         t=abf.protoComment.split("steps")[1].split("dual")[0]
-        gain( 132.44, 658.63,"gain","%s_%s_%s_step1"%(parentID,abf.ID,t))
-        gain(1632.44,2158.63,"gain","%s_%s_%s_step2"%(parentID,abf.ID,t))
+        for step,m1,m2 in [[1,132.44, 658.63],[2,1632.44,2158.63]]:
+            OR.cjf_selectAbfGraph()
+            LT("m1 %f; m2 %f; CJFMini;"%(m1,m2))
+            OR.book_select("GAIN","_~")
+            OR.sheet_rename("%s_%s_%s_step%d"%(parentID,abf.ID,t,step))
 
     elif abf.protoComment.startswith("01-01-HP"):
+        ### TODO: TREE SET
         log("looks like current clamp tau protocol")
         LT("tau")
-        OR.book_new("tau","%s_%s"%(parentID,abf.ID))
+        OR.book_new("tau")
+        OR.sheet_new("%s_%s"%(parentID,abf.ID))
         tau=OR.LT_get('tauval')
-        log(" -- TAU: %s"%tau,4)
+        log("TAU: %s"%tau,4)
         OR.sheet_fillCol([[tau]],addcol=True, name="tau",units="ms")
 
     elif abf.protoComment.startswith("02-01-MT"):
         log("looks like a memtest protocol") #TODO: event detection?
-        OR.book_close("MemTests")
+        OR.cjf_gs_set_key({'GetN.CJFGeneral.CJFBooks.strMT':'MT',
+                   'GetN.CJFGeneral.CJFTags.strMT':'_~',
+                   })
         LT("memtest;")
-        OR.book_select("MemTests")
-        OR.averageVertically(False)
+        OR.book_select("MT","_~")
         OR.sheet_rename("%s_%s"%(parentID,abf.ID))
-        OR.sheet_move("MT",deleteOldBook=True)
+        OR.averageVertically()
 
     elif abf.protoComment.startswith("02-02-IV"):
         log("looks like a voltage clamp IV protocol")
-        OR.cjf_gs_set(phasic=True)
-        VCIV( 900,1050,"IV","%s_%s_step1"%(parentID,abf.ID))
-        addClamps(abfFile,.900)
-        VCIV(2400,2550,"IV","%s_%s_step2"%(parentID,abf.ID))
-        addClamps(abfFile,2.400)
+        OR.cjf_gs_set_key({'GetN.CJFGeneral.CJFBooks.strEventMarksEp':'IV',
+                           'GetN.CJFGeneral.CJFTags.strMStats':'_~',
+                           'phasic/tonic':True,
+                           })
+        for step,m1,m2 in [[1,900,1050],[2,2400,2550]]:
+            OR.cjf_selectAbfGraph()
+            LT("m1 %f; m2 %f; getstats;"%(m1,m2))
+            OR.book_select("IV","_~")
+            OR.sheet_rename("%s_%s_step%d"%(parentID,abf.ID,step))
+            addClamps(abfFile,m1/1000.0,True)
 
     elif abf.protoComment.startswith("01-11-rampStep"):
+        ### TODO: TREE SET
         log("looks like a current clamp ramp protocol")
-        OR.cjf_eventsOn(1)
-        OR.cjf_events_default_AP()
-        ramp("RAMP","%s_%s"%(parentID,abf.ID))
+        OR.cjf_eventsOn()
+        OR.cjf_events_default_AP(saveData=1)
+        OR.cjf_gs_set_key({'GetN.CJFGeneral.CJFBooks.strEventsEp':'RAMP',
+                           'GetN.CJFGeneral.CJFTags.strEPEvents':'_~',
+                           })
+        OR.cjf_selectAbfGraph()
+        LT("CJFMini;")
+        for book in ["RAMP","RAMPbyEvent"]:
+            OR.book_select(book,"_~")
+            OR.sheet_rename("%s_%s"%(parentID,abf.ID))
+            if book is "RAMP":
+                cmd_addc(None)
+            elif book is "RAMPbyEvent":
+                LT('col(B)/=1000; col(B)+=col(A)') # make event time experiment time
+                LT('wks.AddCol(pA)') # instantaneous command
+                LT('copy col(B) col(pA); col(pA)/=100; col(pA)+=10*col(A)')
+                LT('wks.col = wks.nCols; wks.col.unit$=pA; wks.col.lname$=command')
 
     elif "-MTmon" in abf.protoComment:
         log("looks like a memtest protocol where drugs are applied")
-        OR.cjf_gs_set(phasic=True)
-        LT("varTags")
-        OR.book_close("MemTests")
+        OR.cjf_gs_set_key({'GetN.CJFGeneral.CJFBooks.strMT':'drugMT',
+                   'GetN.CJFGeneral.CJFTags.strMT':'_~',
+                   })
         LT("memtest;")
-        OR.book_select("MemTests")
-        OR.sheet_setComment(OR.LT_get("varTags",True).strip()) #topleft cell
+        OR.book_select("drugMT","_~")
         OR.sheet_rename("%s_%s"%(parentID,abf.ID))
-        OR.sheet_move("drugVC",deleteOldBook=True)
+        LT("varTags;")
+        OR.sheet_setComment(OR.LT_get("varTags",True).strip()) #topleft cell
 
     else:
         log("I don't know how to analyze protocol: [%s]"%abf.protoComment,2)
@@ -1215,23 +1172,6 @@ def cmd_move(abfFile,cmd,args):
         OR.sheet_move(args[0],args[1],args[2])
     return
 
-def cmd_treeshow(abfFile,cmd,args):
-    """
-    display any origin tree object. Only
-
-    example:
-        >>> sc treeshow pyvals
-        >>> sc treeshow pynotes
-    """
-    args=args.strip().upper()
-    print(str(PyOrigin.GetTree(args)))
-
-#def cmd_pyvals(abfFile,cmd,args):
-#    """shows data from the last ABFGraph tree."""
-#    LT("CJFDataTopyVals;")
-#    pyvals=OR.treeToDict(str(PyOrigin.GetTree("PYVALS")),verbose=True)
-#    print("pyvals has %d master keys"%len(pyvals))
-
 ######################################################
 ### documentation
 
@@ -1335,9 +1275,11 @@ def swhcmd(abfFile,cmd):
             log("sending ABF: %s"%abfFile,4)
             log("sending args: [%s]"%args,4)
             try:
+                t1=time.time()
                 globals()[cmd](abfFile,cmd,args)
                 if "ABFBook" in OR.book_getNames():
                     OR.book_setHidden("ABFBook")
+                log("SWHLab command completed in %.02f seconds"%(time.time()-t1),4)
             except:
                 log("sc command terminated unexpectedly.\n"+\
                     " use 'sc docs' to review command usage.\n"
