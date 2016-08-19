@@ -552,7 +552,7 @@ def cmd_auto(abfFile,cmd,args):
         OR.cjf_events_default_AP()
         ramp("RAMP","%s_%s"%(parentID,abf.ID))
 
-    elif abf.protoComment.startswith("04-01-MTmon"):
+    elif "-MTmon" in abf.protoComment:
         log("looks like a memtest protocol where drugs are applied")
         OR.cjf_gs_set(phasic=True)
         LT("varTags")
