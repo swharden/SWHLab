@@ -116,8 +116,7 @@ def treeToDict(s):
         else:
             s[i]+=' = {}'
     for line in sorted(s):
-        if VERBOSE:
-            log(line)
+        log(line,4)
         exec(line)
     return pyvals
 

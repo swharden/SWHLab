@@ -267,11 +267,10 @@ def cmd_extractAP(*args):
     OR.LT("if (LBL_Mark1.Show==0) btn_ToggleMarks; bringmarks;")
     m1s=OR.LT_get("mark1.x")/1000
     m2s=OR.LT_get("mark2.x")/1000
-    RATE=int(OR.treeToDict(str(PyOrigin.GetTree("PYABF")))["dRate"])
+    RATE=int(OR.treeToDict(str(PyOrigin.GetTree("PYVALS")))["RATE"])
     m1i=int(m1s*RATE)
     m2i=int(m2s*RATE)
-    print("extracting from points:",m1i,m2i)
-
+    log("extracting data from between index %d and %d "%(m1i,m2i),4)
     OR.book_select("ABFBook")
     OR.sheet_select("ABFData")
     data,name=OR.sheet_getColData(1)
