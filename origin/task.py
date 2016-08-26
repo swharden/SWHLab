@@ -28,10 +28,10 @@ except:
 ### LABTALK
 
 def log(msg,level=3):
-    msg=msg.replace("'","`")
     if type(msg) in [str,int,float]:
         msg=[[msg,level]]
     for item in msg:
+        item[0]=item[0].replace("'","`")
         line=str(item[0])+" "+str(item[1])
         line=" ".join(line.split(" "))
         # by now the last single character is the loglevel
