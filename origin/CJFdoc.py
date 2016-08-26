@@ -170,6 +170,8 @@ def documentOriginCfolder(folder,debug=False):
     d={}
     for fname in glob.glob(folder+"/*.c"):
         d=getParts(fname,d)
+    if os.path.exists(r'C:\Apps\pythonModules\OriginC\CJFLab\SWH.C'):
+        d=getParts(r'C:\Apps\pythonModules\OriginC\CJFLab\SWH.C',d)
     if debug:
         gendocDebug(d,folder+"/CJF_doc_debug.html")
     gendocRegular(d,folder+"/CJF_doc.html")
