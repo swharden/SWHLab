@@ -67,7 +67,7 @@ def lazygo(watchFolder='../abfs/',reAnalyze=False,rebuildSite=False,
 
 if __name__=="__main__":
     print(sys.argv)
-    lazygo(r'X:\Data\2P01\2016\2016-07-11 PIR TR IHC',rebuildSite=True)
+    lazygo(r'X:\Data\2P01\2016\non-publish\2016-08-22 PIR PN GABA',rebuildSite=True)
     #lazygo(r'C:\Users\swharden\Desktop\green blue\abfs')
     #lazygo(r'X:\Data\2P01\2016\2016-07-11 PIR TR IHC',keepGoing=False)
     #lazygo(r'X:\Data\2P01\2016\2016-07-11 PIR TR IHC',keepGoing=False,reAnalyze=True,matching="16711054")

@@ -490,6 +490,11 @@ def group_addParent(parentID,group="uncategorized"):
 
 ### PRE-PROGRAMMED ANALYSIS ROUTINES
 
+def cmd_renameByParent():
+    """Rename a sheet as parent_abf by pulling its metadata path."""
+    parent=cm.getParent(abfFile)
+    parentID=os.path.basename(parent).replace(".abf","")
+
 def cmd_note(*args):
     print(OR.cjf_noteGet())
 
@@ -1074,7 +1079,7 @@ def cmd_gain(abfFile,cmd,args):
 
     OR.cjf_eventsOn() # enable events
     OR.cjf_events_default_AP() # load with default AP settings
-    OR.cjf_events_set(saveData=1) # demo how to set only one thing
+    #OR.cjf_events_set(saveData=1) # demo how to set only one thing
 
 
 def cmd_tau(abfFile,cmd,args):
