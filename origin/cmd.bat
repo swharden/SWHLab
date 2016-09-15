@@ -1,2 +1,0 @@
-python win_abfSelect.py
-pause
