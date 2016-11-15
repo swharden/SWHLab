@@ -5,3 +5,4 @@ User:
 
 Developer:
 * spyder
+* pyqt5
