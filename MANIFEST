@@ -6,4 +6,5 @@ swhlab\__init__.py
 swhlab\abf.py
 swhlab\ap.py
 swhlab\common.py
+swhlab\image.py
 swhlab\plot.py
