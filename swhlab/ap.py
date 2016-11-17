@@ -11,8 +11,9 @@ There's a potential that an AP may be lost within a few ms from an edge.
 """
 
 import logging
-import common
-from abf import ABF
+from . import common
+from . import abf as moduleABF
+ABF=moduleABF.ABF
 import numpy as np
 
 # REMOVE THIS:

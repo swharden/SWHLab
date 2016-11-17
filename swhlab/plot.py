@@ -5,7 +5,8 @@ Try to keep analysis (event detection, etc) out of this.
 
 import os
 import logging
-from abf import ABF
+from . import abf as ABFmodule
+ABF=ABFmodule.ABF
 import matplotlib.pyplot as plt
 
 class ABFplot:
