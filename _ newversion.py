@@ -9,4 +9,3 @@ if __name__=="__main__":
     with open('swhlab/__init__.py','w') as f:
         f.write("\n".join(raw))
     print("upgraded from version %d to %d"%(version,version+1))
-    time.sleep(2)
