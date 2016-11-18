@@ -16,7 +16,12 @@ setup(
        'matplotlib',
        'numpy',
     ],
-    install_requires=['neo>=0.4.1'],
+    install_requires=[
+       'neo>=0.4.1',
+       'webinspect>=0.2.8',
+       'matplotlib>=1.3.1',
+       'numpy>=1.8.1',
+    ],
     platforms='any',
     description='Tools to analyze electrophysiological data from ABF files',
     long_description="""SWHLab is a collection of tools to provide easy access
