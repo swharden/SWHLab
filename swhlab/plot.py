@@ -6,7 +6,9 @@ Try to keep analysis (event detection, etc) out of this.
 import os
 import logging
 from . import abf as ABFmodule
+#from . import abf as ABFmodule
 ABF=ABFmodule.ABF
+import glob
 import matplotlib.pyplot as plt
 
 class ABFplot:
@@ -60,6 +62,14 @@ class ABFplot:
             plt.close('all')
         else:
             self.log.debug("closing 1 figure (of %d)"%numFigures)
+            plt.close()
+            
+    def save(self,callit="misc",closeToo=True):
+        """save the existing figure. does not close it."""
+        fname=self.abf.outPre+callit+".png"
+        plt.savefig(fname)
+        self.log.info("saved [%s]",os.path.basename(fname))
+        if closeToo:
             plt.close()
                      
     ### misc
@@ -139,27 +149,20 @@ class ABFplot:
             self.marginX=.05
         self.decorate()
         
+        
 if __name__=="__main__":
-    abfFile=r"C:\Users\scott\Documents\important\2016-07-01 newprotos\16701009.abf"
-    #abfFile=r"C:\Users\scott\Documents\important\2016-07-01 newprotos\16701015.abf"
-    plot=ABFplot(abfFile)
-
-    plot.subplot=True
+    fnames=glob.glob(r"C:\Users\scott\Documents\important\abfs\*.abf")
     
-    plt.figure()
-    plt.subplot(221)
-    plot.figure_chronological()
-    plt.subplot(222)
-    plot.figure_sweep(10)
-    plt.subplot(223)
-    plot.figure_sweeps(.1,100)
-    plt.subplot(224)
-    plot.figure_sweeps(0,100)
+    for fname in fnames:
+        plot=ABFplot(fname)
+        
+        plot.title="last sweep (%d)"%plot.abf.sweeps
+        plot.figure_sweep(-1)
+        plot.save("lastSweep")
+        
+        plot.title="first sweep (0)"
+        plot.figure_sweep(0)        
+        plot.save("firstSweep")
     
-    plot.show()
-    plot.close(True)
-    
-#    for abfFile in glob.glob(r"C:\Users\scott\Documents\important\2016-07-01 newprotos\*.abf"):
-#        abf=ABF(abfFile)
-    
+    print("found %d files"%len(fnames))
     print("DONE")

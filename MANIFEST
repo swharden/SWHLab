@@ -7,4 +7,6 @@ swhlab\abf.py
 swhlab\ap.py
 swhlab\common.py
 swhlab\image.py
+swhlab\index.py
 swhlab\plot.py
+swhlab\style.py

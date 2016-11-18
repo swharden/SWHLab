@@ -94,7 +94,7 @@ class ABF:
         self.filename=os.path.abspath(fname) # full path to file on disk
         self.fileID=os.path.abspath(os.path.splitext(self.filename)[0]) # no extension
         self.outFolder=os.path.abspath(os.path.dirname(fname)+"/swhlab/") # save stuff here
-        self.outPre=os.path.join(self.outFolder,self.ID) # save files prefixed this
+        self.outPre=os.path.join(self.outFolder,self.ID)+'_' # save files prefixed this
         self.sweeps=self.ABFblock.size["segments"] # number of sweeps in ABF
         self.timestamp=self.ABFblock.rec_datetime # when the ABF recording started
         self.derivative=False # whether or not to use the first derivative
@@ -103,10 +103,12 @@ class ABF:
         if createFolder:
             self.output_touch() # make sure output folder exists
         #TODO: detect if invalid or corrupted ABF
-        self.log.debug("ABF loaded.")    
+        self.log.debug("ABF loaded. (protocol: %s)"%self.protocomment)    
         
     def setsweep(self, sweep=0, channel=0):
         """set the sweep and channel of an ABF. Both start at 0."""
+        if sweep<0:
+            sweep=self.sweeps-1-sweep # if negative, start from the end
         sweep=max(0,min(sweep,self.sweeps-1)) # correct for out of range sweeps
         if 'sweep' in dir(self) and self.sweep == sweep and self.derivative is False:
             self.log.debug("sweep %d already set",sweep)
