@@ -79,7 +79,7 @@ class ABF:
                 except:
                     pass
             return
-        self.log.debug("starting ABF class")    
+        self.log.debug("_"*60)    
         self.log.info("loading ABF [%s]"%str(fname))        
         if not os.path.exists(str(fname)):
             self.log.error("path doesn't exist!")
@@ -113,7 +113,7 @@ class ABF:
         if 'sweep' in dir(self) and self.sweep == sweep and self.derivative is False:
             self.log.debug("sweep %d already set",sweep)
             return
-        self.log.debug("loading sweep %d (Ch%d)",sweep,channel)
+        #self.log.debug("loading sweep %d (Ch%d)",sweep,channel)
         self.channels=self.ABFblock.segments[sweep].size["analogsignals"]
         if self.channels>1:
             self.log.error("multichannel not yet supported") #TODO

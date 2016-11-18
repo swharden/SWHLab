@@ -33,7 +33,9 @@ def timeit(timer=None):
 def epochToDatetime(epoch=time.time()):
     return datetime.datetime.fromtimestamp(epoch)
 
-def datetimeToString(dt):
+def datetimeToString(dt=None):
+    if not dt:
+        dt=datetime.datetime.now()
     return dt.strftime('%Y-%m-%d %H:%M:%S') #standard for all SWHLAB
 
 def epochToString(epoch):

@@ -5,9 +5,8 @@ Try to keep analysis (event detection, etc) out of this.
 
 import os
 import logging
-from . import abf as ABFmodule
-#from . import abf as ABFmodule
-ABF=ABFmodule.ABF
+from abf import ABF
+
 import glob
 import matplotlib.pyplot as plt
 
@@ -42,8 +41,12 @@ class ABFplot:
         
     ### high level plot operations
             
-    def figure(self):
+    def figure(self,forceNew=False):
         """make sure a figure is ready."""
+        if plt._pylab_helpers.Gcf.get_num_fig_managers()>0 and forceNew is False:
+            self.log.debug("figure already seen, not creating one.")
+            return
+        
         if self.subplot:
             self.log.debug("subplot mode enabled, not creating new figure")
         else:
@@ -66,7 +69,7 @@ class ABFplot:
             
     def save(self,callit="misc",closeToo=True):
         """save the existing figure. does not close it."""
-        fname=self.abf.outPre+callit+".png"
+        fname=self.abf.outPre+callit+".jpg"
         plt.savefig(fname)
         self.log.info("saved [%s]",os.path.basename(fname))
         if closeToo:
@@ -151,18 +154,17 @@ class ABFplot:
         
         
 if __name__=="__main__":
-    fnames=glob.glob(r"C:\Users\scott\Documents\important\abfs\*.abf")
+    #fnames=glob.glob(r"C:\Users\scott\Documents\important\abfs\*.abf")
+    fnames=glob.glob(r"C:\Users\swharden\Desktop\limited\*.abf")
     
     for fname in fnames:
         plot=ABFplot(fname)
         
-        plot.title="last sweep (%d)"%plot.abf.sweeps
-        plot.figure_sweep(-1)
-        plot.save("lastSweep")
+        plot.figure_chronological()
+        plot.save("chronological")
         
-        plot.title="first sweep (0)"
-        plot.figure_sweep(0)        
-        plot.save("firstSweep")
+        plot.figure_sweeps()    
+        plot.save("sweeps")
     
     print("found %d files"%len(fnames))
     print("DONE")

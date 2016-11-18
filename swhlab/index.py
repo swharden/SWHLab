@@ -5,6 +5,8 @@ code related to generating HTML index of collections of ABFs
 import logging
 import os
 import style
+import shutil
+import image
 
 #TODO: move this somewhere more intelligent
 logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s', 
@@ -61,11 +63,14 @@ def smartSort(IDs):
     given a list of goofy ABF names, return it sorted intelligently.
     This places things like 16o01001 after 16901001.
     """
+    IDs=list(IDs)
     monO=[]
     monN=[]
     monD=[]
     good=[]
     for ID in IDs:
+        if ID is None:
+            continue
         if 'o' in ID:
             monO.append(ID)
         elif 'n' in ID:
@@ -181,10 +186,10 @@ class ABFindex:
         html="<h1>Data for ID %s</h1>"%ID
         npics=0
         for childID in [os.path.splitext(x)[0] for x in self.fnamesByCell[ID]]:
-            pics=[x for x in self.fnames2 if x.startswith(childID) and x.endswith(".png")]
+            pics=[x for x in self.fnames2 if x.startswith(childID) and os.path.splitext(x)[1].lower() in [".png",".jpg"]]
             html+="<code>%s</code><br>"%(os.path.abspath(self.abfFolder+'/'+childID+".abf"))
-            for i,pic in enumerate(sorted(pics)):
-                html+='<img src="%s" width="200">'%pic
+            for i,pic in enumerate(pics):
+                html+='<a href="%s"><img class="datapic" src="%s" width="200"></a>'%(pic,pic)
                 npics+=1
             html+="<br><br><br>"
         style.save(html,htmlFname)
@@ -194,9 +199,28 @@ class ABFindex:
         """generate a data view for every ABF in the project folder."""
         for fname in smartSort(self.cells):
             self.html_single(fname)
+            
+    def makePics(self):
+        """convert every .image we find to a ./swhlab/ image"""
+        for fname in smartSort(self.fnames):
+            if fname in self.fnames2:
+                continue
+            ext=os.path.splitext(fname)[1].lower()
+            if ext in [".jpg",".png"]:
+                self.log.debug("copying %s",fname)
+                shutil.copy(os.path.join(self.abfFolder,fname),os.path.join(self.abfFolder2,fname))
+            if ext in [".tif",".tiff"]:
+                if not fname+".jpg" in self.fnames2:
+                    self.log.debug("converting %s",fname)
+                    #image.convert(os.path.join(self.abfFolder,fname),os.path.join(self.abfFolder2,fname+".jpg"))
+                    image.TIF_to_jpg(os.path.join(self.abfFolder,fname),saveAs=os.path.join(self.abfFolder2,fname+".jpg"))
+        self.folderScan() # rescan is needed
+                
 
-if __name__=="__main__":
-    index=ABFindex(r'C:\Users\scott\Documents\important\abfs')
+if __name__=="__main__":    
+    #index=ABFindex(r'C:\Users\scott\Documents\important\abfs')
+    index=ABFindex(r'C:\Users\swharden\Desktop\limited')
+    index.makePics()
     index.html_singleAll()
     index.html_index(True)
     print("DONE")

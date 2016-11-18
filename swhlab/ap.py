@@ -11,9 +11,8 @@ There's a potential that an AP may be lost within a few ms from an edge.
 """
 
 import logging
-from . import common
-from . import abf as moduleABF
-ABF=moduleABF.ABF
+import common
+from abf import ABF
 import numpy as np
 
 # REMOVE THIS:
@@ -166,6 +165,7 @@ class AP:
             
         self.log.debug("finished analyzing sweep. Found %d APs",len(sweepAPs))
         self.APs.extend(sweepAPs)
+        self.abf.derivative=False # leave it how we started
         
     ### ANALYSIS       
 

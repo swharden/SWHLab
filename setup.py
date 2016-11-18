@@ -24,14 +24,7 @@ setup(
     ],
     platforms='any',
     description='Tools to analyze electrophysiological data from ABF files',
-    long_description="""SWHLab is a collection of tools to provide easy access
-to ABF files containing patch-clamp electrophysiology data. NeoIO provides
-direct access to ABF data, and SWHLab makes it easy to perform high-level
-operations (such as event detection, action potential characterization,
-calculation of cell capacitance from voltage clamp or current clamp traces).
-SWHLab intended to be used as a tool for neurophysiology data exploration, 
-rather than production or presentation. It can be easily incorporated into
-other projects where accessing ABF data is desired.""",
+    long_description=open("README.md").readlines()[1],
     keywords="""electrophysiology patch clamp neurophysiology ABF spike 
     action potential EPSC IPSC event detection""",
 )
