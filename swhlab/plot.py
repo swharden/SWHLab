@@ -3,12 +3,17 @@ This module contains scripts to plot SWHLab ABF objects.
 Try to keep analysis (event detection, etc) out of this.
 """
 
+import sys
+sys.path.append("./swhlab/")
+
 import os
 import logging
 from abf import ABF
 import version
 import glob
 import matplotlib.pyplot as plt
+
+
 
 def frameAndSave(abf,msgTop="",saveTag=None):
     """

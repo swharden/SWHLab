@@ -1,3 +1,6 @@
+import sys
+sys.path.append("./")
+
 from . import abf
 from . import plot
 from . import common

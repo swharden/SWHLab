@@ -5,6 +5,9 @@ Plotting is strictly kept out of this module.
 Analysis (event detection, etc) is also kept out of this module.
 """
 
+import sys
+sys.path.append("./swhlab/")
+
 import os
 import logging
 import webinspect
