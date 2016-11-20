@@ -11,6 +11,7 @@ stylesheet="""
 
 body{
     font-family: sans-serif;
+    font-size: small;
     }
 
 a {text-decoration: none;}

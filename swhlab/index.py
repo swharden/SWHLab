@@ -7,11 +7,8 @@ import os
 import style
 import shutil
 import image
-
-#TODO: move this somewhere more intelligent
-logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s', 
-                    datefmt='%m/%d/%Y %I:%M:%S %p', 
-                    level=logging.DEBUG)  # change this when distributing
+import version
+from abf import abfProtocol
 
 def filesByExtension(fnames):
     """given a list of files, return a dict organized by extension."""
@@ -106,8 +103,10 @@ class ABFindex:
         """
         self.log = logging.getLogger("swhlab INDEX")
         self.log.setLevel(loglevel)
-        self.folderScan(abfFolder)
-        return
+        if not os.path.isdir(abfFolder):
+            self.log.error("not a folder! [%s]",abfFolder)
+        else:
+            self.folderScan(abfFolder)
         
     def folderScan(self,abfFolder=None):
         """populate class properties relating to files in the folder."""
@@ -145,14 +144,14 @@ class ABFindex:
         generate list of cells with links. keep this simple.
         automatically generates splash page and regnerates frames.
         """
-        
+        self.makePics() # ensure all pics are converted
         # generate menu
-        html=''
+        html='<a href="index_splash.html" target="content">./%s/</a><br>'%os.path.basename(self.abfFolder)
         for ID in smartSort(self.fnamesByCell.keys()):
             link=''
             if ID+".html" in self.fnames2:
                 link='href="%s.html" target="content"'%ID
-            html+=('<b><a %s>%s</a></b><br>'%(link,ID)) # show the parent ABF (ID)
+            html+=('<a %s>%s</a><br>'%(link,ID)) # show the parent ABF (ID)
             if showChildren:
                 for fname in self.fnamesByCell[ID]:
                     thisID=os.path.splitext(fname)[0]
@@ -163,16 +162,24 @@ class ABFindex:
                     html+='<br>'
                 html+="<br>"
         style.save(html,self.abfFolder2+"/index_menu.html")
-        
-        # generate splash page
-        html='<h1>SWHLab</h1>'
-        style.save(html,self.abfFolder2+"/index_splash.html")
-        
-        # generate frameset
-        style.frames(self.abfFolder2+"/index.html",launch=launch)
+        self.html_index_splash() # make splash page
+        style.frames(self.abfFolder2+"/index.html",launch=launch) # make frameset
         
     def html_index_splash(self):
         """generate landing page."""
+        html="""<h1 style="background-color: #EEEEFF; padding: 10px; border: 1px solid #CCCCFF;">
+        SWHLab <span style="font-size: 35%%;">%s<?span></h1>
+        """%version.__version__
+        #html+='<code>%s</code><br><br>'%self.abfFolder
+        #html+='<hr>'
+        for parent in smartSort(self.fnamesByCell.keys()):
+            html+='<br><b><a href="%s.html">%s</a></b><br>'%(parent,parent)
+            for child in self.fnamesByCell[parent]:
+                fullpath=os.path.join(self.abfFolder,child)
+                protocol = abfProtocol(fullpath)
+                html+='<code>%s[%s]</code><br>'%(fullpath,protocol)
+        style.save(html,self.abfFolder2+"/index_splash.html")
+        return
         
     def html_single(self,ID):
         """
@@ -202,25 +209,30 @@ class ABFindex:
             
     def makePics(self):
         """convert every .image we find to a ./swhlab/ image"""
+        rescanNeeded=False
         for fname in smartSort(self.fnames):
             if fname in self.fnames2:
                 continue
             ext=os.path.splitext(fname)[1].lower()
             if ext in [".jpg",".png"]:
-                self.log.debug("copying %s",fname)
-                shutil.copy(os.path.join(self.abfFolder,fname),os.path.join(self.abfFolder2,fname))
+                if not fname in self.abfFolder2:
+                    self.log.debug("copying %s",fname)
+                    shutil.copy(os.path.join(self.abfFolder,fname),os.path.join(self.abfFolder2,fname))
+                    rescanNeeded=True
             if ext in [".tif",".tiff"]:
                 if not fname+".jpg" in self.fnames2:
                     self.log.debug("converting %s",fname)
-                    #image.convert(os.path.join(self.abfFolder,fname),os.path.join(self.abfFolder2,fname+".jpg"))
                     image.TIF_to_jpg(os.path.join(self.abfFolder,fname),saveAs=os.path.join(self.abfFolder2,fname+".jpg"))
-        self.folderScan() # rescan is needed
+                    rescanNeeded=True
+        if rescanNeeded:
+            self.log.debug("new pics, so a rescan is needed...")
+            self.log.debug("REBUILDING ALL RECOMMENDED!!!!!!!!!!!")
+            self.folderScan()
                 
 
 if __name__=="__main__":    
-    #index=ABFindex(r'C:\Users\scott\Documents\important\abfs')
-    index=ABFindex(r'C:\Users\swharden\Desktop\limited')
-    index.makePics()
-    index.html_singleAll()
+    index=ABFindex(r'C:\Users\scott\Documents\important\abfs')
+    #index=ABFindex(r'C:\Users\swharden\Desktop\limited')
     index.html_index(True)
+    index.html_singleAll()
     print("DONE")

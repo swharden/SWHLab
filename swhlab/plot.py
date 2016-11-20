@@ -6,13 +6,29 @@ Try to keep analysis (event detection, etc) out of this.
 import os
 import logging
 from abf import ABF
-
+import version
 import glob
 import matplotlib.pyplot as plt
 
+def frameAndSave(abf,msgTop="",saveTag=None):
+    """
+    frame the current matplotlib plot with ABF info, and optionally save it.
+    Note that this is entirely independent of the ABFplot class object.
+    """
+    plt.tight_layout()
+    plt.subplots_adjust(top=.93,bottom =.07)
+    plt.annotate(msgTop,(.01,.99),xycoords='figure fraction',ha='left',va='top',family='monospace',size=10,alpha=.5)
+    msgBot="%s [%s]"%(abf.ID,abf.protocomment)
+    plt.annotate(msgBot,(.01,.01),xycoords='figure fraction',ha='left',va='bottom',family='monospace',size=10,alpha=.5)
+    if type(saveTag) is str:
+        plt.savefig(os.path.abspath(abf.outPre+saveTag))
+    else:
+        plt.show()
+
 class ABFplot:
-    def __init__(self,abf,loglevel=logging.DEBUG):
+    def __init__(self,abf,loglevel=version.logLevel):
         """Load an ABF and get ready to plot stuff."""
+        logging.basicConfig(format=version.logFormat, datefmt=version.logDateFormat, level=loglevel)
         self.log = logging.getLogger("swhlab plot")
         self.log.setLevel(loglevel)
         
@@ -108,7 +124,8 @@ class ABFplot:
             
     def decorate(self,show=False):
         self.log.debug("decorating")
-        plt.title(self.title)
+        if self.title:
+            plt.title(self.title)
         plt.xlabel("seconds")
         plt.ylabel(self.abf.units2)
         if self.gridAlpha:
@@ -121,7 +138,7 @@ class ABFplot:
     ### figure creation
     
     def figure_chronological(self):
-        """plot every sweep of an ABF file."""
+        """plot every sweep of an ABF file (with comments)."""
         self.log.debug("creating chronological plot")
         self.figure()
         for sweep in range(self.abf.sweeps):

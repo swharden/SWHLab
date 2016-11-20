@@ -14,6 +14,7 @@ import logging
 import common
 from abf import ABF
 import numpy as np
+import version
 
 # REMOVE THIS:
 import matplotlib.pyplot as plt
@@ -21,7 +22,7 @@ import matplotlib.pyplot as plt
 ms=.001 # easy access to a millisecond
 
 class AP:
-    def __init__(self,abf,loglevel=logging.DEBUG):
+    def __init__(self,abf,loglevel=version.logLevel):
         """
         Load an ABF and get ready to do AP detection.
         After detect(), all AP data is stored as a list of dicts in AP.APs
@@ -37,6 +38,8 @@ class AP:
         
         # detection settings
         self.detect_over = 50 # must be at least this (mV/ms)
+        self.detect_time1 = 0 # event detection starts here (sec)
+        self.detect_time2 = abf.sweepLength # event detection ends here (sec)
         
         # data storage
         self.APs=False # becomes [] when detect() is run
@@ -96,16 +99,17 @@ class AP:
 
         # walk 1ms backwards and find point of +10 V/S threshold crossing
         for i,I in enumerate(Is):
-            try:
-                chunk=-self.abf.sweepD[I-1*self.abf.pointsPerMs:I][::-1]
-                stepsBack=common.where_cross(chunk,-10)[0] # walking backwards
-                Is[i]-=stepsBack # this is really splitting hairs
-            except:
-                self.log.debug("not stepping back AP %d/%d of sweep %d",i,len(Is),sweep)
+            stepBack=0
+            while(self.abf.sweepD[I-stepBack])>10 and stepBack/self.abf.pointsPerMs<1: #2ms max
+                stepBack+=1
+            Is[i]-=stepBack
 
         # analyze each AP
         sweepAPs=[]
         for i,I in enumerate(Is):
+            timeInSweep=I/self.abf.pointsPerSec
+            if timeInSweep<self.detect_time1 or timeInSweep>self.detect_time2:
+                continue # skip because it's not within the marks
             ap={} # create the AP entry
             ap["sweep"]=sweep # number of the sweep containing this AP
             ap["I"]=I # index sweep point of start of AP (10 mV/ms threshold crossing)
@@ -151,12 +155,6 @@ class AP:
             ap["VhalfI2"]=common.where_cross(-chunk,-ap["Vhalf"])[1]+I # time it's second crossed
             ap["msHalfwidth"]=(ap["VhalfI2"]-ap["VhalfI1"])/self.abf.pointsPerMs # time between crossings
             
-            # instaneous frequency
-            if len(Is)<2 or i==0:
-                ap["freq"]=np.nan # conditions don't allow calculation
-            else:
-                ap["freq"]=self.abf.pointsPerSec/(I-Is[i-1]) # in Hz
-
             # AP error checking goes here
             # TODO:
             
@@ -169,7 +167,7 @@ class AP:
         
     ### ANALYSIS       
 
-    def get_AP_times(self):
+    def get_times(self):
         """return an array of times (in sec) of all APs."""
         self.ensureDetection()
         times=[]
@@ -177,59 +175,83 @@ class AP:
             times.append(ap["T"])
         return np.array(sorted(times))
     
-    def get_AP_times_bySweep(self):
-        """return an array of times (in sec) of all APs arranged by sweep"""
-        self.ensureDetection()
-        timesBySweep=[[]]*self.abf.sweeps
-        for sweep in range(self.abf.sweeps):
-            times=[]
-            for ap in self.APs:
-                if ap["sweep"]==sweep:
-                    times.append(ap["Tsweep"])
-            timesBySweep[sweep]=np.array(sorted(times))
-        return timesBySweep
+    def get_bySweep(self,feature="freqs"):
+        """
+        returns AP info by sweep arranged as a list (by sweep).
         
-    def get_count_bySweep(self):
-        """return the number of APs in each sweep"""
+        feature:
+            "freqs" - list of instantaneous frequencies by sweep.
+            "firsts" - list of first instantaneous frequency by sweep.
+            "times" - list of times of each AP in the sweep.
+            "count" - numer of APs per sweep.
+            "average" - average instanteous frequency per sweep.
+            "median" - median instanteous frequency per sweep.
+        """
         self.ensureDetection()
-        sweepCounts=np.zeros(self.abf.sweeps)
-        for sweep in range(self.abf.sweeps):
-            for ap in self.APs:
-                if ap["sweep"]==sweep:
-                    sweepCounts[sweep]=sweepCounts[sweep]+1
-        return sweepCounts
-    
-    def get_freqs_bySweep(self):
-        """return the sweep by sweep list of instantaneous frequencies"""
-        self.ensureDetection()
-        sweepFreqs=[]
-        for sweep in range(self.abf.sweeps):
-            freqs=[]
-            for ap in self.APs:
-                if ap["sweep"]==sweep:
-                    freqs.append(ap["freq"])
-            sweepFreqs.append(freqs)
-        return sweepFreqs
-    
-    def get_freq_bySweep_average(self):
-        """return the sweep by sweep average of AP frequency"""
-        self.ensureDetection()
-        data=np.empty(self.abf.sweeps)*np.nan
-        for sweep,freqs in enumerate(self.get_freqs_bySweep()):
-            data[sweep]=np.nanmean(freqs)
-        return np.array(data)
+        bySweepTimes=[[]]*self.abf.sweeps
         
-    def get_freq_bySweep_median(self):
-        """return the sweep by sweep median of AP frequency"""
-        self.ensureDetection()
-        data=np.empty(self.abf.sweeps)*np.nan
-        for sweep,freqs in enumerate(self.get_freqs_bySweep()):
-            data[sweep]=np.nanmedian(freqs)
-        return np.array(data)
+        # determine AP spike times by sweep
+        for sweep in range(self.abf.sweeps):
+            sweepTimes=[]
+            for ap in self.APs:
+                if ap["sweep"]==sweep:
+                    sweepTimes.append(ap["Tsweep"])
+            bySweepTimes[sweep]=sweepTimes
+
+        # determine instantaneous frequencies by sweep
+        bySweepFreqs=[[]]*self.abf.sweeps
+        for i,times in enumerate(bySweepTimes):
+            if len(times)<2:
+                continue
+            diffs=np.array(times[1:])-np.array(times[:-1])
+            bySweepFreqs[i]=np.array(1/diffs).tolist()
+            
+        # give the user what they want
+        if feature == "freqs":
+            return bySweepFreqs
+            
+        elif feature == "firsts":
+            result=np.zeros(self.abf.sweeps) # initialize to this
+            for i,freqs in enumerate(bySweepFreqs):
+                if len(freqs):
+                    result[i]=freqs[0]
+            return result
+            
+        elif feature == "times":
+            return bySweepTimes
+            
+        elif feature == "count":
+            result=np.zeros(self.abf.sweeps) # initialize to this
+            for i,times in enumerate(bySweepTimes):
+                result[i]=len(bySweepTimes[i])
+            return result
+            
+        elif feature == "average":
+            result=np.zeros(self.abf.sweeps) # initialize to this
+            for i,freqs in enumerate(bySweepFreqs):
+                if len(freqs):
+                    result[i]=np.nanmean(freqs)
+            return result
+            
+        elif feature == "median":
+            result=np.zeros(self.abf.sweeps) # initialize to this
+            for i,freqs in enumerate(bySweepFreqs):
+                if len(freqs):
+                    result[i]=np.nanmedian(freqs)
+            return result
+            
+        else:
+            self.log.error("get_bySweep() can't handle [%s]",feature)
+            return None
+
         
 if __name__=="__main__":
-    abfFile=r"C:\Users\scott\Documents\important\2016-07-01 newprotos\16701009.abf"
+    #abfFile=r"C:\Users\scott\Documents\important\2016-07-01 newprotos\16701009.abf"
+    abfFile=r"C:\Users\scott\Documents\important\abfs\16o14018.abf"
     ap=AP(abfFile)
-    print(ap.get_AP_times_bySweep())
+    ap.detect_time2=1
+    ap.detect()   
+    #print(ap.get_times())
+    print(ap.get_bySweep("count"))
     
     print("DONE")

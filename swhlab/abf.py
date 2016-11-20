@@ -13,11 +13,7 @@ import glob
 import pprint
 import webbrowser
 import numpy as np
-
-#TODO: move this somewhere more intelligent
-logging.basicConfig(format='%(asctime)s\t%(levelname)s\t%(message)s', 
-                    datefmt='%m/%d/%Y %I:%M:%S %p', 
-                    level=logging.DEBUG)  # change this when distributing
+import version
 
 def abfID(fname):
     """given a filename, return the ABFs ID string."""
@@ -61,7 +57,7 @@ def headerHTML(header,fname):
            
 class ABF:
  
-    def __init__(self, fname, createFolder=True, loglevel=logging.DEBUG):        
+    def __init__(self, fname, createFolder=True, loglevel=version.logLevel):        
         """
         Load an ABF and makes its stats and sweeps easily available.
         
@@ -69,6 +65,7 @@ class ABF:
             fname - filename of an ABF object
             createFolder - if True, the ./swhlab/ folder will be created
         """
+        logging.basicConfig(format=version.logFormat, datefmt=version.logDateFormat, level=loglevel)
         self.log = logging.getLogger("swhlab ABF")
         self.log.setLevel(loglevel)
         if "ABF object" in str(fname):
@@ -80,7 +77,7 @@ class ABF:
                     pass
             return
         self.log.debug("_"*60)    
-        self.log.info("loading ABF [%s]"%str(fname))        
+        self.log.info("SWHLab (%s) loading ABF [%s]",version.__version__,str(fname))        
         if not os.path.exists(str(fname)):
             self.log.error("path doesn't exist!")
             return
@@ -128,6 +125,8 @@ class ABF:
         self.pointsPerMs = int(self.rate/1000.0) # for easy access
         self.sweepInterval = self.trace.duration.magnitude # sweep interval (seconds)
         self.sweepLength = self.trace.t_stop-self.trace.t_start # in seconds
+        self.length = self.sweepLength*self.sweeps # length (sec) of total recording
+        self.lengthMinutes = self.length # length (minutes) of total recording
         if str(self.trace.dimensionality) == 'pA':
             self.units,self.units2="pA","clamp current (pA)"     
             self.unitsD,self.unitsD2="pA/ms","current velocity (pA/ms)"       
@@ -168,6 +167,36 @@ class ABF:
             self.log.debug("COMMENT: %s",msg)
             self.comment_text+=msg+"\n"
         
+    ### advanced data access
+    
+    def average(self,t1=0,t2=None,setsweep=False):
+        """return the average of part of the current sweep."""
+        if setsweep:
+            self.setsweep(setsweep)
+        if t2 is None:
+            t2=self.sweepLength
+        return np.average(self.sweepY[t1*self.pointsPerSec:t2*self.pointsPerSec])
+        
+    def averageSweep(self,sweepFirst=0,sweepLast=None):
+        """
+        Return a sweep which is the average of multiple sweeps.
+        For now, standard deviation is lost.
+        """
+        if sweepLast is None:
+            sweepLast=self.sweeps-1
+        nSweeps=sweepLast-sweepFirst+1
+        runningSum=np.zeros(len(self.sweepY))
+        for sweep in np.arange(nSweeps)+sweepFirst:
+            self.setsweep(sweep)
+            runningSum+=self.sweepY
+        average=runningSum/nSweeps
+        #TODO: standard deviation?
+        return average
+            
+                
+                
+            
+            
     ### file organization
             
     def output_touch(self):
