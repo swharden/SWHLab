@@ -1,7 +1,6 @@
-#from distutils.core import setup
 from setuptools import setup
 
-from swhlab.version import __version__
+exec(open("./swhlab/version.py").read()) # pull version from this file
 
 setup(
     name='swhlab',
@@ -24,4 +23,3 @@ setup(
        'pillow>=3.4.2',
     ],    
 )
-

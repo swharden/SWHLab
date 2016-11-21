@@ -1,4 +1,5 @@
 rm ./dist/*.zip
-python "_ newversion.py"
+python "dist/newversion.py"
+pause
 python setup.py sdist upload
 pause
