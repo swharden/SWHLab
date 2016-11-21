@@ -1,5 +1,0 @@
-rm ./dist/*.zip
-python "_ newversion.py"
-python setup.py sdist
-twine upload dist/*
-pause

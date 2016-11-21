@@ -16,7 +16,7 @@ def where_cross(data,threshold):
 ### system operations
 
 def timeit(timer=None):
-    """simple timer"""
+    """simple timer. returns a time object, or a string."""
     if timer is None:
         return time.time()
     else:

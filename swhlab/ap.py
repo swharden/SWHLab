@@ -107,59 +107,62 @@ class AP:
         # analyze each AP
         sweepAPs=[]
         for i,I in enumerate(Is):
-            timeInSweep=I/self.abf.pointsPerSec
-            if timeInSweep<self.detect_time1 or timeInSweep>self.detect_time2:
-                continue # skip because it's not within the marks
-            ap={} # create the AP entry
-            ap["sweep"]=sweep # number of the sweep containing this AP
-            ap["I"]=I # index sweep point of start of AP (10 mV/ms threshold crossing)
-            ap["Tsweep"]=I/self.abf.pointsPerSec # time in the sweep of index crossing (sec)
-            ap["T"]=ap["Tsweep"]+self.abf.sweepInterval*sweep # time in the experiment
-            ap["Vthreshold"]=self.abf.sweepY[I] # threshold at rate of -10mV/ms
-            
-            # determine how many points from the start dV/dt goes below -10 (from a 5ms chunk)
-            chunk=self.abf.sweepD[I:I+5*self.abf.pointsPerMs] # give it 5ms to cross once
-            I_toNegTen=np.where(chunk<-10)[0][0]
-            chunk=self.abf.sweepD[I+I_toNegTen:I+I_toNegTen+10*self.abf.pointsPerMs] # give it 10ms to cross back
-            I_recover=np.where(chunk>-10)[0][0]+I_toNegTen+I # point where trace returns to above -10 V/S
-            ap["dVfastIs"]=[I,I_recover] # span of the fast component of the dV/dt trace
-            ap["dVfastMS"]=(I_recover-I)/self.abf.pointsPerMs # time (in ms) of this fast AP component
-
-            # determine derivative min/max from a 2ms chunk
-            chunk=self.abf.sweepD[ap["dVfastIs"][0]:ap["dVfastIs"][1]]
-            ap["dVmax"]=np.max(chunk)
-            ap["dVmaxI"]=np.where(chunk==ap["dVmax"])[0][0]+I
-            ap["dVmin"]=np.min(chunk)
-            ap["dVminI"]=np.where(chunk==ap["dVmin"])[0][0]+I
-
-            # before determining AP shape stats, see where trace recovers to threshold
-            chunkSize=self.abf.pointsPerMs*10 #AP shape may be 10ms
-            if len(Is)-1>i and Is[i+1]<(I+chunkSize): # if slow AP runs into next AP
-                chunkSize=Is[i+1]-I # chop it down
-            ap["VslowIs"]=[I,I+chunkSize] # time range of slow AP dynamics
-            chunk=self.abf.sweepY[I:I+chunkSize]
-            
-            # determine AP peak and minimum
-            ap["Vmax"]=np.max(chunk)
-            ap["VmaxI"]=np.where(chunk==ap["Vmax"])[0][0]+I
-            ap["Vmin"]=np.min(chunk)
-            ap["VminI"]=np.where(chunk==ap["Vmin"])[0][0]+I
-            if ap["VminI"]<ap["VmaxI"]:
-                self.log.error("how is the AHP before the peak?")
-            ap["msRiseTime"]=(ap["VmaxI"]-I)/self.abf.pointsPerMs # time from threshold to peak
-            ap["msFallTime"]=(ap["VminI"]-ap["VmaxI"])/self.abf.pointsPerMs # time from peak to nadir
-            
-            # determine halfwidth
-            ap["Vhalf"]=np.average([ap["Vmax"],ap["Vthreshold"]]) # half way from threshold to peak
-            ap["VhalfI1"]=common.where_cross(chunk,ap["Vhalf"])[0]+I # time it's first crossed
-            ap["VhalfI2"]=common.where_cross(-chunk,-ap["Vhalf"])[1]+I # time it's second crossed
-            ap["msHalfwidth"]=(ap["VhalfI2"]-ap["VhalfI1"])/self.abf.pointsPerMs # time between crossings
-            
-            # AP error checking goes here
-            # TODO:
-            
-            # if we got this far, add the AP to the list
-            sweepAPs.extend([ap])
+            try:
+                timeInSweep=I/self.abf.pointsPerSec
+                if timeInSweep<self.detect_time1 or timeInSweep>self.detect_time2:
+                    continue # skip because it's not within the marks
+                ap={} # create the AP entry
+                ap["sweep"]=sweep # number of the sweep containing this AP
+                ap["I"]=I # index sweep point of start of AP (10 mV/ms threshold crossing)
+                ap["Tsweep"]=I/self.abf.pointsPerSec # time in the sweep of index crossing (sec)
+                ap["T"]=ap["Tsweep"]+self.abf.sweepInterval*sweep # time in the experiment
+                ap["Vthreshold"]=self.abf.sweepY[I] # threshold at rate of -10mV/ms
+                
+                # determine how many points from the start dV/dt goes below -10 (from a 5ms chunk)
+                chunk=self.abf.sweepD[I:I+5*self.abf.pointsPerMs] # give it 5ms to cross once
+                I_toNegTen=np.where(chunk<-10)[0][0]
+                chunk=self.abf.sweepD[I+I_toNegTen:I+I_toNegTen+10*self.abf.pointsPerMs] # give it 10ms to cross back
+                I_recover=np.where(chunk>-10)[0][0]+I_toNegTen+I # point where trace returns to above -10 V/S
+                ap["dVfastIs"]=[I,I_recover] # span of the fast component of the dV/dt trace
+                ap["dVfastMS"]=(I_recover-I)/self.abf.pointsPerMs # time (in ms) of this fast AP component
+    
+                # determine derivative min/max from a 2ms chunk
+                chunk=self.abf.sweepD[ap["dVfastIs"][0]:ap["dVfastIs"][1]]
+                ap["dVmax"]=np.max(chunk)
+                ap["dVmaxI"]=np.where(chunk==ap["dVmax"])[0][0]+I
+                ap["dVmin"]=np.min(chunk)
+                ap["dVminI"]=np.where(chunk==ap["dVmin"])[0][0]+I
+    
+                # before determining AP shape stats, see where trace recovers to threshold
+                chunkSize=self.abf.pointsPerMs*10 #AP shape may be 10ms
+                if len(Is)-1>i and Is[i+1]<(I+chunkSize): # if slow AP runs into next AP
+                    chunkSize=Is[i+1]-I # chop it down
+                ap["VslowIs"]=[I,I+chunkSize] # time range of slow AP dynamics
+                chunk=self.abf.sweepY[I:I+chunkSize]
+                
+                # determine AP peak and minimum
+                ap["Vmax"]=np.max(chunk)
+                ap["VmaxI"]=np.where(chunk==ap["Vmax"])[0][0]+I
+                ap["Vmin"]=np.min(chunk)
+                ap["VminI"]=np.where(chunk==ap["Vmin"])[0][0]+I
+                if ap["VminI"]<ap["VmaxI"]:
+                    self.log.error("how is the AHP before the peak?")
+                ap["msRiseTime"]=(ap["VmaxI"]-I)/self.abf.pointsPerMs # time from threshold to peak
+                ap["msFallTime"]=(ap["VminI"]-ap["VmaxI"])/self.abf.pointsPerMs # time from peak to nadir
+                
+                # determine halfwidth
+                ap["Vhalf"]=np.average([ap["Vmax"],ap["Vthreshold"]]) # half way from threshold to peak
+                ap["VhalfI1"]=common.where_cross(chunk,ap["Vhalf"])[0]+I # time it's first crossed
+                ap["VhalfI2"]=common.where_cross(-chunk,-ap["Vhalf"])[1]+I # time it's second crossed
+                ap["msHalfwidth"]=(ap["VhalfI2"]-ap["VhalfI1"])/self.abf.pointsPerMs # time between crossings
+                
+                # AP error checking goes here
+                # TODO:
+                
+                # if we got this far, add the AP to the list
+                sweepAPs.extend([ap])
+            except:
+                self.log.debug("crashed analyzing AP %d of %d",i,len(Is))
             
         self.log.debug("finished analyzing sweep. Found %d APs",len(sweepAPs))
         self.APs.extend(sweepAPs)

@@ -13,22 +13,32 @@ import version
 import glob
 import matplotlib.pyplot as plt
 
+# global module variables which control behavior
+IMAGE_SAVE=False
+IMAGE_SHOW=False
 
-
-def frameAndSave(abf,msgTop="",saveTag=None):
+def frameAndSave(abf,tag=""):
     """
     frame the current matplotlib plot with ABF info, and optionally save it.
     Note that this is entirely independent of the ABFplot class object.
+    if saveImage is False, show it instead.
     """
     plt.tight_layout()
     plt.subplots_adjust(top=.93,bottom =.07)
-    plt.annotate(msgTop,(.01,.99),xycoords='figure fraction',ha='left',va='top',family='monospace',size=10,alpha=.5)
+    plt.annotate(tag,(.01,.99),xycoords='figure fraction',ha='left',va='top',family='monospace',size=10,alpha=.5)
     msgBot="%s [%s]"%(abf.ID,abf.protocomment)
     plt.annotate(msgBot,(.01,.01),xycoords='figure fraction',ha='left',va='bottom',family='monospace',size=10,alpha=.5)
-    if type(saveTag) is str:
-        plt.savefig(os.path.abspath(abf.outPre+saveTag))
-    else:
+    fname=tag.lower().replace(" ",'_')+".jpg"
+    if IMAGE_SAVE:
+        abf.log.info("saving [%s]",fname)
+        try:
+            plt.savefig(os.path.abspath(abf.outPre+fname))
+        except:
+            abf.log.error("saving [%s] failed! 'pip install pillow'?",fname)
+    if IMAGE_SHOW:
+        abf.log.info("showing [%s]",fname)
         plt.show()
+    plt.close('all')
 
 class ABFplot:
     def __init__(self,abf,loglevel=version.logLevel):

@@ -1,6 +1,7 @@
 """scripts to help automated analysis of basic protocols."""
 import logging
 from abf import ABF
+import index
 from plot import ABFplot
 import plot as plotmodule
 import os
@@ -10,6 +11,7 @@ from ap import AP
 import matplotlib.pyplot as plt
 import version
 import numpy as np
+import common
 
 SQUARESIZE=8
 
@@ -158,7 +160,7 @@ def proto_gain(theABF,stepSize=25,startAt=-100):
     
     # save it
     plt.tight_layout()
-    plotmodule.frameAndSave(abf,"AP Gain (start %d, step %d)"%(startAt,stepSize))
+    plotmodule.frameAndSave(abf,"AP Gain %d_%d"%(startAt,stepSize))
     plt.close('all')
     
 def proto_0113(theABF):
@@ -269,10 +271,14 @@ def proto_avgRange(theABF,m1=1.0,m2=1.1):
     plotmodule.frameAndSave(abf,"sweep vs average")
     plt.close('all')
     
-    
-    
-def analyze(fname):
+def analyze(fname=False,force=False):
     """given a filename or ABF object, try to analyze it."""
+    dataFolder=os.path.dirname(fname)+"/swhlab/"
+    if force is False and os.path.isdir(dataFolder):
+        ID=os.path.splitext(os.path.basename(fname))[0]
+        if ID+"_" in str(os.listdir(dataFolder)):
+            print("SKIPPING (due to existing images):",os.path.basename(fname))
+            return
     abf=ABF(fname) # ensure it's a class
     runFunction="proto_unknown"
     if "proto_"+abf.protocomment in globals():
@@ -281,7 +287,21 @@ def analyze(fname):
     plt.close('all') # get ready
     globals()[runFunction](abf) # run that function
 
+def analyzeFolder(folderOfABFs):
+    plotmodule.IMAGE_SHOW=True
+    plotmodule.IMAGE_SAVE=True
+    t1=common.timeit()
+    for fname in index.smartSort(glob.glob(folderOfABFs+"/*.abf")):
+        analyze(fname)
+    print("finished analyzing folder of ABFs in",common.timeit(t1))
+
 if __name__=="__main__":
     folder=r"C:\Users\scott\Documents\important\abfs"
-    analyze(os.path.join(folder,'16o14025'+'.abf'))
+    analyzeFolder(folder)
+    
+    indx=index.ABFindex(folder)
+    #indx.html_index(True)
+    indx.html_singleAll()
+    indx.html_index(True)
+    
     print("DONE")

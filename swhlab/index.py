@@ -181,7 +181,7 @@ class ABFindex:
         style.save(html,self.abfFolder2+"/index_splash.html")
         return
         
-    def html_single(self,ID):
+    def html_single_basic(self,ID):
         """
         generate ./swhlab/xxyxxzzz.html for a single given abf.
         Input can be an ABF file path of ABF ID.
@@ -202,10 +202,17 @@ class ABFindex:
         style.save(html,htmlFname)
         self.log.info("created %s containing %d pictures",htmlFname,npics)
     
-    def html_singleAll(self):
+    def html_single_fixed(self,ID):
+        """Single page generator designed for easy gruop comparisons."""
+        return
+        
+    def html_singleAll(self,template="basic"):
         """generate a data view for every ABF in the project folder."""
         for fname in smartSort(self.cells):
-            self.html_single(fname)
+            if template=="fixed":
+                self.html_single_fixed(fname)
+            else:
+                self.html_single_basic(fname)
             
     def makePics(self):
         """convert every .image we find to a ./swhlab/ image"""
