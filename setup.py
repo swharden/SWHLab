@@ -22,4 +22,21 @@ setup(
        'numpy>=1.8.1',
        'pillow>=3.4.2',
     ],    
+    classifiers=[
+       'Programming Language :: Python :: 3',
+       'Development Status :: 4 - Beta',
+       'Natural Language :: English',
+       'License :: OSI Approved :: MIT License',
+       'Operating System :: OS Independent',
+       
+       'Intended Audience :: Developers',
+       'Intended Audience :: Science/Research',
+       
+       'Topic :: Scientific/Engineering :: Bio-Informatics',
+       'Topic :: Scientific/Engineering :: Information Analysis',
+       'Topic :: Scientific/Engineering :: Medical Science Apps.',
+       'Topic :: Scientific/Engineering :: Visualization',
+       'Topic :: Software Development :: Libraries :: Python Modules',
+       'Topic :: Software Development :: Libraries :: Application Frameworks',
+    ]
 )
