@@ -5,9 +5,6 @@ Plotting is strictly kept out of this module.
 Analysis (event detection, etc) is also kept out of this module.
 """
 
-import sys
-sys.path.append("./swhlab/")
-
 import os
 import logging
 import webinspect
@@ -16,7 +13,11 @@ import glob
 import pprint
 import webbrowser
 import numpy as np
-import version
+
+
+import sys
+sys.path.append("../") #TODO: MAKE THIS BETTER
+import swhlab.version as version
 
 def abfID(fname):
     """given a filename, return the ABFs ID string."""
@@ -231,7 +232,8 @@ class ABF:
 
 if __name__=="__main__":
     print("#"*40+"\nRUNNING DEMO SCRIPT\n"+"#"*40)
-    abfFile=r"C:\Users\scott\Documents\important\2016-07-01 newprotos\16701009.abf"
+    #abfFile=r"C:\Users\scott\Documents\important\2016-07-01 newprotos\16701009.abf"
+    abfFile=r"C:\Users\scott\Documents\important\abfs\16o14022.abf"
     abf=ABF(abfFile,loglevel=logging.INFO) # initiate the ABF access class
     abf.derivative=True # tell it to use the first derivative
     for sweep in range(abf.sweeps): # for each sweep in the ABF

@@ -11,13 +11,11 @@ There's a potential that an AP may be lost within a few ms from an edge.
 """
 
 import logging
-import common
-from abf import ABF
 import numpy as np
-import version
 
-# REMOVE THIS:
-import matplotlib.pyplot as plt
+from swhlab.swh_abf import ABF
+import swhlab.version as version
+import swhlab.common as cm
 
 ms=.001 # easy access to a millisecond
 
@@ -61,11 +59,11 @@ class AP:
     def detect(self):
         """runs AP detection on every sweep."""
         self.log.info("initializing AP detection on all sweeps...")
-        t1=common.timeit()
+        t1=cm.timeit()
         for sweep in range(self.abf.sweeps):
             self.detectSweep(sweep)
         self.log.info("AP analysis of %d sweeps found %d APs (completed in %s)",
-                      self.abf.sweeps,len(self.APs),common.timeit(t1))
+                      self.abf.sweeps,len(self.APs),cm.timeit(t1))
         
     def detectSweep(self,sweep=0):
         """perform AP detection on current sweep."""
@@ -87,7 +85,7 @@ class AP:
         self.abf.setsweep(sweep)
 
         # detect potential AP (Is) by a dV/dT threshold crossing        
-        Is = common.where_cross(self.abf.sweepD,self.detect_over) 
+        Is = cm.where_cross(self.abf.sweepD,self.detect_over) 
         self.log.debug("initial AP detection: %d APs"%len(Is))
                 
         # eliminate APs where dV/dT doesn't cross below -10 V/S within 2 ms
@@ -152,8 +150,8 @@ class AP:
                 
                 # determine halfwidth
                 ap["Vhalf"]=np.average([ap["Vmax"],ap["Vthreshold"]]) # half way from threshold to peak
-                ap["VhalfI1"]=common.where_cross(chunk,ap["Vhalf"])[0]+I # time it's first crossed
-                ap["VhalfI2"]=common.where_cross(-chunk,-ap["Vhalf"])[1]+I # time it's second crossed
+                ap["VhalfI1"]=cm.where_cross(chunk,ap["Vhalf"])[0]+I # time it's first crossed
+                ap["VhalfI2"]=cm.where_cross(-chunk,-ap["Vhalf"])[1]+I # time it's second crossed
                 ap["msHalfwidth"]=(ap["VhalfI2"]-ap["VhalfI1"])/self.abf.pointsPerMs # time between crossings
                 
                 # AP error checking goes here

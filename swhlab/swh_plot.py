@@ -3,15 +3,15 @@ This module contains scripts to plot SWHLab ABF objects.
 Try to keep analysis (event detection, etc) out of this.
 """
 
-import sys
-sys.path.append("./swhlab/")
-
 import os
 import logging
-from abf import ABF
-import version
 import glob
 import matplotlib.pyplot as plt
+
+import sys
+sys.path.append("../") #TODO: MAKE THIS BETTER
+import swhlab.version as version
+from swhlab.swh_abf import ABF
 
 # global module variables which control behavior
 IMAGE_SAVE=False

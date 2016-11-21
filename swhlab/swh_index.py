@@ -6,9 +6,13 @@ import logging
 import os
 import style
 import shutil
-import image
-import version
-from abf import abfProtocol
+
+import sys
+sys.path.append("../") #TODO: MAKE THIS BETTER
+import swhlab.swh_abf
+import swhlab.swh_image
+import swhlab.version as version
+
 
 def filesByExtension(fnames):
     """given a list of files, return a dict organized by extension."""
@@ -176,7 +180,7 @@ class ABFindex:
             html+='<br><b><a href="%s.html">%s</a></b><br>'%(parent,parent)
             for child in self.fnamesByCell[parent]:
                 fullpath=os.path.join(self.abfFolder,child)
-                protocol = abfProtocol(fullpath)
+                protocol = swhlab.swh_abf.abfProtocol(fullpath)
                 html+='<code>%s[%s]</code><br>'%(fullpath,protocol)
         style.save(html,self.abfFolder2+"/index_splash.html")
         return
