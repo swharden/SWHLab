@@ -13,20 +13,22 @@ There's a potential that an AP may be lost within a few ms from an edge.
 import logging
 import numpy as np
 
+import sys
+sys.path.append("../") #TODO: MAKE THIS BETTER
+import swhlab
 from swhlab.swh_abf import ABF
-import swhlab.version as version
 import swhlab.common as cm
 
 ms=.001 # easy access to a millisecond
 
 class AP:
-    def __init__(self,abf,loglevel=version.logLevel):
+    def __init__(self,abf):
         """
         Load an ABF and get ready to do AP detection.
         After detect(), all AP data is stored as a list of dicts in AP.APs
         """
         self.log = logging.getLogger("swhlab AP")
-        self.log.setLevel(loglevel)
+        self.log.setLevel(swhlab.loglevel)
         
         # prepare ABF class
         if type(abf) is str:

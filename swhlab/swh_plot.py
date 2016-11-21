@@ -12,6 +12,7 @@ import sys
 sys.path.append("../") #TODO: MAKE THIS BETTER
 import swhlab.version as version
 from swhlab.swh_abf import ABF
+import swhlab
 
 # global module variables which control behavior
 IMAGE_SAVE=False
@@ -41,11 +42,10 @@ def frameAndSave(abf,tag=""):
     plt.close('all')
 
 class ABFplot:
-    def __init__(self,abf,loglevel=version.logLevel):
+    def __init__(self,abf):
         """Load an ABF and get ready to plot stuff."""
-        logging.basicConfig(format=version.logFormat, datefmt=version.logDateFormat, level=loglevel)
         self.log = logging.getLogger("swhlab plot")
-        self.log.setLevel(loglevel)
+        self.log.setLevel(swhlab.loglevel)
         
         # prepare ABF class
         if type(abf) is str:

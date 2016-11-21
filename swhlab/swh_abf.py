@@ -17,6 +17,7 @@ import numpy as np
 
 import sys
 sys.path.append("../") #TODO: MAKE THIS BETTER
+import swhlab
 import swhlab.version as version
 
 def abfID(fname):
@@ -61,7 +62,7 @@ def headerHTML(header,fname):
            
 class ABF:
  
-    def __init__(self, fname, createFolder=True, loglevel=version.logLevel):        
+    def __init__(self, fname, createFolder=True):        
         """
         Load an ABF and makes its stats and sweeps easily available.
         
@@ -69,9 +70,9 @@ class ABF:
             fname - filename of an ABF object
             createFolder - if True, the ./swhlab/ folder will be created
         """
-        logging.basicConfig(format=version.logFormat, datefmt=version.logDateFormat, level=loglevel)
+        logging.basicConfig(format=swhlab.logFormat, datefmt=swhlab.logDateFormat, level=swhlab.loglevel)
         self.log = logging.getLogger("swhlab ABF")
-        self.log.setLevel(loglevel)
+        self.log.setLevel(swhlab.loglevel)
         if "ABF object" in str(fname):
             self.log.debug("reusing same ABF object")
             for item in sorted(dir(fname)):
@@ -234,7 +235,7 @@ if __name__=="__main__":
     print("#"*40+"\nRUNNING DEMO SCRIPT\n"+"#"*40)
     #abfFile=r"C:\Users\scott\Documents\important\2016-07-01 newprotos\16701009.abf"
     abfFile=r"C:\Users\scott\Documents\important\abfs\16o14022.abf"
-    abf=ABF(abfFile,loglevel=logging.INFO) # initiate the ABF access class
+    abf=ABF(abfFile) # initiate the ABF access class
     abf.derivative=True # tell it to use the first derivative
     for sweep in range(abf.sweeps): # for each sweep in the ABF
         abf.setsweep(sweep) # set that sweep
