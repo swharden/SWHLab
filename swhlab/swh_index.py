@@ -243,7 +243,6 @@ class ABFindex:
 
 if __name__=="__main__":    
     index=ABFindex(r'C:\Users\scott\Documents\important\abfs')
-    #index=ABFindex(r'C:\Users\swharden\Desktop\limited')
     index.html_index(True)
     index.html_singleAll()
     print("DONE")

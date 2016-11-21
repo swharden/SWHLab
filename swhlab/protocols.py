@@ -26,9 +26,9 @@ def proto_unknown(theABF):
     plot.rainbow=False
     plot.title=None
     plot.figure_height,plot.figure_width=SQUARESIZE,SQUARESIZE
-    plot.traceColor='m' # magenta if unknown protocol
     plot.kwargs["lw"]=.5
     plot.figure_chronological()
+    plt.gca().set_axis_bgcolor('#AAAAAA') # different background if unknown protocol
     frameAndSave(abf,"UNKNOWN")
         
 def proto_0101(theABF):
@@ -166,6 +166,9 @@ def proto_gain(theABF,stepSize=25,startAt=-100):
     frameAndSave(abf,"AP Gain %d_%d"%(startAt,stepSize))
     plt.close('all')
     
+def proto_0112(theABF):
+    proto_gain(theABF,10,-50)
+    
 def proto_0113(theABF):
     proto_gain(theABF,25)
     
@@ -237,19 +240,19 @@ def proto_0203(theABF):
     frameAndSave(abf,"fast IV")
     plt.close('all')
     
+def proto_0401(theABF):
+    proto_avgRange(theABF,.5,2.0)
+    
 def proto_0404(theABF):
     proto_avgRange(theABF,1.0,1.1)
     
+    
 def proto_avgRange(theABF,m1=1.0,m2=1.1):
-    """experiment: VC ramp."""
+    """experiment: generic VC time course experiment."""
     abf=ABF(theABF)
     abf.log.info("analyzing as a fast IV")
     plot=ABFplot(abf)
-        
-    # define range to average
-    m1=1.0
-    m2=1.1
-    
+           
     plt.figure(figsize=(SQUARESIZE,SQUARESIZE))
     
     plt.subplot(211)
@@ -288,7 +291,10 @@ def analyze(fname=False,force=False):
         runFunction="proto_"+abf.protocomment
     abf.log.debug("running %s()"%(runFunction))
     plt.close('all') # get ready
-    globals()[runFunction](abf) # run that function
+    try:
+        globals()[runFunction](abf) # run that function
+    except:
+        abf.log.error("EXCEPTION DURING FUNCTION EXECUTION!")
 
 def analyzeFolder(folderOfABFs):
     swhlab.swh_plot.IMAGE_SAVE=True
@@ -299,12 +305,18 @@ def analyzeFolder(folderOfABFs):
     print("finished analyzing folder of ABFs in",cm.timeit(t1))
 
 if __name__=="__main__":
-    folder=r"C:\Users\scott\Documents\important\abfs"
-    analyzeFolder(folder)
     
-    indx=index.ABFindex(folder)
-    #indx.html_index(True)
-    indx.html_singleAll()
-    indx.html_index(True)
+    justOne=False
+    #justOne='16831027'
     
+    folder=r"X:\Data\2P01\2016\2016-09-01 PIR TGOT"
+    if justOne:
+        swhlab.swh_plot.IMAGE_SAVE=True
+        swhlab.swh_plot.IMAGE_SHOW=True
+        analyze(folder+"/%s.abf"%justOne,True)
+    else:
+        analyzeFolder(folder)    
+        indx=index.ABFindex(folder)
+        indx.html_singleAll()   
+        indx.html_index(True) 
     print("DONE")
