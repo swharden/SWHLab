@@ -1,7 +1,9 @@
+@ECHO OFF
 python "dist/newversion.py"
-python setup.py sdist upload
-pause
+python setup.py --quiet sdist upload
+
+@ECHO OFF
 echo "cleaning up"
 del dist\*.zip
 rmdir swhlab.egg-info /s /q
-rmdir build
+pause
