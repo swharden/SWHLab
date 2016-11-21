@@ -233,7 +233,7 @@ class ABFindex:
             if ext in [".tif",".tiff"]:
                 if not fname+".jpg" in self.fnames2:
                     self.log.debug("converting %s",fname)
-                    image.TIF_to_jpg(os.path.join(self.abfFolder,fname),saveAs=os.path.join(self.abfFolder2,fname+".jpg"))
+                    swhlab.swh_image.TIF_to_jpg(os.path.join(self.abfFolder,fname),saveAs=os.path.join(self.abfFolder2,fname+".jpg"))
                     rescanNeeded=True
         if rescanNeeded:
             self.log.debug("new pics, so a rescan is needed...")

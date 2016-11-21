@@ -1,17 +1,20 @@
 """scripts to help automated analysis of basic protocols."""
-import logging
-from abf import ABF
-import index
-from plot import ABFplot
-import plot as plotmodule
+
 import os
 import glob
-import index
-from ap import AP
 import matplotlib.pyplot as plt
-import version
 import numpy as np
-import common
+
+import sys
+sys.path.append("../") #TODO: MAKE THIS BETTER
+from swhlab.swh_abf import ABF
+import swhlab.version as version
+import swhlab.swh_index as index
+from swhlab.swh_ap import AP
+import swhlab.swh_plot
+from swhlab.swh_plot import ABFplot
+from swhlab.swh_plot import frameAndSave
+import swhlab.common as cm
 
 SQUARESIZE=8
 
@@ -26,14 +29,14 @@ def proto_unknown(theABF):
     plot.traceColor='m' # magenta if unknown protocol
     plot.kwargs["lw"]=.5
     plot.figure_chronological()
-    plotmodule.frameAndSave(abf,"UNKNOWN")
+    frameAndSave(abf,"UNKNOWN")
         
 def proto_0101(theABF):
     abf=ABF(theABF)
     abf.log.info("analyzing as an IC tau")
     #plot=ABFplot(abf)
 
-    plt.figure(figsize=(SQUARESIZE,SQUARESIZE))
+    plt.figure(figsize=(SQUARESIZE/2,SQUARESIZE/2))
     plt.grid()
     plt.ylabel("relative potential (mV)")
     plt.xlabel("time (sec)")
@@ -50,7 +53,7 @@ def proto_0101(theABF):
     
     # save it
     plt.tight_layout()
-    plotmodule.frameAndSave(abf,"IC tau")
+    frameAndSave(abf,"IC tau")
     plt.close('all')
     
 
@@ -103,7 +106,7 @@ def proto_0111(theABF):
     
     # save it
     plt.tight_layout()
-    plotmodule.frameAndSave(abf,"AP shape")
+    frameAndSave(abf,"AP shape")
     plt.close('all')
 
 def proto_gain(theABF,stepSize=25,startAt=-100):
@@ -160,7 +163,7 @@ def proto_gain(theABF,stepSize=25,startAt=-100):
     
     # save it
     plt.tight_layout()
-    plotmodule.frameAndSave(abf,"AP Gain %d_%d"%(startAt,stepSize))
+    frameAndSave(abf,"AP Gain %d_%d"%(startAt,stepSize))
     plt.close('all')
     
 def proto_0113(theABF):
@@ -174,12 +177,12 @@ def proto_0201(theABF):
     abf=ABF(theABF)
     abf.log.info("analyzing as a membrane test")
     plot=ABFplot(abf)
-    plot.figure_height,plot.figure_width=SQUARESIZE,SQUARESIZE
+    plot.figure_height,plot.figure_width=SQUARESIZE/2,SQUARESIZE/2
     plot.figure_sweeps()
         
     # save it
     plt.tight_layout()
-    plotmodule.frameAndSave(abf,"membrane test")
+    frameAndSave(abf,"membrane test")
     plt.close('all')
                 
 def proto_0202(theABF):
@@ -200,7 +203,7 @@ def proto_0202(theABF):
     
     # save it
     plt.tight_layout()
-    plotmodule.frameAndSave(abf,"MTIV")
+    frameAndSave(abf,"MTIV")
     plt.close('all')
     
 def proto_0203(theABF):
@@ -231,7 +234,7 @@ def proto_0203(theABF):
         
     # save it
     plt.tight_layout()
-    plotmodule.frameAndSave(abf,"fast IV")
+    frameAndSave(abf,"fast IV")
     plt.close('all')
     
 def proto_0404(theABF):
@@ -268,7 +271,7 @@ def proto_avgRange(theABF,m1=1.0,m2=1.1):
     plt.xlabel("minutes")
         
     plt.tight_layout()
-    plotmodule.frameAndSave(abf,"sweep vs average")
+    frameAndSave(abf,"sweep vs average")
     plt.close('all')
     
 def analyze(fname=False,force=False):
@@ -288,12 +291,12 @@ def analyze(fname=False,force=False):
     globals()[runFunction](abf) # run that function
 
 def analyzeFolder(folderOfABFs):
-    plotmodule.IMAGE_SHOW=True
-    plotmodule.IMAGE_SAVE=True
-    t1=common.timeit()
+    swhlab.swh_plot.IMAGE_SAVE=True
+    swhlab.swh_plot.IMAGE_SHOW=True
+    t1=cm.timeit()
     for fname in index.smartSort(glob.glob(folderOfABFs+"/*.abf")):
         analyze(fname)
-    print("finished analyzing folder of ABFs in",common.timeit(t1))
+    print("finished analyzing folder of ABFs in",cm.timeit(t1))
 
 if __name__=="__main__":
     folder=r"C:\Users\scott\Documents\important\abfs"
