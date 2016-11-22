@@ -13,14 +13,19 @@ All output data should be named:
 
 import os
 import logging
-import common as cm
 import shutil
-import swh_image
-import protocols
 import numpy as np
+import sys
 
-import swhlab
-import swhlab.style
+try:
+    import swhlab
+except:
+    sys.path.append("../../")
+    import swhlab
+import swhlab.analysis.protocols as protocols
+import imaging
+import swhlab.common as cm
+import style
 
 class INDEX:
     def __init__(self,ABFfolder):
@@ -60,7 +65,7 @@ class INDEX:
         self.scan()
         
         # figure out parent/children ABF, ID, and file groups
-        self.groups=cm.abfGroups(self.folder1)
+        self.groups=cm.abfGroups(self.folder1) # keys are a list of parents
         self.log.debug("identified %d cells",len(self.groups))
         nChildren=[len(x) for x in self.groups.values()]
         self.log.debug("average parent has %.02f children",np.average(nChildren))
@@ -75,6 +80,7 @@ class INDEX:
         this WILL cause problems on 'nix operating systems.If this is the case,
         just run a script to rename every file to all lowercase.
         """
+        t1=cm.timeit()
         self.files1=cm.list_to_lowercase(sorted(os.listdir(self.folder1)))
         self.files2=cm.list_to_lowercase(sorted(os.listdir(self.folder2)))
         self.files1abf=[x for x in self.files1 if x.endswith(".abf")]
@@ -83,6 +89,7 @@ class INDEX:
         self.log.debug("folder1 has %d files",len(self.files1))
         self.log.debug("folder1 has %d abfs",len(self.files1abf))
         self.log.debug("folder2 has %d files",len(self.files2))
+        self.log.debug("scanning folders took %s",cm.timeit(t1)) # ~200ms
 
     ### DATA ANALYSIS AND CONVERSION
         
@@ -115,7 +122,7 @@ class INDEX:
             fname2=ID+"_tif_"+fname+".jpg"
             if not fname2 in self.files2:
                 self.log.info("converting micrograph [%s]"%fname2)
-                swh_image.TIF_to_jpg(os.path.join(self.folder1,fname),saveAs=os.path.join(self.folder2,fname2))
+                imaging.TIF_to_jpg(os.path.join(self.folder1,fname),saveAs=os.path.join(self.folder2,fname2))
             if not fname[:8]+".abf" in self.files1:
                 self.log.error("orphan image: %s",fname)
                 
@@ -153,22 +160,63 @@ class INDEX:
             html='<a href="%s"><img src="%s"></a>'%(fname,fname)
             if "_tif_" in fname:
                 html=html.replace('<img ','<img height="400" ')
+            if "_plot_" in fname:
+                html=html.replace('<img ','<img height="200" ')
+        elif os.path.splitext(fname)[1].lower() in ['.html','.htm']:
+            html='LINK: %s'%fname
         else:
             html='<br>Not sure how to show: [%s]</br>'%fname
         return html
     
-    def html_single_basic(self,abfID):
-        """generate a generic flat file html for an ABF parent."""
-        parentID=cm.parent(self.groups,abfID) # ensure we are working with the parent.       
-        filesByType=cm.filesByType(self.groupFiles[parentID])
-        html="<h1>%s</h1>"%parentID
-        for category in [x for x in filesByType.keys() if len(filesByType[x])]:
-            html+="<h3>%s</h3>"%category
-            for fname in filesByType[category]:
-                html+=self.htmlFor(fname)
-        saveAs="%s/%s_basic.html"%(self.folder2,parentID)
-        swhlab.style.save(html,saveAs,launch=True)
-               
+    def html_single_basic(self,abfID,launch=False,overwrite=False):
+        """
+        generate a generic flat file html for an ABF parent. You could give 
+        this a single ABF ID, its parent ID, or a list of ABF IDs.
+        If a child ABF is given, the parent will automatically be used.
+        """
+        if type(abfID) is str:
+            abfID=[abfID]
+        for thisABFid in cm.abfSort(abfID):
+            parentID=cm.parent(self.groups,thisABFid)
+            if overwrite is False and parentID+"_basic.html" in self.files2:
+                #print("skipping",parentID)
+                continue
+            filesByType=cm.filesByType(self.groupFiles[parentID])
+            html="<h1>%s</h1>"%parentID
+            for category in [x for x in filesByType.keys() if len(filesByType[x])]:
+                html+="<h3>%s</h3>"%category
+                for fname in filesByType[category]:
+                    html+=self.htmlFor(fname)
+            saveAs=os.path.abspath("%s/%s_basic.html"%(self.folder2,parentID))
+            print("creating",saveAs,'...')
+            style.save(html,saveAs,launch=launch)
+            
+    def html_index(self):
+        html="<h1>MENU</h1>"
+        for htmlFile in [x for x in self.files2 if x.endswith(".html")]:
+            if not "_" in htmlFile:
+                continue
+            name=htmlFile.split("_")[0]
+            if name in self.groups.keys():
+                html+='<a href="%s" target="content">%s</a><br>'%(htmlFile,name)
+        style.save(html,os.path.abspath(self.folder2+"/index_menu.html"))
+        html="<h1>SPLASH</h1>"
+        style.save(html,os.path.abspath(self.folder2+"/index_splash.html"))
+        style.frames(os.path.abspath(self.folder2+"/index.html"),launch=True)
+        return
+
+def doStuff(ABFfolder,analyze=False,convert=False,index=True,overwrite=True):
+    IN=INDEX(ABFfolder)
+    if analyze:
+        IN.analyzeAll()    
+    if convert:
+        IN.convertImages()
+    if index:
+        IN.scan() # scanning is slow, so don't do it often
+        IN.html_single_basic(IN.groups.keys(),overwrite=overwrite)
+        IN.html_index() # generate master
+    
+            
 if __name__=="__main__":
     swhlab.loglevel=swhlab.loglevel_QUIET
     ABFfolder=None
@@ -179,11 +227,9 @@ if __name__=="__main__":
         if os.path.isdir(maybe):
             ABFfolder=maybe    
             
-    # PROGRAM STARTS HERE
-    IN=INDEX(ABFfolder)
     
-#    #IN.analyzeABF('16831003')
-    IN.html_single_basic('16o14022')
-#    IN.analyzeAll()    
-#    IN.convertImages()
+    doStuff(ABFfolder,index=True,overwrite=True)
+#    IN.analyzeABF('16o14022')
+#    IN.html_single_basic('16o14022')
+
     print("DONE")

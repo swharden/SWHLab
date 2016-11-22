@@ -16,6 +16,15 @@ def where_cross(data,threshold):
 
 ### system operations
 
+def isIpython():
+    """returns True if running in an Ipython interpreter."""
+    try:
+        print("testing Ipython [%s]"%str(__IPYTHON__))
+        return True
+    except:
+        return False
+    
+
 def timeit(timer=None):
     """simple timer. returns a time object, or a string."""
     if timer is None:

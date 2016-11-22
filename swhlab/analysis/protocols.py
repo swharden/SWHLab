@@ -14,14 +14,21 @@ import glob
 import matplotlib.pyplot as plt
 import numpy as np
 
-from swhlab.swh_abf import ABF
-import swhlab.version as version
-import swhlab.swh_index as index
-from swhlab.swh_ap import AP
-import swhlab.swh_plot
-from swhlab.swh_plot import ABFplot
-from swhlab.swh_plot import frameAndSave
+import swhlab
+from swhlab import ABF
+from swhlab.plotting import ABFplot
+from swhlab.plotting.core import frameAndSave
+from swhlab.analysis.ap import AP
+import swhlab.plotting.core
 import swhlab.common as cm
+
+#from swhlab.swh_abf import ABF
+#import swhlab.swh_index as index
+#from swhlab.swh_ap import AP
+#import swhlab.swh_plot
+#from swhlab.swh_plot import ABFplot
+#from swhlab.swh_plot import frameAndSave
+#import swhlab.common as cm
 
 SQUARESIZE=8
 
@@ -284,10 +291,15 @@ def proto_avgRange(theABF,m1=1.0,m2=1.1):
     frameAndSave(abf,"sweep vs average","experiment")
     plt.close('all')
     
-def analyze(fname=False,save=True,show=True):
+def analyze(fname=False,save=True,show=None):
     """given a filename or ABF object, try to analyze it."""
-    swhlab.swh_plot.IMAGE_SAVE=save
-    swhlab.swh_plot.IMAGE_SHOW=show
+    swhlab.plotting.core.IMAGE_SAVE=save
+    if show is None:
+        if cm.isIpython():
+            swhlab.plotting.core.IMAGE_SHOW=True
+        else:
+            swhlab.plotting.core.IMAGE_SHOW=False
+    #swhlab.plotting.core.IMAGE_SHOW=show
     abf=ABF(fname) # ensure it's a class
     runFunction="proto_unknown"
     if "proto_"+abf.protocomment in globals():
@@ -300,28 +312,6 @@ def analyze(fname=False,save=True,show=True):
         abf.log.error("EXCEPTION DURING FUNCTION EXECUTION!")
     plt.close('all') # clean up
 
-#def analyzeFolder(folderOfABFs):
-#    swhlab.swh_plot.IMAGE_SAVE=True
-#    swhlab.swh_plot.IMAGE_SHOW=True
-#    t1=cm.timeit()
-#    for fname in index.smartSort(glob.glob(folderOfABFs+"/*.abf")):
-#        analyze(fname)
-#    print("finished analyzing folder of ABFs in",cm.timeit(t1))
-
 if __name__=="__main__":
     print("DONT RUN THIS DIRECTLY. Call analyze() externally.")
     
-#    justOne=False
-#    #justOne='16831027'
-#    
-#    folder=r"X:\Data\2P01\2016\2016-09-01 PIR TGOT"
-#    if justOne:
-#        swhlab.swh_plot.IMAGE_SAVE=True
-#        swhlab.swh_plot.IMAGE_SHOW=True
-#        analyze(folder+"/%s.abf"%justOne,True)
-#    else:
-#        analyzeFolder(folder)    
-#        indx=index.ABFindex(folder)
-#        indx.html_index(True) 
-#        indx.html_singleAll()   
-#    print("DONE")

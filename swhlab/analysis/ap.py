@@ -148,7 +148,9 @@ class AP:
                 ap["Vmin"]=np.min(chunk)
                 ap["VminI"]=np.where(chunk==ap["Vmin"])[0][0]+I
                 if ap["VminI"]<ap["VmaxI"]:
-                    self.log.error("how is the AHP before the peak?")
+                    self.log.error("-------------------------------")
+                    self.log.error("how is the AHP before the peak?") #TODO: start chunk at the peak
+                    self.log.error("-------------------------------")
                 ap["msRiseTime"]=(ap["VmaxI"]-I)/self.abf.pointsPerMs # time from threshold to peak
                 ap["msFallTime"]=(ap["VminI"]-ap["VmaxI"])/self.abf.pointsPerMs # time from peak to nadir
                 
