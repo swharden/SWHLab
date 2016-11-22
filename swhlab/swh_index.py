@@ -12,6 +12,7 @@ sys.path.append("../") #TODO: MAKE THIS BETTER
 import swhlab.swh_abf
 import swhlab.swh_image
 import swhlab.version as version
+from common import abfSort as smartSort
 
 
 def filesByExtension(fnames):
@@ -58,29 +59,6 @@ def filesByCell(fnames,cells):
                 byCell[parent]=[]
             byCell[parent]=byCell[parent]+[fname]
     return byCell
-    
-def smartSort(IDs):
-    """
-    given a list of goofy ABF names, return it sorted intelligently.
-    This places things like 16o01001 after 16901001.
-    """
-    IDs=list(IDs)
-    monO=[]
-    monN=[]
-    monD=[]
-    good=[]
-    for ID in IDs:
-        if ID is None:
-            continue
-        if 'o' in ID:
-            monO.append(ID)
-        elif 'n' in ID:
-            monN.append(ID)
-        elif 'd' in ID:
-            monD.append(ID)
-        else:
-            good.append(ID)
-    return sorted(good)+sorted(monO)+sorted(monN)+sorted(monD)
     
 class ABFindex:
     def __init__(self,abfFolder,loglevel=logging.DEBUG):

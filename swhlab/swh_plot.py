@@ -15,8 +15,8 @@ from swhlab.swh_abf import ABF
 import swhlab
 
 # global module variables which control behavior
-IMAGE_SAVE=False
-IMAGE_SHOW=False
+IMAGE_SAVE=True
+IMAGE_SHOW=True
 
 def frameAndSave(abf,tag=""):
     """
@@ -30,6 +30,7 @@ def frameAndSave(abf,tag=""):
     msgBot="%s [%s]"%(abf.ID,abf.protocomment)
     plt.annotate(msgBot,(.01,.01),xycoords='figure fraction',ha='left',va='bottom',family='monospace',size=10,alpha=.5)
     fname=tag.lower().replace(" ",'_')+".jpg"
+    fname="data_"+fname
     if IMAGE_SAVE:
         abf.log.info("saving [%s]",fname)
         try:
@@ -100,7 +101,7 @@ class ABFplot:
             
     def save(self,callit="misc",closeToo=True):
         """save the existing figure. does not close it."""
-        fname=self.abf.outPre+callit+".jpg"
+        fname=self.abf.outPre+"data_"+callit+".jpg"
         plt.savefig(fname)
         self.log.info("saved [%s]",os.path.basename(fname))
         if closeToo:

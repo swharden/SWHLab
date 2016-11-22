@@ -1,4 +1,13 @@
-"""scripts to help automated analysis of basic protocols."""
+"""
+scripts to help automated analysis of basic protocols.
+
+All output data should be named:
+    * 12345678_experiment_thing.jpg (time course experiment, maybe with drug)
+    * 12345678_intrinsic_thing.jpg (any intrinsic property)
+    * 12345678_micro_thing.jpg (anything copied, likely a micrograph)
+    * 12345678_data_aps.npy (data stored in a numpy array)
+    * 12345678_data_IVfast.npy (data stored in a numpy array)
+"""
 
 import os
 import glob
@@ -45,7 +54,7 @@ def proto_0101(theABF):
         abf.setsweep(sweep)
         plt.plot(abf.sweepX2,abf.sweepY-abf.average(m1,m2),alpha=.2,color='#AAAAFF')
     average=abf.averageSweep()
-    average-=np.average(average[m1**abf.pointsPerSec:m2*abf.pointsPerSec])
+    average-=np.average(average[int(m1**abf.pointsPerSec):int(m2*abf.pointsPerSec)])
     plt.plot(abf.sweepX2,average,color='b',lw=2,alpha=.5)
     plt.axvspan(m1,m2,color='r',ec=None,alpha=.1)
     plt.axhline(0,color='r',ls="--",alpha=.5,lw=2)
@@ -277,14 +286,10 @@ def proto_avgRange(theABF,m1=1.0,m2=1.1):
     frameAndSave(abf,"sweep vs average")
     plt.close('all')
     
-def analyze(fname=False,force=False):
+def analyze(fname=False,save=True,show=True):
     """given a filename or ABF object, try to analyze it."""
-    dataFolder=os.path.dirname(fname)+"/swhlab/"
-    if force is False and os.path.isdir(dataFolder):
-        ID=os.path.splitext(os.path.basename(fname))[0]
-        if ID+"_" in str(os.listdir(dataFolder)):
-            print("SKIPPING (due to existing images):",os.path.basename(fname))
-            return
+    swhlab.swh_plot.IMAGE_SAVE=save
+    swhlab.swh_plot.IMAGE_SHOW=show
     abf=ABF(fname) # ensure it's a class
     runFunction="proto_unknown"
     if "proto_"+abf.protocomment in globals():
@@ -295,28 +300,30 @@ def analyze(fname=False,force=False):
         globals()[runFunction](abf) # run that function
     except:
         abf.log.error("EXCEPTION DURING FUNCTION EXECUTION!")
+    plt.close('all') # clean up
 
-def analyzeFolder(folderOfABFs):
-    swhlab.swh_plot.IMAGE_SAVE=True
-    swhlab.swh_plot.IMAGE_SHOW=True
-    t1=cm.timeit()
-    for fname in index.smartSort(glob.glob(folderOfABFs+"/*.abf")):
-        analyze(fname)
-    print("finished analyzing folder of ABFs in",cm.timeit(t1))
+#def analyzeFolder(folderOfABFs):
+#    swhlab.swh_plot.IMAGE_SAVE=True
+#    swhlab.swh_plot.IMAGE_SHOW=True
+#    t1=cm.timeit()
+#    for fname in index.smartSort(glob.glob(folderOfABFs+"/*.abf")):
+#        analyze(fname)
+#    print("finished analyzing folder of ABFs in",cm.timeit(t1))
 
 if __name__=="__main__":
+    print("DONT RUN THIS DIRECTLY. Call analyze() externally.")
     
-    justOne=False
-    #justOne='16831027'
-    
-    folder=r"X:\Data\2P01\2016\2016-09-01 PIR TGOT"
-    if justOne:
-        swhlab.swh_plot.IMAGE_SAVE=True
-        swhlab.swh_plot.IMAGE_SHOW=True
-        analyze(folder+"/%s.abf"%justOne,True)
-    else:
-        analyzeFolder(folder)    
-        indx=index.ABFindex(folder)
-        indx.html_singleAll()   
-        indx.html_index(True) 
-    print("DONE")
+#    justOne=False
+#    #justOne='16831027'
+#    
+#    folder=r"X:\Data\2P01\2016\2016-09-01 PIR TGOT"
+#    if justOne:
+#        swhlab.swh_plot.IMAGE_SAVE=True
+#        swhlab.swh_plot.IMAGE_SHOW=True
+#        analyze(folder+"/%s.abf"%justOne,True)
+#    else:
+#        analyzeFolder(folder)    
+#        indx=index.ABFindex(folder)
+#        indx.html_index(True) 
+#        indx.html_singleAll()   
+#    print("DONE")

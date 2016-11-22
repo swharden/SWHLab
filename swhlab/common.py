@@ -3,6 +3,7 @@
 import numpy as np
 import time
 import datetime
+import os
 
 ### numpy
 
@@ -40,3 +41,49 @@ def datetimeToString(dt=None):
 
 def epochToString(epoch):
     return datetimeToString(epochToDatetime())
+
+### list manipulations
+
+def list_to_lowercase(l):
+    """given a list of strings, make them all lowercase."""
+    return [x.lower() for x in l if type(x) is str]
+    
+### abf organization
+
+def ext(fname):
+    """return the extension of a filename."""
+    if "." in fname:
+        return os.path.splitext(fname)[1]
+    return fname
+
+#def abf2ID(s):
+#    """given a string (filename, path, whatever) return the ABF ID."""
+#    s=s.replace("\\","/")
+#    if "/" in s:
+#        s=os.path.basename(s)
+#    if "." in s:
+#        s=s.split(".")[0]
+#    return s
+
+def abfSort(IDs):
+    """
+    given a list of goofy ABF names, return it sorted intelligently.
+    This places things like 16o01001 after 16901001.
+    """
+    IDs=list(IDs)
+    monO=[]
+    monN=[]
+    monD=[]
+    good=[]
+    for ID in IDs:
+        if ID is None:
+            continue
+        if 'o' in ID:
+            monO.append(ID)
+        elif 'n' in ID:
+            monN.append(ID)
+        elif 'd' in ID:
+            monD.append(ID)
+        else:
+            good.append(ID)
+    return sorted(good)+sorted(monO)+sorted(monN)+sorted(monD)

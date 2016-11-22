@@ -180,7 +180,7 @@ class ABF:
             self.setsweep(setsweep)
         if t2 is None:
             t2=self.sweepLength
-        return np.average(self.sweepY[t1*self.pointsPerSec:t2*self.pointsPerSec])
+        return np.average(self.sweepY[int(t1*self.pointsPerSec):int(t2*self.pointsPerSec)])
         
     def averageSweep(self,sweepFirst=0,sweepLast=None):
         """
