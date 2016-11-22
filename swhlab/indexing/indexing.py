@@ -19,8 +19,6 @@ import swh_image
 import protocols
 import numpy as np
 
-import sys
-sys.path.append("../") #TODO: MAKE THIS BETTER
 import swhlab
 import swhlab.style
 

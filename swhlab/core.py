@@ -14,9 +14,6 @@ import pprint
 import webbrowser
 import numpy as np
 
-
-import sys
-sys.path.append("../") #TODO: MAKE THIS BETTER
 import swhlab
 import swhlab.version as version
 
@@ -109,6 +106,11 @@ class ABF:
         
     def setsweep(self, sweep=0, channel=0):
         """set the sweep and channel of an ABF. Both start at 0."""
+        try:
+            sweep=int(sweep)
+        except:
+            self.log.error("trying to set sweep to [%s]",sweep)
+            return
         if sweep<0:
             sweep=self.sweeps-1-sweep # if negative, start from the end
         sweep=max(0,min(sweep,self.sweeps-1)) # correct for out of range sweeps
@@ -178,9 +180,17 @@ class ABF:
         """return the average of part of the current sweep."""
         if setsweep:
             self.setsweep(setsweep)
-        if t2 is None:
+        if t2 is None or t2>self.sweepLength:
             t2=self.sweepLength
-        return np.average(self.sweepY[int(t1*self.pointsPerSec):int(t2*self.pointsPerSec)])
+            self.log.debug("resetting t2 to [%f]",t2)
+        t1=max(t1,0)
+        if t1>t2:
+            self.log.error("t1 cannot be larger than t2")
+            return False
+        I1,I2=int(t1*self.pointsPerSec),int(t2*self.pointsPerSec)
+        if I1==I2:
+            return np.nan
+        return np.average(self.sweepY[I1:I2])
         
     def averageSweep(self,sweepFirst=0,sweepLast=None):
         """
@@ -191,6 +201,7 @@ class ABF:
             sweepLast=self.sweeps-1
         nSweeps=sweepLast-sweepFirst+1
         runningSum=np.zeros(len(self.sweepY))
+        self.log.debug("averaging sweep %d to %d",sweepFirst,sweepLast)
         for sweep in np.arange(nSweeps)+sweepFirst:
             self.setsweep(sweep)
             runningSum+=self.sweepY

@@ -13,10 +13,8 @@ There's a potential that an AP may be lost within a few ms from an edge.
 import logging
 import numpy as np
 
-import sys
-sys.path.append("../") #TODO: MAKE THIS BETTER
 import swhlab
-from swhlab.swh_abf import ABF
+from swhlab.core import ABF
 import swhlab.common as cm
 
 ms=.001 # easy access to a millisecond
@@ -29,6 +27,10 @@ class AP:
         """
         self.log = logging.getLogger("swhlab AP")
         self.log.setLevel(swhlab.loglevel)
+        
+        if abf in [None,False,'']:
+            self.log.error("given invalid abf: [%s]",str(abf))
+            return
         
         # prepare ABF class
         if type(abf) is str:
@@ -183,12 +185,12 @@ class AP:
         returns AP info by sweep arranged as a list (by sweep).
         
         feature:
-            "freqs" - list of instantaneous frequencies by sweep.
-            "firsts" - list of first instantaneous frequency by sweep.
-            "times" - list of times of each AP in the sweep.
-            "count" - numer of APs per sweep.
-            "average" - average instanteous frequency per sweep.
-            "median" - median instanteous frequency per sweep.
+            * "freqs" - list of instantaneous frequencies by sweep.
+            * "firsts" - list of first instantaneous frequency by sweep.
+            * "times" - list of times of each AP in the sweep.
+            * "count" - numer of APs per sweep.
+            * "average" - average instanteous frequency per sweep.
+            * "median" - median instanteous frequency per sweep.
         """
         self.ensureDetection()
         bySweepTimes=[[]]*self.abf.sweeps

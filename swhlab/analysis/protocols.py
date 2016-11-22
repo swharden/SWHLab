@@ -14,8 +14,6 @@ import glob
 import matplotlib.pyplot as plt
 import numpy as np
 
-import sys
-sys.path.append("../") #TODO: MAKE THIS BETTER
 from swhlab.swh_abf import ABF
 import swhlab.version as version
 import swhlab.swh_index as index

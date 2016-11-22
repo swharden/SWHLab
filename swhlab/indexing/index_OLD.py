@@ -7,8 +7,6 @@ import os
 import style
 import shutil
 
-import sys
-sys.path.append("../") #TODO: MAKE THIS BETTER
 import swhlab.swh_abf
 import swhlab.swh_image
 import swhlab.version as version

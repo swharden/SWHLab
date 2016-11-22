@@ -8,17 +8,15 @@ import logging
 import glob
 import matplotlib.pyplot as plt
 
-import sys
-sys.path.append("../") #TODO: MAKE THIS BETTER
 import swhlab.version as version
-from swhlab.swh_abf import ABF
+from swhlab.core import ABF
 import swhlab
 
 # global module variables which control behavior
 IMAGE_SAVE=True
 IMAGE_SHOW=True
 
-def frameAndSave(abf,tag="",dataType="plot"):
+def frameAndSave(abf,tag="",dataType="plot",saveAsFname=False):
     """
     frame the current matplotlib plot with ABF info, and optionally save it.
     Note that this is entirely independent of the ABFplot class object.
@@ -38,7 +36,11 @@ def frameAndSave(abf,tag="",dataType="plot"):
     if IMAGE_SAVE:
         abf.log.info("saving [%s]",fname)
         try:
-            plt.savefig(os.path.abspath(abf.outPre+fname))
+            if saveAsFname:
+                saveAs=os.path.abspath(saveAsFname)
+            else:
+                saveAs=os.path.abspath(abf.outPre+fname)
+            plt.savefig(saveAs)
         except:
             abf.log.error("saving [%s] failed! 'pip install pillow'?",fname)
     if IMAGE_SHOW:
@@ -51,6 +53,8 @@ class ABFplot:
         """Load an ABF and get ready to plot stuff."""
         self.log = logging.getLogger("swhlab plot")
         self.log.setLevel(swhlab.loglevel)
+        
+        self.close(True) # premptive?
         
         # prepare ABF class
         if type(abf) is str:
@@ -103,9 +107,12 @@ class ABFplot:
             self.log.debug("closing 1 figure (of %d)"%numFigures)
             plt.close()
             
-    def save(self,callit="misc",closeToo=True):
+    def save(self,callit="misc",closeToo=True,fullpath=False):
         """save the existing figure. does not close it."""
-        fname=self.abf.outPre+"plot_"+callit+".jpg"
+        if fullpath is False:
+            fname=self.abf.outPre+"plot_"+callit+".jpg"
+        else:
+            fname=callit
         plt.savefig(fname)
         self.log.info("saved [%s]",os.path.basename(fname))
         if closeToo:
