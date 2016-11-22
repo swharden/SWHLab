@@ -17,10 +17,12 @@ import common as cm
 import shutil
 import swh_image
 import protocols
+import numpy as np
 
 import sys
 sys.path.append("../") #TODO: MAKE THIS BETTER
 import swhlab
+import swhlab.style
 
 class INDEX:
     def __init__(self,ABFfolder):
@@ -46,19 +48,28 @@ class INDEX:
             self.log.error("PATH DOESNT EXIST [%s]",ABFfolder)
             return
         else:
-            self.log.debug("Indexing [%s]",ABFfolder)
+            self.log.info("Indexing [%s] ...",ABFfolder)
         
             
-        # set up class variables
+        # determine file paths
         self.folder1=os.path.abspath(ABFfolder) # folder of ABF files
         self.folder2=os.path.abspath(ABFfolder+"/swhlab/") # web output folder
         if not os.path.isdir(self.folder2):
             self.log.debug("creating [%s]",self.folder2)
             os.mkdir(self.folder2)
-            
-        # scan the folders
+
+        # scan the folders for files
         self.scan()
-            
+        
+        # figure out parent/children ABF, ID, and file groups
+        self.groups=cm.abfGroups(self.folder1)
+        self.log.debug("identified %d cells",len(self.groups))
+        nChildren=[len(x) for x in self.groups.values()]
+        self.log.debug("average parent has %.02f children",np.average(nChildren))
+        self.groupFiles=cm.abfGroupFiles(self.groups,self.folder2)
+        nChildrenFiles=[len(x) for x in self.groupFiles.values()]
+        self.log.debug("average parent has %.02f ./swhlab/ files",np.average(nChildrenFiles))
+        
     def scan(self):
         """
         scan folder1 and folder2 into files1 and files2.
@@ -75,6 +86,8 @@ class INDEX:
         self.log.debug("folder1 has %d abfs",len(self.files1abf))
         self.log.debug("folder2 has %d files",len(self.files2))
 
+    ### DATA ANALYSIS AND CONVERSION
+        
     def convertImages(self):
         """
         run this to turn all folder1 TIFs and JPGs into folder2 data.
@@ -111,6 +124,7 @@ class INDEX:
     def analyzeAll(self):
         """analyze every unanalyzed ABF in the folder."""
         searchableData=str(self.files2)
+        self.log.debug("considering analysis for %d ABFs",len(self.IDs))
         for ID in self.IDs:
             if not ID+"_data_" in searchableData:
                 self.log.debug("%s needs analysis",ID)
@@ -119,7 +133,7 @@ class INDEX:
                 #return
             else:
                 self.log.debug("%s has existing analysis, not overwriting",ID)
-        return
+        self.log.debug("verified analysis of %d ABFs",len(self.IDs))
             
     def analyzeABF(self,ID):
         """
@@ -133,15 +147,45 @@ class INDEX:
         self.log.info("analyzing (with overwrite) [%s]",ID)
         protocols.analyze(os.path.join(self.folder1,ID+".abf"))
         
+    ### HTML GENERATION
+    
+    def htmlFor(self,fname):
+        """return appropriate HTML determined by file extension."""
+        if os.path.splitext(fname)[1].lower() in ['.jpg','.png']:
+            html='<a href="%s"><img src="%s"></a>'%(fname,fname)
+            if "_tif_" in fname:
+                html=html.replace('<img ','<img height="400" ')
+        else:
+            html='<br>Not sure how to show: [%s]</br>'%fname
+        return html
+    
+    def html_single_basic(self,abfID):
+        """generate a generic flat file html for an ABF parent."""
+        parentID=cm.parent(self.groups,abfID) # ensure we are working with the parent.       
+        filesByType=cm.filesByType(self.groupFiles[parentID])
+        html="<h1>%s</h1>"%parentID
+        for category in [x for x in filesByType.keys() if len(filesByType[x])]:
+            html+="<h3>%s</h3>"%category
+            for fname in filesByType[category]:
+                html+=self.htmlFor(fname)
+        saveAs="%s/%s_basic.html"%(self.folder2,parentID)
+        swhlab.style.save(html,saveAs,launch=True)
+               
 if __name__=="__main__":
-    swhlab.loglevel=swhlab.loglevel_DEBUG
+    swhlab.loglevel=swhlab.loglevel_QUIET
     ABFfolder=None
-    for maybe in [r"X:\Data\2P01\2016\2016-09-01 PIR TGOT"]:
+    for maybe in [
+                  r"X:\Data\2P01\2016\2016-09-01 PIR TGOT",
+                  r"C:\Users\scott\Documents\important\abfs",
+                  ]:
         if os.path.isdir(maybe):
             ABFfolder=maybe    
             
     # PROGRAM STARTS HERE
     IN=INDEX(ABFfolder)
-    #IN.analyzeABF('16831003')
-    IN.analyzeAll()    
-    #IN.convertImages()
+    
+#    #IN.analyzeABF('16831003')
+    IN.html_single_basic('16o14022')
+#    IN.analyzeAll()    
+#    IN.convertImages()
+    print("DONE")

@@ -283,7 +283,7 @@ def proto_avgRange(theABF,m1=1.0,m2=1.1):
     plt.xlabel("minutes")
         
     plt.tight_layout()
-    frameAndSave(abf,"sweep vs average")
+    frameAndSave(abf,"sweep vs average","experiment")
     plt.close('all')
     
 def analyze(fname=False,save=True,show=True):

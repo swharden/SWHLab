@@ -18,11 +18,15 @@ import swhlab
 IMAGE_SAVE=True
 IMAGE_SHOW=True
 
-def frameAndSave(abf,tag=""):
+def frameAndSave(abf,tag="",dataType="plot"):
     """
     frame the current matplotlib plot with ABF info, and optionally save it.
     Note that this is entirely independent of the ABFplot class object.
     if saveImage is False, show it instead.
+    
+    Datatype should be:
+        * plot
+        * experiment
     """
     plt.tight_layout()
     plt.subplots_adjust(top=.93,bottom =.07)
@@ -30,7 +34,7 @@ def frameAndSave(abf,tag=""):
     msgBot="%s [%s]"%(abf.ID,abf.protocomment)
     plt.annotate(msgBot,(.01,.01),xycoords='figure fraction',ha='left',va='bottom',family='monospace',size=10,alpha=.5)
     fname=tag.lower().replace(" ",'_')+".jpg"
-    fname="data_"+fname
+    fname=dataType+"_"+fname
     if IMAGE_SAVE:
         abf.log.info("saving [%s]",fname)
         try:
@@ -101,7 +105,7 @@ class ABFplot:
             
     def save(self,callit="misc",closeToo=True):
         """save the existing figure. does not close it."""
-        fname=self.abf.outPre+"data_"+callit+".jpg"
+        fname=self.abf.outPre+"plot_"+callit+".jpg"
         plt.savefig(fname)
         self.log.info("saved [%s]",os.path.basename(fname))
         if closeToo:
