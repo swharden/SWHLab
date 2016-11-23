@@ -1,21 +1,14 @@
+import sys
+sys.path.insert(0,'../') # force us to import ../swhlab/ module
+import swhlab
+
 import numpy as np
 import unittest
 import os
 import shutil
 import webbrowser
 import matplotlib.pyplot as plt
-import webinspect
 import sys
-
-unittest.TestLoader.sortTestMethodsUsing = None
-
-#loadedModules=set(sys.modules)&set(globals())
-#if not 'swhlab' in loadedModules:
-try:
-    from tests import swhlab
-except:
-    sys.path.append('../')
-    import swhlab
 
 testAbfPath='./abfs/gain.abf'
 

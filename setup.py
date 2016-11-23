@@ -7,7 +7,12 @@ setup(
     version=__version__,
     author='Scott W Harden',
     author_email='SWHarden@gmail.com',
-    packages=['swhlab'],
+    packages=[
+              'swhlab',
+              'swhlab.analysis',
+              'swhlab.indexing',
+              'swhlab.plotting',
+              ],
     url='https://github.com/swharden/swhlab',
     license='MIT License',
     platforms='any',

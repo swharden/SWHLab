@@ -226,9 +226,15 @@ if __name__=="__main__":
                   ]:
         if os.path.isdir(maybe):
             ABFfolder=maybe    
-            
+    print("using ABF folder:",ABFfolder)
     
-    doStuff(ABFfolder,index=True,overwrite=True)
+    doStuff(ABFfolder,
+            analyze=False,
+            convert=False,
+            index=True,
+            overwrite=True)
+    
+    
 #    IN.analyzeABF('16o14022')
 #    IN.html_single_basic('16o14022')
 

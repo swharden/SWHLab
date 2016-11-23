@@ -1,12 +1,13 @@
 """
 The author is intended to run this..
 """
-
+import sys
 import os
 import shutil
 import glob
 import subprocess
-import sys
+import webbrowser
+import time
 
 def newVersion():
     """increments version counter in swhlab/version.py"""
@@ -29,6 +30,8 @@ def cleanUp():
             shutil.rmtree(delThis)
     for fname in glob.glob("../dist/*.zip"):
         os.remove(fname)
+    for fname in glob.glob("../dist/*.tar.gz"):
+        os.remove(fname)
 
 def upload():    
     print("packaging and uploading...")
@@ -47,6 +50,7 @@ def allTestsPass():
     print("waiting for tests to complete...")
     cmd=r"cd ..\tests\ && python runtests.py"
     result=os.system(cmd)
+    
     print("\n"*10)
     if result==0:
         print("All tests finished successfully.")
@@ -55,11 +59,24 @@ def allTestsPass():
         return False
         
 if __name__=="__main__":
-    if allTestsPass():
+    if "skipTests" in str(sys.argv) or allTestsPass():
         newVersion()
         cleanUp()
         upload()
         cleanUp()
-        print("\n ~ new version was published ~\n")
+        webbrowser.open_new_tab('http://pypi.python.org/pypi/swhlab')
+        print("PyPi upload successful!")
+        print("\n\npreparing to perform local upgrade ",end='')
+        dotsPerSec=2
+        secPause=5
+        for i in range(secPause*dotsPerSec):
+            sys.stdout.write(".")
+            sys.stdout.flush()
+            time.sleep(1/dotsPerSec)
+        print()
+        os.system('pip install --upgrade --no-cache-dir swhlab')
+        print("\n ~ new version was published and installed ~\n")
+        
     else:
-        print("Tests failed, publish aborted!\n")
+        print("\n\nTests failed, publish aborted!\n\n")
+        input("press ENTER to continue...")
