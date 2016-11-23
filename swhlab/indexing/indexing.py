@@ -17,11 +17,8 @@ import shutil
 import numpy as np
 import sys
 
-try:
-    import swhlab
-except:
-    sys.path.append("../../")
-    import swhlab
+import swhlab
+    
 import swhlab.analysis.protocols as protocols
 import imaging
 import swhlab.common as cm
@@ -229,8 +226,8 @@ if __name__=="__main__":
     print("using ABF folder:",ABFfolder)
     
     doStuff(ABFfolder,
-            analyze=False,
-            convert=False,
+            analyze=True,
+            convert=True,
             index=True,
             overwrite=True)
     

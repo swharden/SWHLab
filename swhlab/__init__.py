@@ -1,21 +1,35 @@
+"""
+SWHLab is a python module intended to provide easy access to high level ABF
+file opeartions to aid analysis of whole-cell patch-clamp electrophysiological
+recordings. Although graphs can be interactive, the default mode is to output
+PNGs and generate flat file HTML indexes to allow data browsing through any
+browser on the network. Direct ABF access was provided by the NeoIO module.
+
+* if a site-packages warning is thrown, force use of developmental version by:
+      sys.path.insert(0,'../')
+      
+"""
 import logging
 import sys
 import os
+import swhlab
+
+def tryLoadingFrom(tryPath,moduleName='swhlab'):
+    """if the module is in this path, load it from the local folder."""
+    if not 'site-packages' in swhlab.__file__:
+        return # no need to warn if it's already outside.
+    while len(tryPath)>5:
+        if os.path.isdir(tryPath+"/swhlab") and os.path.exists(tryPath+"/swhlab/__init__.py"):
+            if not os.path.dirname(tryPath) in sys.path:
+                sys.path.insert(0,os.path.dirname(tryPath))
+            print("WARNING: using site-packages swhlab (not the local one)")
+        tryPath=os.path.dirname(tryPath)
+    return
+tryLoadingFrom(os.path.abspath('./'))
 
 
-# this is how force python to load THIS swhlab module (not the system one)
-if not 'swhlab' in sys.modules:
-    if 'site-packages' in os.path.abspath('./'):
-        import swhlab
-        print("### swhlab imported normally ###")
-    else:
-        print("### ATTEMPTING CUSTOM SWHLAB MODULE IMPORT ###")
-        if os.path.isdir('../swhlab/'): # this is the module to use
-            sys.path.insert(0,'../') # must be inserted (top), not appended (bottom)
-        import swhlab # even though we don't use it, submodules (tests) will.
-        print("### IMPORTED [%s]"%os.path.abspath(os.path.dirname(swhlab.__file__)))
 
-__version3__='asdfasdf' # for testing
+# from here, only set high level variables
 
 logDateFormat='%m/%d/%Y %I:%M:%S %p'
 logFormat='%(asctime)s\t%(levelname)s\t%(message)s'
