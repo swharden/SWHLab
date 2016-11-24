@@ -291,7 +291,7 @@ if __name__=="__main__":
             ABFfolder=maybe    
     print("using ABF folder:",ABFfolder)
     
-    doStuff(ABFfolder,analyze=False,convert=False,index=True,overwrite=True)
+    doStuff(ABFfolder,analyze=True,convert=True,index=True,overwrite=True)
     
     #analyzeSingle(ABFfolder+'/16o14048.abf')
 

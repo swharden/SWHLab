@@ -126,17 +126,25 @@ class AP:
                 # determine how many points from the start dV/dt goes below -10 (from a 5ms chunk)
                 chunk=self.abf.sweepD[I:I+5*self.abf.pointsPerMs] # give it 5ms to cross once
                 I_toNegTen=np.where(chunk<-10)[0][0]
-                chunk=self.abf.sweepD[I+I_toNegTen:I+I_toNegTen+10*self.abf.pointsPerMs] # give it 10ms to cross back
+                chunk=self.abf.sweepD[I+I_toNegTen:I+I_toNegTen+10*self.abf.pointsPerMs] # give it 30ms to cross back
+                if not max(chunk)>-10:
+                    self.log.debug("skipping unreal AP at T=%f"%ap["T"])
+                    self.log.error("^^^ can you confirm this is legit?")
+                    continue # probably a pre-AP "bump" to be ignored
                 I_recover=np.where(chunk>-10)[0][0]+I_toNegTen+I # point where trace returns to above -10 V/S
                 ap["dVfastIs"]=[I,I_recover] # span of the fast component of the dV/dt trace
                 ap["dVfastMS"]=(I_recover-I)/self.abf.pointsPerMs # time (in ms) of this fast AP component
     
-                # determine derivative min/max from a 2ms chunk
+                # determine derivative min/max from a 2ms chunk which we expect to capture the fast AP
                 chunk=self.abf.sweepD[ap["dVfastIs"][0]:ap["dVfastIs"][1]]
                 ap["dVmax"]=np.max(chunk)
                 ap["dVmaxI"]=np.where(chunk==ap["dVmax"])[0][0]+I
                 ap["dVmin"]=np.min(chunk)
                 ap["dVminI"]=np.where(chunk==ap["dVmin"])[0][0]+I
+                if ap["dVmax"]<10 or ap["dVmin"]>-10:
+                    self.log.debug("throwing out AP with low dV/dt to be an AP")
+                    self.log.error("^^^ can you confirm this is legit?")
+                    continue
     
                 # before determining AP shape stats, see where trace recovers to threshold
                 chunkSize=self.abf.pointsPerMs*10 #AP shape may be 10ms
@@ -181,7 +189,8 @@ class AP:
             except Exception as e:
                 self.log.error("crashed analyzing AP %d of %d",i,len(Is))
                 self.log.error(cm.exceptionToString(e))
-                cm.pause()
+                #cm.pause()
+                cm.waitFor(30)
 
                 
                 #self.log.error("EXCEPTION!:\n%s"%str(sys.exc_info()))
