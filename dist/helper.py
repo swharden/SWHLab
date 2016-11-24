@@ -35,7 +35,7 @@ def cleanUp():
 
 def upload():    
     print("packaging and uploading...")
-    cmd="cd ../ && python setup.py --quiet sdist upload"
+    cmd="cd ../ && python setup.py sdist upload" # -- quiet ?
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     for line in p.stdout.readlines():
         print(line.decode('utf-8').strip())
@@ -60,15 +60,21 @@ def allTestsPass():
         
 if __name__=="__main__":
     if "skipTests" in str(sys.argv) or allTestsPass():
+        dotsPerSec=2
+        secPause=5
         newVersion()
         cleanUp()
+        print("\n\nnew version created, preparing to upload ",end='')
+        for i in range(secPause*dotsPerSec):
+            sys.stdout.write(".")
+            sys.stdout.flush()
+            time.sleep(1/dotsPerSec)
+        print()
         upload()
         cleanUp()
         webbrowser.open_new_tab('http://pypi.python.org/pypi/swhlab')
         print("PyPi upload successful!")
         print("\n\npreparing to perform local upgrade ",end='')
-        dotsPerSec=2
-        secPause=5
         for i in range(secPause*dotsPerSec):
             sys.stdout.write(".")
             sys.stdout.flush()
