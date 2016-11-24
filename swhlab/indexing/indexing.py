@@ -11,14 +11,17 @@ All output data should be named:
     * 12345678_data_IVfast.npy (data stored in a numpy array)
 """
 
+# start out this way so tests will import the local swhlab module
+import sys
 import os
+sys.path.insert(0,os.path.abspath('../../'))
+import swhlab
+
+# now import things regularly
+
 import logging
 import shutil
-import numpy as np
-import sys
-
-import swhlab
-    
+import numpy as np   
 import swhlab.analysis.protocols as protocols
 import imaging
 import swhlab.common as cm
@@ -156,9 +159,11 @@ class INDEX:
         if os.path.splitext(fname)[1].lower() in ['.jpg','.png']:
             html='<a href="%s"><img src="%s"></a>'%(fname,fname)
             if "_tif_" in fname:
-                html=html.replace('<img ','<img height="400" ')
+                html=html.replace('<img ','<img class="datapic micrograph"')
             if "_plot_" in fname:
-                html=html.replace('<img ','<img height="200" ')
+                html=html.replace('<img ','<img class="datapic intrinsic" ')
+            if "_experiment_" in fname:
+                html=html.replace('<img ','<img class="datapic experiment" ')
         elif os.path.splitext(fname)[1].lower() in ['.html','.htm']:
             html='LINK: %s'%fname
         else:
@@ -175,34 +180,79 @@ class INDEX:
             abfID=[abfID]
         for thisABFid in cm.abfSort(abfID):
             parentID=cm.parent(self.groups,thisABFid)
-            if overwrite is False and parentID+"_basic.html" in self.files2:
-                #print("skipping",parentID)
+            saveAs=os.path.abspath("%s/%s_basic.html"%(self.folder2,parentID))
+            if overwrite is False and os.path.basename(saveAs) in self.files2:
                 continue
             filesByType=cm.filesByType(self.groupFiles[parentID])
-            html="<h1>%s</h1>"%parentID
-            for category in [x for x in filesByType.keys() if len(filesByType[x])]:
-                html+="<h3>%s</h3>"%category
+            html=""
+            html+='<div style="background-color: #DDDDDD;">'
+            html+='<span class="title">summary of data from: %s</span></br>'%parentID
+            html+='<code>%s</code>'%os.path.abspath(self.folder1+"/"+parentID+".abf")
+            html+='</div>'
+            catOrder=["experiment","plot","tif","other"]
+            categories=cm.list_order_by(filesByType.keys(),catOrder)
+            for category in [x for x in categories if len(filesByType[x])]:
+                if category=='experiment':
+                    html+="<h3>Experimental Data:</h3>"
+                elif category=='plot':
+                    html+="<h3>Intrinsic Properties:</h3>"
+                elif category=='tif':
+                    html+="<h3>Micrographs:</h3>"
+                elif category=='other':
+                    html+="<h3>Additional Files:</h3>"
+                else:
+                    html+="<h3>????:</h3>"
+                #html+="<hr>"
+                #html+='<br>'*3
                 for fname in filesByType[category]:
                     html+=self.htmlFor(fname)
-            saveAs=os.path.abspath("%s/%s_basic.html"%(self.folder2,parentID))
+                html+='<br>'*3
             print("creating",saveAs,'...')
             style.save(html,saveAs,launch=launch)
+            
+    def html_single_plot(self,abfID,launch=False,overwrite=False):
+        """create ID_plot.html of just intrinsic properties."""
+        if type(abfID) is str:
+            abfID=[abfID]
+        for thisABFid in cm.abfSort(abfID):
+            parentID=cm.parent(self.groups,thisABFid)
+            saveAs=os.path.abspath("%s/%s_plot.html"%(self.folder2,parentID))
+            if overwrite is False and os.path.basename(saveAs) in self.files2:
+                continue
+            filesByType=cm.filesByType(self.groupFiles[parentID])
+            html=""
+            html+='<div style="background-color: #DDDDFF;">'
+            html+='<span class="title">intrinsic properties for: %s</span></br>'%parentID
+            html+='<code>%s</code>'%os.path.abspath(self.folder1+"/"+parentID+".abf")
+            html+='</div>'
+            for fname in filesByType['plot']:
+                html+=self.htmlFor(fname)
+            print("creating",saveAs,'...')
+            style.save(html,saveAs,launch=launch)
+            
             
     def html_index(self):
         html="<h1>MENU</h1>"
         for htmlFile in [x for x in self.files2 if x.endswith(".html")]:
-            if not "_" in htmlFile:
+            if not htmlFile.endswith('_basic.html'):
                 continue
             name=htmlFile.split("_")[0]
             if name in self.groups.keys():
-                html+='<a href="%s" target="content">%s</a><br>'%(htmlFile,name)
+                html+='<a href="%s" target="content">%s</a> '%(htmlFile,name)
+                html+='<span style="color: #CCC;">'
+                html+='[<a href="%s" target="content">int</a>]'%(name+"_plot.html")
+                html+='</span>'
+                html+='<br>'
         style.save(html,os.path.abspath(self.folder2+"/index_menu.html"))
         html="<h1>SPLASH</h1>"
         style.save(html,os.path.abspath(self.folder2+"/index_splash.html"))
         style.frames(os.path.abspath(self.folder2+"/index.html"),launch=True)
         return
 
+### TODO: streamline from here down #########################################
+        
 def doStuff(ABFfolder,analyze=False,convert=False,index=True,overwrite=True):
+    """Inelegant for now, but lets you manually analyze every ABF in a folder."""
     IN=INDEX(ABFfolder)
     if analyze:
         IN.analyzeAll()    
@@ -211,8 +261,24 @@ def doStuff(ABFfolder,analyze=False,convert=False,index=True,overwrite=True):
     if index:
         IN.scan() # scanning is slow, so don't do it often
         IN.html_single_basic(IN.groups.keys(),overwrite=overwrite)
+        IN.html_single_plot(IN.groups.keys(),overwrite=overwrite)
+        IN.scan() # scanning is slow, so don't do it often
         IN.html_index() # generate master
     
+def analyzeSingle(abfFname):
+    """Reanalyze data for a single ABF. Also remakes child and parent html."""
+    assert os.path.exists(abfFname) and abfFname.endswith(".abf")
+    ABFfolder,ABFfname=os.path.split(abfFname)
+    abfID=os.path.splitext(ABFfname)[0]
+    IN=INDEX(ABFfolder)
+    IN.analyzeABF(abfID)
+    IN.scan()
+    IN.html_single_basic([abfID],overwrite=True)
+    IN.html_single_plot([abfID],overwrite=True)
+    IN.scan()
+    IN.html_index()
+    
+    return
             
 if __name__=="__main__":
     swhlab.loglevel=swhlab.loglevel_QUIET
@@ -225,14 +291,8 @@ if __name__=="__main__":
             ABFfolder=maybe    
     print("using ABF folder:",ABFfolder)
     
-    doStuff(ABFfolder,
-            analyze=True,
-            convert=True,
-            index=True,
-            overwrite=True)
+    doStuff(ABFfolder,analyze=False,convert=False,index=True,overwrite=True)
     
-    
-#    IN.analyzeABF('16o14022')
-#    IN.html_single_basic('16o14022')
+    #analyzeSingle(ABFfolder+'/16o14048.abf')
 
     print("DONE")

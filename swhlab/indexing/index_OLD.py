@@ -1,18 +1,3 @@
-"""
-code related to generating HTML index of collections of ABFs
-"""
-
-import logging
-import os
-import style
-import shutil
-
-import swhlab.swh_abf
-import swhlab.swh_image
-import swhlab.version as version
-from common import abfSort as smartSort
-
-
 def filesByExtension(fnames):
     """given a list of files, return a dict organized by extension."""
     byExt={"abf":[],"jpg":[],"tif":[]} # prime it with empties

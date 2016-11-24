@@ -5,7 +5,13 @@ Plotting is strictly kept out of this module.
 Analysis (event detection, etc) is also kept out of this module.
 """
 
+# start out this way so tests will import the local swhlab module
+import sys
 import os
+sys.path.insert(0,os.path.abspath('../'))
+import swhlab
+
+# now import things regularly
 import logging
 import webinspect
 from neo import io

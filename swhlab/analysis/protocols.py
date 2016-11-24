@@ -7,12 +7,16 @@ All output data should be named:
     * 12345678_micro_thing.jpg (anything copied, likely a micrograph)
     * 12345678_data_aps.npy (data stored in a numpy array)
     * 12345678_data_IVfast.npy (data stored in a numpy array)
+    
+    
+INFORMAL GOAL: make all figures SQUARESIZE in height. Width is variable.
 """
 
 import os
 import glob
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 
 import swhlab
 from swhlab import ABF
@@ -267,14 +271,14 @@ def proto_avgRange(theABF,m1=1.0,m2=1.1):
     abf.log.info("analyzing as a fast IV")
     plot=ABFplot(abf)
            
-    plt.figure(figsize=(SQUARESIZE,SQUARESIZE))
+    plt.figure(figsize=(SQUARESIZE*2,SQUARESIZE/2))
     
-    plt.subplot(211)
+    plt.subplot(121)
     plot.title="first sweep"
     plot.figure_sweep()
     plt.axvspan(m1,m2,color='r',ec=None,alpha=.1)
     
-    plt.subplot(212)
+    plt.subplot(122)
     plt.grid(alpha=.5)
     Ts=np.arange(abf.sweeps)*abf.sweepInterval
     Ys=np.empty(abf.sweeps)*np.nan
@@ -309,7 +313,8 @@ def analyze(fname=False,save=True,show=None):
     try:
         globals()[runFunction](abf) # run that function
     except:
-        abf.log.error("EXCEPTION DURING FUNCTION EXECUTION!")
+        abf.log.error("EXCEPTION DURING PROTOCOL FUNCTION")
+        abf.log.error(sys.exc_info()[0])
     plt.close('all') # clean up
 
 if __name__=="__main__":

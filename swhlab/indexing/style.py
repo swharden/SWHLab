@@ -2,9 +2,15 @@
 misc code related to HTML generation and templating
 """
 
+# start out this way so tests will import the local swhlab module
+import sys
+import os
+sys.path.insert(0,os.path.abspath('../../'))
+import swhlab
+
+# now import things regularly
 import tempfile
 import webbrowser
-import os
 import common
 
 stylesheet="""
@@ -26,6 +32,20 @@ a:hover {text-decoration: underline;}
     border: 1px solid black;
     box-shadow: 5px 5px 10px grey;
     }
+    
+.experiment{
+    box-shadow: 5px 5px 10px rgba(255, 0, 0, 0.5);;
+}
+    
+.intrinsic{
+    height:200px;
+    box-shadow: 5px 5px 10px rgba(0, 255, 0, 0.5);;
+}
+
+.micrograph{
+    height:200px;
+    box-shadow: 5px 5px 10px rgba(0, 0, 255, 0.5);;
+}
     
 """
 

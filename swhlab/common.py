@@ -1,9 +1,13 @@
-# -*- coding: utf-8 -*-
-
+# start out this way so tests will import the local swhlab module
+import sys
+import os
+sys.path.insert(0,os.path.abspath('../'))
+import swhlab
+import time
+# now import things regularly
 import numpy as np
 import time
 import datetime
-import os
 
 ### numpy
 
@@ -16,11 +20,32 @@ def where_cross(data,threshold):
 
 ### system operations
 
+def waitFor(sec=5):
+    """wait a given number of seconds until returning."""
+    while sec:
+        print("waiting for",sec,"...")
+        sec-=1
+        time.sleep(1)
+        
+def pause():
+    """halt everything until user input. Use this sparingly."""
+    input("\npress ENTER to continue ...")
+
+def exceptionToString(e):
+    """when you "except Exception as e", give me the e and I'll give you a string."""
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    s="EXCEPTION THROWN UNEXPECTEDLY"
+    s+="  FILE: %s\n"%os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    s+="  LINE: %s\n"%exc_tb.tb_lineno
+    s+="  TYPE: %s\n"%exc_type
+    return s
+
 def isIpython():
     """returns True if running in an Ipython interpreter."""
     try:
-        print("testing Ipython [%s]"%str(__IPYTHON__))
-        return True
+        #print("testing Ipython [%s]"%str(__IPYTHON__))
+        if str(__IPYTHON__):
+            return True
     except:
         return False
     
@@ -53,6 +78,32 @@ def epochToString(epoch):
 
 ### list manipulations
 
+def list_move_to_front(l,value='other'):
+    """if the value is in the list, move it to the front and return it."""
+    l=list(l)
+    if value in l:
+        l.remove(value)
+        l.insert(0,value)
+    return l
+
+def list_move_to_back(l,value='other'):
+    """if the value is in the list, move it to the back and return it."""
+    l=list(l)
+    if value in l:
+        l.remove(value)
+        l.append(value)
+    return l
+    
+def list_order_by(l,firstItems):
+    """given a list and a list of items to be first, return the list in the
+    same order except that it begins with each of the first items."""
+    l=list(l)
+    for item in firstItems[::-1]: #backwards
+        if item in l:
+            l.remove(item)
+            l.insert(0,item)
+    return l
+    
 def list_to_lowercase(l):
     """given a list of strings, make them all lowercase."""
     return [x.lower() for x in l if type(x) is str]
@@ -177,7 +228,7 @@ def filesByType(fileList):
     given a list of files, return them as a dict sorted by type:
         * plot, tif, data, other
     """
-    features=["plot","tif","data","other"]
+    features=["plot","tif","data","other","experiment"]
     files={}
     for feature in features:
         files[feature]=[]

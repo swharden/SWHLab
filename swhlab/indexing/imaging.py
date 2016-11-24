@@ -2,10 +2,15 @@
 Operations to help with images (usually micrographs) This module does things 
 like add scale bars, and help with multichannel representation and analysis.
 """
+# start out this way so tests will import the local swhlab module
+import sys
+import os
+sys.path.insert(0,os.path.abspath('../../'))
+import swhlab
 
+# now import things regularly
 import numpy as np
 import pylab
-import os
 import datetime
 import glob
 

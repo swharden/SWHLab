@@ -1,7 +1,10 @@
-import logging
-import imp
+# start out this way so tests will import the local swhlab module
 import sys
 import os
+sys.path.insert(0,os.path.abspath('../'))
+import swhlab
+
+import logging
 
 # if swhlab is installed in 'site-packages' like normal, import it silently.
 # if a local (development) module exists, import that one instead.
