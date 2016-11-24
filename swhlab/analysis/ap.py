@@ -17,6 +17,9 @@ import swhlab
 from swhlab.core import ABF
 import swhlab.common as cm
 
+import sys
+import os
+
 ms=.001 # easy access to a millisecond
 
 class AP:
@@ -139,18 +142,28 @@ class AP:
                 chunkSize=self.abf.pointsPerMs*10 #AP shape may be 10ms
                 if len(Is)-1>i and Is[i+1]<(I+chunkSize): # if slow AP runs into next AP
                     chunkSize=Is[i+1]-I # chop it down
+                if chunkSize<(self.abf.pointsPerMs*2):
+                    continue # next AP is so soon, it's >500 Hz. Can't be real.
                 ap["VslowIs"]=[I,I+chunkSize] # time range of slow AP dynamics
                 chunk=self.abf.sweepY[I:I+chunkSize]
                 
                 # determine AP peak and minimum
                 ap["Vmax"]=np.max(chunk)
                 ap["VmaxI"]=np.where(chunk==ap["Vmax"])[0][0]+I
-                ap["Vmin"]=np.min(chunk)
-                ap["VminI"]=np.where(chunk==ap["Vmin"])[0][0]+I
+                chunkForMin=np.copy(chunk) # so we can destroy it
+                chunkForMin[:ap["VmaxI"]-I]=np.inf # minimum won't be before peak now
+                ap["Vmin"]=np.min(chunkForMin) # supposedly the minimum is the AHP
+                ap["VminI"]=np.where(chunkForMin==ap["Vmin"])[0][0]+I
                 if ap["VminI"]<ap["VmaxI"]:
                     self.log.error("-------------------------------")
                     self.log.error("how is the AHP before the peak?") #TODO: start chunk at the peak
                     self.log.error("-------------------------------")
+                #print((I+len(chunk))-ap["VminI"],len(chunk))
+                if (len(chunk))-((I+len(chunk))-ap["VminI"])<10:
+                    self.log.error("-------------------------------")
+                    self.log.error("HP too close for comfort!")
+                    self.log.error("-------------------------------")
+
                 ap["msRiseTime"]=(ap["VmaxI"]-I)/self.abf.pointsPerMs # time from threshold to peak
                 ap["msFallTime"]=(ap["VminI"]-ap["VmaxI"])/self.abf.pointsPerMs # time from peak to nadir
                 
@@ -165,8 +178,13 @@ class AP:
                 
                 # if we got this far, add the AP to the list
                 sweepAPs.extend([ap])
-            except:
-                self.log.debug("crashed analyzing AP %d of %d",i,len(Is))
+            except Exception as e:
+                self.log.error("crashed analyzing AP %d of %d",i,len(Is))
+                self.log.error(cm.exceptionToString(e))
+                cm.pause()
+
+                
+                #self.log.error("EXCEPTION!:\n%s"%str(sys.exc_info()))
             
         self.log.debug("finished analyzing sweep. Found %d APs",len(sweepAPs))
         self.APs.extend(sweepAPs)
