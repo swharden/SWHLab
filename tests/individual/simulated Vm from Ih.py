@@ -34,7 +34,7 @@ if __name__=="__main__":
     plt.plot(X,iY,color='b',alpha=.8)
     plt.margins(0,.1)
 
-    plt.savefig(r"C:\Users\swharden\Documents\temp\demo.png",dpi=100)
+    plt.savefig(r"demo.png",dpi=100)
     plt.show()
     plt.close('all')
     print("DONE")
