@@ -102,6 +102,11 @@ class ABF:
         self.outPre=os.path.join(self.outFolder,self.ID)+'_' # save files prefixed this
         self.sweeps=self.ABFblock.size["segments"] # number of sweeps in ABF
         self.timestamp=self.ABFblock.rec_datetime # when the ABF recording started
+
+        # these I still have to read directly out of the header
+        self.holding = self.header['listDACInfo'][0]['fDACHoldingLevel'] #clamp current or voltage
+
+        # we've pulled what we can out of the header, now proceed with advanced stuff
         self.derivative=False # whether or not to use the first derivative
         self.setsweep() # run setsweep to populate sweep properties
         self.comments_load() # populate comments
@@ -136,6 +141,7 @@ class ABF:
         self.period = float(1/self.rate) # seconds (inverse of sample rate)
         self.pointsPerSec = int(self.rate) # for easy access
         self.pointsPerMs = int(self.rate/1000.0) # for easy access
+        self.sweepSize = len(self.trace) # number of data points per sweep
         self.sweepInterval = self.trace.duration.magnitude # sweep interval (seconds)
         self.sweepLength = self.trace.t_stop-self.trace.t_start # in seconds
         self.length = self.sweepLength*self.sweeps # length (sec) of total recording
@@ -164,6 +170,9 @@ class ABF:
         else:
             self.sweepD=[0] # derivative is forced to be empty
 
+        # generate the protocol too
+        self.generate_protocol()
+
     def comments_load(self):
         """read the header and populate self with information about comments"""
         self.comment_times,self.comment_sweeps,self.comment_tags=[],[],[]
@@ -179,6 +188,83 @@ class ABF:
             msg="sweep %d (%s) %s"%(self.comment_sweeps[i],self.comment_times[i],self.comment_tags[i])
             self.log.debug("COMMENT: %s",msg)
             self.comment_text+=msg+"\n"
+
+
+    def generate_protocol(self):
+        """
+        Recreate the command stimulus (protocol) for the current sweep.
+        It's not stored point by point (that's a waste of time and memory!)
+        Instead it's stored as a few (x,y) points which can be easily graphed.
+        """
+        # TODO: right now this works only for the first channel
+
+        # correct for weird recording/protocol misalignment
+        #what is magic here? 64-bit data points? #1,000,000/64 = 15625 btw
+        self.offsetX = int(self.sweepSize/64)
+
+        # load our protocol from the header
+        proto=self.header['dictEpochInfoPerDAC'][self.channel]
+
+        # prepare our (x,y) pair arrays
+        self.protoX,self.protoY=[] ,[]
+
+        # assume our zero time point is the "holding" value
+        self.protoX.append(0)
+        self.protoY.append(self.holding) #TODO: what is this???
+
+        # now add x,y points for each change in the protocol
+        for step in proto:
+            dX = proto[step]['lEpochInitDuration']
+            Y = proto[step]['fEpochInitLevel']+proto[step]['fEpochLevelInc']*self.sweep
+            # we have a new Y value, so add it to the last time point
+            self.protoX.append(self.protoX[-1])
+            self.protoY.append(Y)
+            # now add the same Y point after "dX" amount of time
+            self.protoX.append(self.protoX[-1]+dX)
+            self.protoY.append(Y)
+            # TODO: detect ramps and warn what's up
+
+        # The last point is probably holding current
+        finalVal=self.holding #regular holding
+        # although if it's set to "use last value", maybe that should be the last one
+        if self.header['listDACInfo'][0]['nInterEpisodeLevel']:
+            finalVal=self.protoY[-1]
+
+        # add the shift to the final value to the list
+        self.protoX.append(self.protoX[-1])
+        self.protoY.append(finalVal)
+        # and again as the very last time point
+        self.protoX.append(self.sweepSize)
+        self.protoY.append(finalVal)
+
+        # update the sequence of protocols now (eliminate duplicate entries)
+        for i in range(1,len(self.protoX)-1): #correct for weird ABF offset issue.
+            self.protoX[i]=self.protoX[i]+self.offsetX
+        self.protoSeqY=[self.protoY[0]]
+        self.protoSeqX=[self.protoX[0]]
+        for i in range(1,len(self.protoY)):
+            if not self.protoY[i]==self.protoY[i-1]:
+                self.protoSeqY.append(self.protoY[i])
+                self.protoSeqX.append(self.protoX[i])
+        if self.protoY[0]!=self.protoY[1]:
+            self.protoY.insert(1,self.protoY[0])
+            self.protoX.insert(1,self.protoX[1])
+            self.protoY.insert(1,self.protoY[0])
+            self.protoX.insert(1,self.protoX[0]+self.offsetX/2)
+        self.protoSeqY.append(finalVal)
+        self.protoSeqX.append(self.sweepSize)
+
+        # convert lists to numpy arrays and do any final conversions
+        self.protoX=np.array(self.protoX)/self.pointsPerSec
+        self.protoY=np.array(self.protoY)
+
+    def clamp_values(self,timePoint=0):
+        """
+        return an array of command values at a time point (in sec).
+        Useful for things like generating I/V curves.
+        """
+        print("proto_clamp_at_time NOT YET IMPLIMENTED") #TODO:
+        return 0
 
     ### advanced data access
 
@@ -255,5 +341,11 @@ class ABF:
 if __name__=="__main__":
     abfFile=r"C:\Users\swharden\Desktop\2016-07-03\16703000.abf"
     abf=ABF(abfFile)
-    abf.setsweep(1)
-    abf.inspect()
+
+    import matplotlib.pyplot as plt
+    plt.subplot(211)
+    plt.plot(abf.sweepX,abf.sweepY)
+    plt.margins(0,.1)
+    plt.subplot(212)
+    plt.plot(abf.protoX,abf.protoY,color='r')
+    plt.margins(0,.1)
