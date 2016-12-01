@@ -1,19 +1,17 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+*.pyc
+.*sw[op]
+venv
+*.egg*
+htmlcov
+.coverage
+.dockerignore
+dist
+.tox
+build
+*.bak
 
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-
-# IPython Notebook
-.ipynb_checkpoints
-
-# Spyder project settings
-.spyderproject
-
-# I hate windows so much -_-
-desktop.ini
+dist
+_build
+_static
+_templates
+*.egg-info

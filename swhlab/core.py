@@ -62,13 +62,13 @@ def headerHTML(header,fname):
         f.write(html)
         f.close()
         webbrowser.open(fname)
-           
+
 class ABF:
- 
-    def __init__(self, fname, createFolder=True):        
+
+    def __init__(self, fname, createFolder=True):
         """
         Load an ABF and makes its stats and sweeps easily available.
-        
+
         Arguments:
             fname - filename of an ABF object
             createFolder - if True, the ./swhlab/ folder will be created
@@ -84,15 +84,15 @@ class ABF:
                 except:
                     pass
             return
-        self.log.debug("_"*60)    
-        self.log.info("SWHLab (%s) loading ABF [%s]",version.__version__,str(fname))        
+        self.log.debug("_"*60)
+        self.log.info("SWHLab (%s) loading ABF [%s]",version.__version__,str(fname))
         if not os.path.exists(str(fname)):
             self.log.error("path doesn't exist!")
             return
-            
+
         # load the ABF and populate properties
         self.ABFreader = io.AxonIO(filename=fname)
-        self.ABFblock = self.ABFreader.read_block(lazy=False, cascade=True)     
+        self.ABFblock = self.ABFreader.read_block(lazy=False, cascade=True)
         self.header=self.ABFreader.read_header()
         self.protocomment=abfProtocol(fname) # get ABF file comment
         self.ID=abfID(fname) # filename without extension
@@ -108,8 +108,8 @@ class ABF:
         if createFolder:
             self.output_touch() # make sure output folder exists
         #TODO: detect if invalid or corrupted ABF
-        self.log.debug("ABF loaded. (protocol: %s)"%self.protocomment)    
-        
+        self.log.debug("ABF loaded. (protocol: %s)"%self.protocomment)
+
     def setsweep(self, sweep=0, channel=0):
         """set the sweep and channel of an ABF. Both start at 0."""
         try:
@@ -130,7 +130,7 @@ class ABF:
         self.trace = self.ABFblock.segments[sweep].analogsignals[channel]
         self.sweep=sweep # currently selected sweep
         self.channel=channel # currently selected channel
-        
+
         # sweep information
         self.rate = int(self.trace.sampling_rate) # Hz
         self.period = float(1/self.rate) # seconds (inverse of sample rate)
@@ -141,16 +141,16 @@ class ABF:
         self.length = self.sweepLength*self.sweeps # length (sec) of total recording
         self.lengthMinutes = self.length # length (minutes) of total recording
         if str(self.trace.dimensionality) == 'pA':
-            self.units,self.units2="pA","clamp current (pA)"     
-            self.unitsD,self.unitsD2="pA/ms","current velocity (pA/ms)"       
+            self.units,self.units2="pA","clamp current (pA)"
+            self.unitsD,self.unitsD2="pA/ms","current velocity (pA/ms)"
         elif str(self.trace.dimensionality) == 'mV':
             self.units,self.units2="mV","membrane potential (mV)"
             self.unitsD,self.unitsD2="V/s","potential velocity (V/s)"
         else:
             self.units,self.units2="?","unknown units"
             self.unitsD,self.unitsD2="?","unknown units"
-                
-        # sweep data        
+
+        # sweep data
         self.sweepY = self.trace.magnitude # sweep data (mV or pA)
         self.sweepT = self.trace.times.magnitude # actual sweep time (sec)
         self.sweepStart = self.trace.t_start # time start of sweep (sec)
@@ -163,7 +163,7 @@ class ABF:
             self.sweepD/=(self.period*1000) # correct for sample rate
         else:
             self.sweepD=[0] # derivative is forced to be empty
-        
+
     def comments_load(self):
         """read the header and populate self with information about comments"""
         self.comment_times,self.comment_sweeps,self.comment_tags=[],[],[]
@@ -179,9 +179,9 @@ class ABF:
             msg="sweep %d (%s) %s"%(self.comment_sweeps[i],self.comment_times[i],self.comment_tags[i])
             self.log.debug("COMMENT: %s",msg)
             self.comment_text+=msg+"\n"
-        
+
     ### advanced data access
-    
+
     def average(self,t1=0,t2=None,setsweep=False):
         """return the average of part of the current sweep."""
         if setsweep:
@@ -197,7 +197,7 @@ class ABF:
         if I1==I2:
             return np.nan
         return np.average(self.sweepY[I1:I2])
-        
+
     def averageSweep(self,sweepFirst=0,sweepLast=None):
         """
         Return a sweep which is the average of multiple sweeps.
@@ -214,46 +214,46 @@ class ABF:
         average=runningSum/nSweeps
         #TODO: standard deviation?
         return average
-            
-                
-                
-            
-            
+
+
+
+
+
     ### file organization
-            
+
     def output_touch(self):
         """ensure the ./swhlab/ folder exists."""
         if not os.path.exists(self.outFolder):
             self.log.debug("creating %s",self.outFolder)
             os.mkdir(self.outFolder)
-        
+
     def output_clean(self):
         """delete all ./swhlab/ data related to this ABF."""
         for fname in glob.glob(self.outPre+"*"):
             print("PRETENDING TO DELETE",fname)
         pass
-    
+
     ### developer assistance
-    
+
     def inspect(self):
         """
         Generate HTML containing information about NeoIO objects.
         This is useful when trying to figure out how to extract data from ABFs.
         """
+        webinspect.blacklist=[] # clears the blacklist
         webinspect.launch(self.ABFblock.segments[0].eventarrays[0],'self.ABFblock.segments[0].eventarrays[0]')
+        webinspect.blacklist=['parents'] # prevents parents() from being executed
         webinspect.launch(self.ABFblock.segments[5].analogsignals[0],'self.ABFblock.segments[5].analogsignals[0]')
+        webinspect.blacklist=['t_start','t_stop'] # prevents t_start() and t_stop() from beeing executed
         webinspect.launch(self.ABFblock.segments[5],'self.ABFblock.segments[5]')
+        webinspect.blacklist=[] # clears the blacklist
         webinspect.launch(self.ABFblock,'self.ABFblock')
+        webinspect.blacklist=[] # clears the blacklist
         webinspect.launch(self.ABFreader,'self.ABFreader')
-        headerHTML(self.header,self.outPre+"_header.html")
-    
+
 
 if __name__=="__main__":
-    print("#"*40+"\nRUNNING DEMO SCRIPT\n"+"#"*40)
-    #abfFile=r"C:\Users\scott\Documents\important\2016-07-01 newprotos\16701009.abf"
-    abfFile=r"C:\Users\scott\Documents\important\abfs\16o14022.abf"
-    abf=ABF(abfFile) # initiate the ABF access class
-    abf.derivative=True # tell it to use the first derivative
-    for sweep in range(abf.sweeps): # for each sweep in the ABF
-        abf.setsweep(sweep) # set that sweep
-        print("sweep %d minimum: %.02f %s"%(abf.sweep,min(abf.sweepD),abf.unitsD))
+    abfFile=r"C:\Users\swharden\Desktop\2016-07-03\16703000.abf"
+    abf=ABF(abfFile)
+    abf.setsweep(1)
+    abf.inspect()
