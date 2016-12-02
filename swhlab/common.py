@@ -8,6 +8,7 @@ import time
 import numpy as np
 import time
 import datetime
+import tempfile
 
 ### numpy
 
@@ -26,7 +27,7 @@ def waitFor(sec=5):
         print("waiting for",sec,"...")
         sec-=1
         time.sleep(1)
-        
+
 def pause():
     """halt everything until user input. Use this sparingly."""
     input("\npress ENTER to continue ...")
@@ -48,7 +49,7 @@ def isIpython():
             return True
     except:
         return False
-    
+
 
 def timeit(timer=None):
     """simple timer. returns a time object, or a string."""
@@ -62,7 +63,7 @@ def timeit(timer=None):
             return "%.02f s"%(took)
         else:
             return "%.02f min"%(took/60.0)
-            
+
 ### dates and times
 
 def epochToDatetime(epoch=time.time()):
@@ -93,7 +94,7 @@ def list_move_to_back(l,value='other'):
         l.remove(value)
         l.append(value)
     return l
-    
+
 def list_order_by(l,firstItems):
     """given a list and a list of items to be first, return the list in the
     same order except that it begins with each of the first items."""
@@ -103,11 +104,11 @@ def list_order_by(l,firstItems):
             l.remove(item)
             l.insert(0,item)
     return l
-    
+
 def list_to_lowercase(l):
     """given a list of strings, make them all lowercase."""
     return [x.lower() for x in l if type(x) is str]
-    
+
 ### abf organization
 
 def ext(fname):
@@ -138,11 +139,11 @@ def abfSort(IDs):
         else:
             good.append(ID)
     return sorted(good)+sorted(monO)+sorted(monN)+sorted(monD)
-    
+
 def abfGroups(abfFolder):
     """
     Given a folder path or list of files, return groups (dict) by cell.
-    
+
     Rules which define parents (cells):
         * assume each cell has one or several ABFs
         * that cell can be labeled by its "ID" or "parent" ABF (first abf)
@@ -150,14 +151,14 @@ def abfGroups(abfFolder):
         * if any file starts with an "ID", that ID becomes a parent.
         * examples could be 16o14044.TIF or 16o14044-cell1-stuff.jpg
         * usually this is done by saving a pic of the cell with same filename
-        
+
     Returns a dict of "parent IDs" representing the "children"
         groups["16o14041"] = ["16o14041","16o14042","16o14043"]
-        
-    From there, getting children files is trivial. Just find all files in 
+
+    From there, getting children files is trivial. Just find all files in
     the same folder whose filenames begin with one of the children.
     """
-    
+
     # prepare the list of files, filenames, and IDs
     files=False
     if type(abfFolder) is str and os.path.isdir(abfFolder):
@@ -166,7 +167,7 @@ def abfGroups(abfFolder):
         files=abfSort(abfFolder)
     assert type(files) is list
     files=list_to_lowercase(files)
-    
+
     # group every filename in a different list, and determine parents
     abfs, IDs, others, parents, days = [],[],[],[],[]
     for fname in files:
@@ -182,7 +183,7 @@ def abfGroups(abfFolder):
                 parents.append(ID)
     parents=abfSort(set(parents)) # allow only one copy each
     days=abfSort(set(days)) # allow only one copy each
-    
+
     # match up children with parents, respecting daily orphans.
     groups={}
     for day in days:
@@ -195,7 +196,7 @@ def abfGroups(abfFolder):
                 groups[parent]=[]
             groups[parent].extend([ID])
     return groups
-    
+
 def abfGroupFiles(groups,folder):
     """
     when given a dictionary where every key contains a list of IDs, replace
@@ -212,7 +213,7 @@ def abfGroupFiles(groups,folder):
             for fname in [x.lower() for x in files if ID in x.lower()]:
                 group2[parent].extend([fname])
     return group2
-    
+
 def parent(groups,ID):
     """given a groups dictionary and an ID, return its actual parent ID."""
     if ID in groups.keys():
@@ -222,7 +223,7 @@ def parent(groups,ID):
             if ID in groups[actualParent]:
                 return actualParent # found the actual parent
     return None # doesn't have a parent in this group!
-    
+
 def filesByType(fileList):
     """
     given a list of files, return them as a dict sorted by type:
@@ -241,10 +242,83 @@ def filesByType(fileList):
         if other:
             files['other'].extend([fname])
     return files
-    
+
+### temp files
+
+def userFolder():
+    """return the semi-temporary user folder"""
+    #path=os.path.abspath(tempfile.gettempdir()+"/swhlab/")
+    #don't use tempdir! it will get deleted easily.
+    path=os.path.expanduser("~")+"/.swhlab/" # works on windows or linux
+    # for me, path=r"C:\Users\swharden\.swhlab"
+    if not os.path.exists(path):
+        print("creating",path)
+        os.mkdir(path)
+    return os.path.abspath(path)
+
+def abfFname_Load():
+    """return the path of the last loaded ABF."""
+    fname=userFolder()+"/abfFname.ini"
+    if os.path.exists(fname):
+        abfFname=open(fname).read().strip()
+        if os.path.exists(abfFname) or abfFname.endswith("_._"):
+            return abfFname
+    return os.path.abspath(os.sep)
+
+
+def abfFname_Save(abfFname):
+    """return the path of the last loaded ABF."""
+    fname=userFolder()+"/abfFname.ini"
+    with open(fname,'w') as f:
+        f.write(os.path.abspath(abfFname))
+    return
+
+### GUI
+
+def gui_getFile():
+    """
+    Launch an ABF file selection file dialog.
+    This is smart, and remembers (through reboots) where you last were.
+    """
+    import tkinter as tk
+    from tkinter import filedialog
+    root = tk.Tk() # this is natively supported by python
+    root.withdraw() # hide main window
+    root.wm_attributes('-topmost', 1) # always on top
+    fname = filedialog.askopenfilename(title = "select ABF file",
+                                       filetypes=[('ABF Files', '.abf')],
+                                       initialdir=os.path.dirname(abfFname_Load()))
+    if fname.endswith(".abf"):
+        abfFname_Save(fname)
+        return fname
+    else:
+        print("didn't select an ABF!")
+        return None
+
+def gui_getFolder():
+    """
+    Launch a folder selection dialog.
+    This is smart, and remembers (through reboots) where you last were.
+    """
+    import tkinter as tk
+    from tkinter import filedialog
+    root = tk.Tk() # this is natively supported by python
+    root.withdraw() # hide main window
+    root.wm_attributes('-topmost', 1) # always on top
+    fname = filedialog.askdirectory(title = "select folder of ABFs",
+                                       initialdir=os.path.dirname(abfFname_Load()))
+    if len(fname)>3:
+        abfFname_Save(fname+"/_._")
+        return fname
+    else:
+        print("didn't select an ABF!")
+        return None
+
 if __name__=="__main__":
-    print("DONT RUN THIS DIRECTLY")
-    abfFolder=r'C:\Users\scott\Documents\important\abfs'
+    gui_getFile()
+    print("DONE")
+    #print("DONT RUN THIS DIRECTLY")
+    #abfFolder=r'C:\Users\scott\Documents\important\abfs'
 #    group=abfGroups(abfFolder)
 #    group2=abfGroupFiles(group,abfFolder+"/swhlab/")
 #    for key in group2:

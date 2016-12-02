@@ -130,8 +130,8 @@ class ABF:
             return
         #self.log.debug("loading sweep %d (Ch%d)",sweep,channel)
         self.channels=self.ABFblock.segments[sweep].size["analogsignals"]
-        if self.channels>1:
-            self.log.error("multichannel not yet supported") #TODO
+        if self.channels>1 and sweep==0:
+            self.log.info("WARNING: multichannel not yet supported!") #TODO:
         self.trace = self.ABFblock.segments[sweep].analogsignals[channel]
         self.sweep=sweep # currently selected sweep
         self.channel=channel # currently selected channel
@@ -145,13 +145,16 @@ class ABF:
         self.sweepInterval = self.trace.duration.magnitude # sweep interval (seconds)
         self.sweepLength = self.trace.t_stop-self.trace.t_start # in seconds
         self.length = self.sweepLength*self.sweeps # length (sec) of total recording
-        self.lengthMinutes = self.length # length (minutes) of total recording
+        self.lengthMinutes = self.length/60.0 # length (minutes) of total recording
+
         if str(self.trace.dimensionality) == 'pA':
             self.units,self.units2="pA","clamp current (pA)"
             self.unitsD,self.unitsD2="pA/ms","current velocity (pA/ms)"
+            self.protoUnits,self.protoUnits2="mV","command voltage (mV)"
         elif str(self.trace.dimensionality) == 'mV':
             self.units,self.units2="mV","membrane potential (mV)"
             self.unitsD,self.unitsD2="V/s","potential velocity (V/s)"
+            self.protoUnits,self.protoUnits2="pA","command current (pA)"
         else:
             self.units,self.units2="?","unknown units"
             self.unitsD,self.unitsD2="?","unknown units"
@@ -201,6 +204,13 @@ class ABF:
         # correct for weird recording/protocol misalignment
         #what is magic here? 64-bit data points? #1,000,000/64 = 15625 btw
         self.offsetX = int(self.sweepSize/64)
+
+        # if there's not a header, get out of here!
+        if not len(self.header['dictEpochInfoPerDAC']):
+            self.log.debug("no protocol defined, so I'll make one")
+            self.protoX,self.protoY=[0,self.sweepX[-1]],[self.holding,self.holding]
+            self.protoSeqX,self.protoSeqY=[0],[self.holding]
+            return
 
         # load our protocol from the header
         proto=self.header['dictEpochInfoPerDAC'][self.channel]
@@ -257,6 +267,24 @@ class ABF:
         # convert lists to numpy arrays and do any final conversions
         self.protoX=np.array(self.protoX)/self.pointsPerSec
         self.protoY=np.array(self.protoY)
+
+    def get_protocol(self,sweep):
+        """
+        given a sweep, return the protocol as [Xs,Ys].
+        This is good for plotting/recreating the protocol trace.
+        There may be duplicate numbers.
+        """
+        self.setsweep(sweep)
+        return list(self.protoX),list(self.protoY)
+
+    def get_protocol_sequence(self,sweep):
+        """
+        given a sweep, return the protocol as condensed sequence.
+        This is better for comparing similarities and determining steps.
+        There should be no duplicate numbers.
+        """
+        self.setsweep(sweep)
+        return list(self.protoSeqX),list(self.protoSeqY)
 
     def clamp_values(self,timePoint=0):
         """
