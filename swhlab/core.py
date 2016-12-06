@@ -143,7 +143,7 @@ class ABF:
         self.pointsPerMs = int(self.rate/1000.0) # for easy access
         self.sweepSize = len(self.trace) # number of data points per sweep
         self.sweepInterval = self.trace.duration.magnitude # sweep interval (seconds)
-        self.sweepLength = self.trace.t_stop-self.trace.t_start # in seconds
+        self.sweepLength = float(self.trace.t_stop-self.trace.t_start) # in seconds
         self.length = self.sweepLength*self.sweeps # length (sec) of total recording
         self.lengthMinutes = self.length/60.0 # length (minutes) of total recording
 
