@@ -7,6 +7,56 @@ SWHLab is a python module designed to ***facilitate exploratory analysis of elec
 ![](doc/screenshot1.jpg) | ![](doc/screenshot2.jpg)
 ---|---
 
+# Examples
+For additional examples, see my [real-world use cases](doc/uses) where I used SWHLab to create one-off analysis routines to test an experimental analysis idea. Note that the docs are not yet ready, nor is the cookbook :(
+
+## Accessing Data
+**Code:**
+ > ```python
+abf=swhlab.ABF("16907055.abf")
+for sweep in range(5):
+    abf.setsweep(sweep)
+    print(abf.sweepY.astype('float'))
+```
+
+**Output:**
+ > ```
+[-71.4722 -71.4722 -71.5027 ..., -69.7021 -69.7021 -69.7632]
+[-69.7327 -69.7327 -69.7327 ..., -64.1174 -64.1479 -64.1174]
+[-64.1174 -64.1479 -64.1174 ..., -70.282  -70.3125 -70.282 ]
+[-70.282  -70.282  -70.282  ..., -73.3643 -73.3337 -73.3032]
+[-73.3337 -73.3032 -73.3643 ..., -75.0122 -74.9817 -74.9817]
+```
+
+## Plotting Data with MatPlotLib
+**Code:**
+ > ```python
+import matplotlib.pyplot as plt
+abf=swhlab.ABF("16907055.abf")
+for sweep in range(4):
+    abf.setsweep(sweep)
+    plt.plot(abf.sweepX2,abf.sweepY,alpha=.5)
+plt.ylabel(abf.units2)
+plt.show()
+```
+
+**Output:**
+ > ![](doc/screenshots/readme3.png)
+
+## Action Potential Detection
+**Code:**
+ > ```python
+abf=swhlab.ABF("16907055.abf")
+for sweep in range(5):
+    abf.setsweep(sweep)
+    print(abf.sweepY.astype('float'))
+```
+
+**Output:**
+ > ![](doc/screenshots/readme3.png)
+
+# Details
+
 **Scope:** Although initially designed to analyze whole-cell patch-clamp recordings of neurons from ABF (axon binary format) files, the core class within this module may be eaily modified to accommodate another recording method or file format. SWHLab leans heavily on the [NeoIO](https://pythonhosted.org/neo/io.html) module to provide low-level file access, and therefore is likely to support other electrophysiological file formats with minimal modifiation.
 
 **Data access:** The core of SWHLab is the `swhlab.ABF` class which has tools that make it easy to obtain sweep data, information from the header, protocol information, protocol sweeps, sub-sections of sweeps, averages of ranges of sweeps, baseline-subtracted sweeps, low-pass-filtered sweeps, amplifier information, tag times and comments, etc.
