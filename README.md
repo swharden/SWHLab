@@ -16,14 +16,15 @@ plt.plot()
 **Data access:** The core of SWHLab is the `swhlab.ABF` class which has tools that make it easy to obtain sweep data, information from the header, protocol information, protocol sweeps, sub-sections of sweeps, averages of ranges of sweeps, baseline-subtracted sweeps, low-pass-filtered sweeps, amplifier information, tag times and comments, etc.
 
 **Event detection:** Event detection classes live in the analysis folder and can be imported as needed. For example, the action potential detection class can be initiated with an ABF object and perform many high level operations:
+
 ```python
 import swhlab
 import matplotlib.pyplot as plt
-ap=swhlab.AP("16d12031.abf") # give it a filename or an ABF object
-ap.detect() # perform event detection on all sweeps
-plt.plot([x["time"] for x in ap.APs], # list of AP times
-         [x["freq"] for x in ap.APs]) # list of AP frequencies
-plt.show() # show the graph
+ap=swhlab.AP("16d12031.abf")
+ap.detect()
+plt.plot([x["time"] for x in ap.APs],
+         [x["freq"] for x in ap.APs])
+plt.show()
 ```
 
 **Protocol detection and data inspection:** If an experiment has thousands of data files, was performed a long time ago, or was conducted by another researcher, it is often useful to quickly inspect the contents of the data. Manually inspecting electrophysiology data can be tedious. The SWHLab module has a _protocols_ sub-module and an _indexing_ sub-module which simplifies this task by:
