@@ -10,12 +10,12 @@ For additional examples, see my [real-world use cases](doc/uses) where I used SW
 import swhlab
 import matplotlib.pyplot as plt
 import numpy as np
+abf=swhlab.ABF("16907055.abf") # initiate a SWHLab object by giving it an ABF file
 ```
 
 ## Accessing Data
 Display all recorded values from the first 5 sweeps.
 ```python
-abf=swhlab.ABF("16907055.abf")
 for sweep in abf.setsweeps():
     print(abf.sweepY)
 ```
@@ -30,7 +30,6 @@ for sweep in abf.setsweeps():
 ## Plotting Data with MatPlotLib
 Plot recorded data from the first 4 sweeps. Note that the ABF class can provide raw time points (abf.sweepX) or time-in-sweep points (abf.sweepX2). Also, deteciton of voltage-clamp vs. current-clamp is automatic, and abf.units2 will provide a name suitable for an axis label.
 ```python
-abf=swhlab.ABF("16907055.abf")
 for sweep in abf.setsweeps():
     plt.plot(abf.sweepX2,abf.sweepY,alpha=.5)
 plt.ylabel(abf.units2)
@@ -38,10 +37,19 @@ plt.show()
 ```
 ![](doc/screenshots/readme1.png)
 
+## Signal Filtering
+Original data is always available by calling `abf.dataY`. If `abf.kernel` has been set (usually by `kernel_gaussian()`), you can pull the convolution of the sweep and the kernel by accessing `abf.dataYfiltered`. Note that the convolution is only performed if and when this method is called. You can generate/change/disable the kernel at any time, but if left alone it's only generated once.
+```python
+abf.kernel=abf.kernel_gaussian(sizeMS=100)
+plt.plot(abf.sweepX2,abf.sweepY,alpha=.5,label="original")
+plt.plot(abf.sweepX2,abf.sweepYfiltered(),alpha=.5,lw=3,color='r',label="filtered")
+plt.legend()
+```
+![](screenshots/lowpass.png)
+
 ## Accessing / Plotting Protocol
 Plot the trace and protocol of the first sweep.
 ```python
-abf=ABF("16703000.abf")
 plt.subplot(211)
 plt.plot(abf.sweepX,abf.sweepY)
 plt.subplot(212)
@@ -52,7 +60,8 @@ plt.plot(abf.protoX,abf.protoY,color='r')
 ## Action Potential Detection
 Use the AP detection class to detect APs in all sweeps, then plot the median frequency (by sweep) of APs in the first 15 sweeps.
 ```python
-ap=swhlab.AP("16907055.abf")
+ap=swhlab.AP(abf) # you can use an existing abf object
+ap=swhlab.AP("16907055.abf") # or create a new one
 ap.detect()
 medFreq=[np.median(f) for f in ap.get_bySweep("freqs")]
 plt.plot(medFreq[:15],'.',ms=10)
