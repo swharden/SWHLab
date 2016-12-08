@@ -13,6 +13,7 @@ For additional examples, see my [real-world use cases](doc/uses) where I used SW
 ## Accessing Data
 **Code:**
  > ```python
+import swhlab
 abf=swhlab.ABF("16907055.abf")
 for sweep in range(5):
     abf.setsweep(sweep)
@@ -31,6 +32,7 @@ for sweep in range(5):
 ## Plotting Data with MatPlotLib
 **Code:**
  > ```python
+import swhlab
 import matplotlib.pyplot as plt
 abf=swhlab.ABF("16907055.abf")
 for sweep in range(4):
@@ -46,10 +48,16 @@ plt.show()
 ## Action Potential Detection
 **Code:**
  > ```python
-abf=swhlab.ABF("16907055.abf")
-for sweep in range(5):
-    abf.setsweep(sweep)
-    print(abf.sweepY.astype('float'))
+import swhlab
+import matplotlib.pyplot as plt
+import numpy as np
+ap=swhlab.AP("16907055.abf")
+ap.detect()
+medFreq=[np.median(f) for f in ap.get_bySweep("freqs")]
+plt.plot(medFreq[:15],'.',ms=10)
+plt.ylabel("Median AP Frequency (Hz)")
+plt.xlabel("sweep number")
+plt.show()
 ```
 
 **Output:**
