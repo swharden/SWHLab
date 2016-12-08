@@ -27,3 +27,16 @@ baseline | drug
 ![](data-baseline-1.png) | ![](data-drug-1.png)
 ![](data-baseline-2.png) | ![](data-drug-2.png)
 notice how the red line shifts _below_ 0pA | note how the red line shifts _above_ 0pA
+
+## Point Distribution: _A Closer Inspection_
+I'd want to (A) use information from the trace to determine what distribution of random samples (noise), (B) mathematically model the expected distribution of values due to this noise, and (C) subtract the noise distribution from real distribution to isolate the distribution of points mediated by a _biological_ cause. I would assume noise is random with a gaussian distribution. Creating the gaussian curve from this data is harder than you'd think though. You can't just fit it, or even just fit the center.
+
+> I start off with flat data centered at 0
+> ![](flat.png)
+> then I look at the distribution of all data points
+> ![](histo3.png)
+> it's not gaussian... anywhere... even in the middle. I can't fit this with confidence.
+> ![](histo2.png)
+> taking fewer points doesn't help me any
+> ![](log.png)
+> and on a log scale it isn't really fitting anything either
