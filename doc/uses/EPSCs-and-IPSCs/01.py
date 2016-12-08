@@ -1,6 +1,6 @@
 """
-using SWHLab to try and analyze ISPCs and EPSCs in the
-same voltage clamp (whole cell patch clamp) recording.
+MOST OF THIS CODE IS NOT USED
+ITS COPY/PASTED AND LEFT HERE FOR CONVENIENCE
 """
 
 import os
