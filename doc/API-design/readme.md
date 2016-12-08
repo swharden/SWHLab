@@ -1,4 +1,4 @@
-### iterating through sweeps
+## iterating through sweeps
 You could use `setsweep(sweepNum)` to manually set the sweep. To print the data from every sweep you would have to do something like this:
 
 > ```python
