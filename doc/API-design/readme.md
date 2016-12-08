@@ -2,6 +2,7 @@
 You could use `setsweep(sweepNum)` to manually set the sweep. To print the data from every sweep you would have to do something like this:
 
 > ```python
+abf=ABF("16d12001.abf")
 for i in range(abf.nSweeps):
     abf.setsweep(i)
     print(abf.sweepY)
