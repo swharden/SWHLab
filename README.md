@@ -47,6 +47,21 @@ plt.legend()
 ```
 ![](doc/screenshots/lowpass.png)
 
+## Automatic Baseline Subtraction
+For event detection, the subtract of a sliding gaussian-weighted window from the original signal is helpful at ensuring the trace is always centered near zero. After `abf.kernel` has been defined (above), this smart baseline subtraction can be accessed via `abf.sweepYsmartbase` and plotted as any other numpy array:
+```python
+plt.figure(figsize=(15,3))
+plt.subplot(121)
+plt.title("original data")
+plt.plot(abf.sweepX,abf.sweepY,alpha=.5,label="original")
+plt.plot(abf.sweepX,abf.sweepYfiltered(),alpha=.8,color='k',label="filtered")
+plt.subplot(122)
+plt.title("intelligent automatic baseline")
+plt.plot(abf.sweepX,abf.sweepYsmartbase(),alpha=.5) # <-- this is all it takes
+plt.axhline(0,alpha=.8,color='k')
+```
+![](doc/screenshots/autobase.png)
+
 ## Accessing / Plotting Protocol
 Plot the trace and protocol of the first sweep.
 ```python
