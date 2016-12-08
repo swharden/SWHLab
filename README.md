@@ -5,13 +5,17 @@ SWHLab is a python module designed to ***facilitate exploratory analysis of elec
 ---|---|---
 
 # Example Usage
-For additional examples, see my [real-world use cases](doc/uses) where I used SWHLab to create one-off analysis routines to test an experimental analysis idea. Note that the docs are not yet ready, nor is the cookbook :(
+For additional examples, see my [real-world use cases](doc/uses) where I used SWHLab to create one-off analysis routines to test an experimental analysis idea. Note that the docs are not yet ready, nor is the cookbook :( All examples assume you start by importing what we typically use:
+```python
+import swhlab
+import matplotlib.pyplot as plt
+import numpy as np
+```
 
 ### Accessing Data
 _Display all recorded values from the first 5 sweeps._
 **Code:**
  > ```python
-import swhlab
 abf=swhlab.ABF("16907055.abf")
 for sweep in range(5):
     abf.setsweep(sweep)
@@ -31,8 +35,6 @@ for sweep in range(5):
 _Plot recorded data from the first 4 sweeps. Note that the ABF class can provide raw time points (abf.sweepX) or time-in-sweep points (abf.sweepX2). Also, deteciton of voltage-clamp vs. current-clamp is automatic, and abf.units2 will provide a name suitable for an axis label.
 **Code:**
  > ```python
-import swhlab
-import matplotlib.pyplot as plt
 abf=swhlab.ABF("16907055.abf")
 for sweep in range(4):
     abf.setsweep(sweep)
@@ -44,13 +46,20 @@ plt.show()
 **Output:**
  > ![](doc/screenshots/readme1.png)
 
+### Accessing / Plotting Protocol
+```python
+abf=ABF("16703000.abf")
+plt.subplot(211)
+plt.plot(abf.sweepX,abf.sweepY)
+plt.subplot(212)
+plt.plot(abf.protoX,abf.protoY,color='r')
+```
+ > ![doc/screenshots/protocol.png]
+
 ### Action Potential Detection
 _Use the AP detection class to detect APs in all sweeps, then plot the median frequency (by sweep) of APs in the first 15 sweeps._
 **Code:**
  > ```python
-import swhlab
-import matplotlib.pyplot as plt
-import numpy as np
 ap=swhlab.AP("16907055.abf")
 ap.detect()
 medFreq=[np.median(f) for f in ap.get_bySweep("freqs")]
