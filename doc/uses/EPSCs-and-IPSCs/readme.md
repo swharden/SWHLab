@@ -11,7 +11,7 @@ This method is used in [01.py](01.py)
 --- | ---
 
 ## Method 2: moving baseline derivative threshold detection
-This method is used in [02.py](02.py). In this demo, the drug (2 minutes of drug between the vertical red lines) increases upward events (IPSCs) and tips the balance from excitation to inhibition, then recovers. It may be over-simplistic to turn a distribution into a single point. I wonder if there's a better way. When one considers the shape of EPSCs and IPSCs, it becomes obvious that trying to fit a gaussian curve is not the best solution.
+This method is used in [02.py](02.py). In this demo, the drug (2 minutes of drug between the vertical red lines) increases upward events (IPSCs) and tips the balance from excitation to inhibition, then recovers. It may be over-simplistic to turn a distribution into a single point. I wonder if there's a better way. When one considers the shape of EPSCs and IPSCs, it becomes obvious that trying to fit a gaussian curve is not the best solution. What about an average and stardard deviation? Sort of like a weighted average...
 
 * take a wide moving gaussian filter average of each trace and subtract it from the original data, centering the trace around 0pA.
 * create a 200-bin histogram of the points in the 2-second sweep and find its peak
