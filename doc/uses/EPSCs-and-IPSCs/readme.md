@@ -18,7 +18,10 @@ This method is used in [02.py](02.py). In this demo, the drug (2 minutes of drug
  * if downward events dominate, the baseline average is pulled down, so the 0-centered line will "rest" slightly above 0pA. Therefore, the peak distribution will be slightly above 0pA, indicating net excitation. Call this value the 
 
 ### Result
-![](distro.png)
+
+Thoughts | Outcome
+---|---
+As the drug is added, the balance shifts from positive to negative (excitation to inhibition) and recovers with tyme dynamics about that we would expect considering the drug used. | ![](distro.png)
 
 ### Sample Traces
 
