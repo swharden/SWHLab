@@ -16,9 +16,8 @@ import numpy as np
 Display all recorded values from the first 5 sweeps.
 ```python
 abf=swhlab.ABF("16907055.abf")
-for sweep in range(5):
-    abf.setsweep(sweep)
-    print(abf.sweepY.astype('float'))
+for sweep in abf.setsweeps():
+    print(abf.sweepY)
 ```
 ```
 [-71.4722 -71.4722 -71.5027 ..., -69.7021 -69.7021 -69.7632]
@@ -33,8 +32,7 @@ Plot recorded data from the first 4 sweeps. Note that the ABF class can provide 
 **Code:**
 ```python
 abf=swhlab.ABF("16907055.abf")
-for sweep in range(4):
-    abf.setsweep(sweep)
+for sweep in abf.setsweeps():
     plt.plot(abf.sweepX2,abf.sweepY,alpha=.5)
 plt.ylabel(abf.units2)
 plt.show()
