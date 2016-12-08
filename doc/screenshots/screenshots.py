@@ -14,7 +14,7 @@ for sweep in range(4):
     plt.plot(abf.sweepX2,abf.sweepY,alpha=.5)
 plt.ylabel(abf.units2)
 #plt.show()
-plt.savefig("readme1.jpg")
+plt.savefig("readme1.png")
 plt.close('all')
 
 ### DEMO ########################################
@@ -34,7 +34,7 @@ for sweep in range(abf.sweeps):
 plt.legend(fontsize=6,loc=8)
 plt.ylabel("AP peak value (mV)")
 #plt.show()
-plt.savefig("readme2.jpg")
+plt.savefig("readme2.png")
 plt.close('all')
 
 import swhlab
@@ -48,5 +48,5 @@ plt.ylabel("Median AP Frequency (Hz)")
 plt.xlabel("sweep number")
 plt.margins(.1,.1)
 #plt.show()
-plt.savefig("readme3.jpg")
+plt.savefig("readme3.png")
 plt.close('all')
