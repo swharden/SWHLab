@@ -11,15 +11,45 @@ np.set_printoptions(precision=4)
 
 abfFile=R"C:\Users\scott\Documents\important\demodata\abfs\16d07022.abf"
 abf=swhlab.ABF(abfFile)
-abf.kernel=abf.kernel_gaussian(sizeMS=100)
+abf.kernel=abf.kernel_gaussian(sizeMS=250)
 abf.setsweep(200)
-plt.figure(figsize=(10,3))
+#X[:abf.pointsPerSec*.3]=np.nan # silence out the memtest part
+#Y[:abf.pointsPerSec*.3]=np.nan # silence out the memtest part
+abf.sweepX[:abf.pointsPerSec*1]=np.nan
+
+plt.figure(figsize=(15,3))
+plt.subplot(121)
+plt.title("original data")
 plt.grid()
-plt.plot(abf.sweepX2,abf.sweepY,alpha=.5,label="original")
-plt.plot(abf.sweepX2,abf.sweepYfiltered(),alpha=.5,lw=3,color='r',label="filtered")
-plt.axis([.5,1,-120,-70])
+plt.plot(abf.sweepX,abf.sweepY,alpha=.5,label="original")
+plt.plot(abf.sweepX,abf.sweepYfiltered(),alpha=.8,color='k',label="filtered")
+plt.ylabel(abf.units2)
 plt.legend()
-plt.savefig("lowpass.png")
+plt.margins(0,.1)
+
+plt.subplot(122)
+plt.title("intelligent automatic baseline")
+plt.grid()
+plt.plot(abf.sweepX,abf.sweepYsmartbase(),alpha=.5)
+plt.axhline(0,alpha=.8,color='k')
+plt.ylabel(abf.units2)
+plt.margins(0,.1)
+
+plt.tight_layout()
+plt.show()
+
+
+#abfFile=R"C:\Users\scott\Documents\important\demodata\abfs\16d07022.abf"
+#abf=swhlab.ABF(abfFile)
+#abf.kernel=abf.kernel_gaussian(sizeMS=100)
+#abf.setsweep(200)
+#plt.figure(figsize=(10,3))
+#plt.grid()
+#plt.plot(abf.sweepX2,abf.sweepY,alpha=.5,label="original")
+#plt.plot(abf.sweepX2,abf.sweepYfiltered(),alpha=.5,lw=3,color='r',label="filtered")
+#plt.axis([.5,1,-120,-70])
+#plt.legend()
+#plt.savefig("lowpass.png")
 
 #### DEMO ########################################
 #import matplotlib.pyplot as plt
@@ -78,3 +108,5 @@ plt.savefig("lowpass.png")
 ##plt.show()
 #plt.savefig("readme3.png")
 #plt.close('all')
+
+print("DONE")

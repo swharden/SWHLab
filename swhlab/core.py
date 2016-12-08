@@ -379,6 +379,10 @@ class ABF:
             return self.sweepY
         else:
             return self.convolve(self.sweepY,self.kernel)
+            
+    def sweepYsmartbase(self):
+        """return the sweep with sweepYfiltered subtracted from it."""
+        return self.sweepY-self.sweepYfiltered()
     
 
     ### file organization
