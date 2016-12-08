@@ -4,9 +4,6 @@ SWHLab is a python module designed to ***facilitate exploratory analysis of elec
 ![](doc/screenshot4.png) | ![](doc/screenshot5.png) | ![](doc/screenshot6.png) 
 ---|---|---
 
-![](doc/screenshot1.jpg) | ![](doc/screenshot2.jpg)
----|---
-
 # Examples
 For additional examples, see my [real-world use cases](doc/uses) where I used SWHLab to create one-off analysis routines to test an experimental analysis idea. Note that the docs are not yet ready, nor is the cookbook :(
 
