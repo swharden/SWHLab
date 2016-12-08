@@ -8,7 +8,9 @@ Analysis (event detection, etc) is also kept out of this module.
 # start out this way so tests will import the local swhlab module
 import sys
 import os
-sys.path.insert(0,os.path.abspath('../'))
+importPath=os.path.abspath('../')
+if not importPath in sys.path and os.path.isdir(importPath+"/swhlab/"):
+    sys.path.insert(0,importPath)
 import swhlab
 
 # now import things regularly
@@ -20,10 +22,7 @@ import pprint
 import webbrowser
 import numpy as np
 
-import swhlab
-import swhlab.version as version
-
-def abfID(fname):
+def abfIDfromFname(fname):
     """given a filename, return the ABFs ID string."""
     fname=os.path.abspath(fname)
     basename=os.path.basename(fname)
@@ -85,7 +84,7 @@ class ABF:
                     pass
             return
         self.log.debug("_"*60)
-        self.log.info("SWHLab (%s) loading ABF [%s]",version.__version__,str(fname))
+        self.log.info("SWHLab (%s) loading ABF [%s]",swhlab.__version__,str(fname))
         if not os.path.exists(str(fname)):
             self.log.error("path doesn't exist!")
             return
@@ -95,7 +94,7 @@ class ABF:
         self.ABFblock = self.ABFreader.read_block(lazy=False, cascade=True)
         self.header=self.ABFreader.read_header()
         self.protocomment=abfProtocol(fname) # get ABF file comment
-        self.ID=abfID(fname) # filename without extension
+        self.ID=abfIDfromFname(fname) # filename without extension
         self.filename=os.path.abspath(fname) # full path to file on disk
         self.fileID=os.path.abspath(os.path.splitext(self.filename)[0]) # no extension
         self.outFolder=os.path.abspath(os.path.dirname(fname)+"/swhlab/") # save stuff here
@@ -175,6 +174,16 @@ class ABF:
 
         # generate the protocol too
         self.generate_protocol()
+
+    def sweepList(self):
+        """return a list of sweep numbers."""
+        return range(self.sweeps)
+
+    def setsweeps(self):
+        """iterate over every sweep"""
+        for sweep in range(self.sweeps):
+            self.setsweep(sweep)
+            yield self.sweep
 
     def comments_load(self):
         """read the header and populate self with information about comments"""
