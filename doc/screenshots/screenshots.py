@@ -8,12 +8,25 @@ fname=r"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16907055.abf"
 
 np.set_printoptions(precision=4)
 
-### DEMO ########################################
-import matplotlib.pyplot as plt
-abf=swhlab.ABF(fname)
-for sweep in range(5):
-    abf.setsweep(sweep)
-    print(abf.sweepY.astype('float'))
+
+abfFile=R"C:\Users\scott\Documents\important\demodata\abfs\16d07022.abf"
+abf=swhlab.ABF(abfFile)
+abf.kernel=abf.kernel_gaussian(sizeMS=100)
+abf.setsweep(200)
+plt.figure(figsize=(10,3))
+plt.grid()
+plt.plot(abf.sweepX2,abf.sweepY,alpha=.5,label="original")
+plt.plot(abf.sweepX2,abf.sweepYfiltered(),alpha=.5,lw=3,color='r',label="filtered")
+plt.axis([.5,1,-120,-70])
+plt.legend()
+plt.savefig("lowpass.png")
+
+#### DEMO ########################################
+#import matplotlib.pyplot as plt
+#abf=swhlab.ABF(fname)
+#for sweep in range(5):
+#    abf.setsweep(sweep)
+#    print(abf.sweepY.astype('float'))
 
 #[-71.4722 -71.4722 -71.5027 ..., -69.7021 -69.7021 -69.7632]
 #[-69.7327 -69.7327 -69.7327 ..., -64.1174 -64.1479 -64.1174]

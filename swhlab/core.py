@@ -64,7 +64,7 @@ def headerHTML(header,fname):
 
 class ABF:
 
-    def __init__(self, fname, createFolder=True):
+    def __init__(self, fname, createFolder=False):
         """
         Load an ABF and makes its stats and sweeps easily available.
 
@@ -109,6 +109,7 @@ class ABF:
         self.derivative=False # whether or not to use the first derivative
         self.setsweep() # run setsweep to populate sweep properties
         self.comments_load() # populate comments
+        self.kernel=None # variable which may be set for convolution
         if createFolder:
             self.output_touch() # make sure output folder exists
         #TODO: detect if invalid or corrupted ABF
@@ -338,9 +339,47 @@ class ABF:
         #TODO: standard deviation?
         return average
 
-
-
-
+    def kernel_gaussian(self,sizeMS=100, sigmaMS=None, forwardOnly=False):
+        """
+        return a 1d gassuan array of a given size and sigma.
+        If sigma isn't given, it will be 1/10 of the size, which is usually good.
+        Note that this is fully numpy, and doesn't use scipy.
+        """
+        if sigmaMS is None:
+            sigmaMS=sizeMS/10
+        size,sigma=sizeMS*self.pointsPerMs,sigmaMS*self.pointsPerMs
+        points=np.exp(-np.power(np.arange(size)-size/2,2)/(2*np.power(sigma,2)))
+        if forwardOnly:
+            points[:int(len(points)/2)]=0
+        return points/sum(points)
+        
+    def convolve(self,signal,kernel):
+        """
+        This applies a kernel to a signal through convolution and returns the result.
+        
+        Some magic is done at the edges so the result doesn't apprach zero:
+            1. extend the signal's edges with len(kernel)/2 duplicated values
+            2. perform the convolution ('same' mode)
+            3. slice-off the ends we added 
+            4. return the same number of points as the original
+        """
+        pad=np.ones(len(kernel)/2)
+        signal=np.concatenate((pad*signal[0],signal,pad*signal[-1]))
+        signal=np.convolve(signal,kernel,mode='same')
+        signal=signal[len(pad):-len(pad)]
+        return signal
+        
+    def sweepYfiltered(self):
+        """
+        Get the filtered sweepY of the current sweep.
+        Only works if self.kernel has been generated.
+        """
+        if self.kernel is None:
+            print("WARNING: filtered Y requested but no kernel exists.")
+            return self.sweepY
+        else:
+            return self.convolve(self.sweepY,self.kernel)
+    
 
     ### file organization
 
