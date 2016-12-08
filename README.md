@@ -41,7 +41,7 @@ plt.show()
 ```
 
 **Output:**
- > ![](doc/screenshots/readme3.png)
+ > ![](doc/screenshots/readme1.png)
 
 ## Action Potential Detection
 **Code:**
