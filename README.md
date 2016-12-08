@@ -54,7 +54,7 @@ plt.plot(abf.sweepX,abf.sweepY)
 plt.subplot(212)
 plt.plot(abf.protoX,abf.protoY,color='r')
 ```
- > ![doc/screenshots/protocol.png]
+ > ![](doc/screenshots/protocol.png)
 
 ### Action Potential Detection
 _Use the AP detection class to detect APs in all sweeps, then plot the median frequency (by sweep) of APs in the first 15 sweeps._
