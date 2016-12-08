@@ -13,7 +13,7 @@ import numpy as np
 ```
 
 ### Accessing Data
-_Display all recorded values from the first 5 sweeps._
+Display all recorded values from the first 5 sweeps.
 ```python
 abf=swhlab.ABF("16907055.abf")
 for sweep in range(5):
@@ -29,7 +29,7 @@ for sweep in range(5):
 ```
 
 ### Plotting Data with MatPlotLib
-_Plot recorded data from the first 4 sweeps. Note that the ABF class can provide raw time points (abf.sweepX) or time-in-sweep points (abf.sweepX2). Also, deteciton of voltage-clamp vs. current-clamp is automatic, and abf.units2 will provide a name suitable for an axis label.
+Plot recorded data from the first 4 sweeps. Note that the ABF class can provide raw time points (abf.sweepX) or time-in-sweep points (abf.sweepX2). Also, deteciton of voltage-clamp vs. current-clamp is automatic, and abf.units2 will provide a name suitable for an axis label.
 **Code:**
 ```python
 abf=swhlab.ABF("16907055.abf")
@@ -52,7 +52,7 @@ plt.plot(abf.protoX,abf.protoY,color='r')
 ![](doc/screenshots/protocol.png)
 
 ### Action Potential Detection
-_Use the AP detection class to detect APs in all sweeps, then plot the median frequency (by sweep) of APs in the first 15 sweeps._
+Use the AP detection class to detect APs in all sweeps, then plot the median frequency (by sweep) of APs in the first 15 sweeps.
 ```python
 ap=swhlab.AP("16907055.abf")
 ap.detect()
