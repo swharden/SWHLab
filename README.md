@@ -1,5 +1,5 @@
 # SWHLab
-SWHLab is a python module designed to ***facilitate exploratory analysis of electrophysiological data*** by providing a simple object model through which to interact with it. The primary goal of this project is to lower the effort barrier required to impliment experimental analysis methods, with the hope of faciliating scientific discovery by promoting the development of novel analysis techniques. 
+SWHLab is a python module designed to ***facilitate exploratory analysis of electrophysiological data*** by providing a simple object model through which to interact with it. It is intended to be used as a tool for neurophysiology data exploration, rather than production or presentation. The primary goal of this project is to lower the effort barrier required to impliment experimental analysis methods, with the hope of faciliating scientific discovery by promoting the development of novel analysis techniques. 
 
 ```python
 import swhlab
@@ -15,10 +15,20 @@ plt.plot()
 
 **Data access:** The core of SWHLab is the `swhlab.ABF` class which has tools that make it easy to obtain sweep data, information from the header, protocol information, protocol sweeps, sub-sections of sweeps, averages of ranges of sweeps, baseline-subtracted sweeps, low-pass-filtered sweeps, amplifier information, tag times and comments, etc.
 
-**Event detection:** Event detection classes live in the analysis folder and can be imported as needed. For example, the action potential detection class can be initiated with an ABF object and perform many high level operations. (`swhlab.AP`), for example, takes-in a single `swhlab.ABF` object and p
+**Event detection:** Event detection classes live in the analysis folder and can be imported as needed. For example, the action potential detection class can be initiated with an ABF object and perform many high level operations:
+```python
+import swhlab
+import matplotlib.pyplot as plt
+ap=swhlab.AP("16d12031.abf") # give it a filename or an ABF object
+ap.detect() # perform event detection on all sweeps
+plt.plot([x["time"] for x in ap.APs], # list of AP times
+         [x["freq"] for x in ap.APs]) # list of AP frequencies
+plt.show() # show the graph
+```
 
-SWHLab is a python module intended to provide easy access to high level ABF file opeartions to aid analysis of whole-cell patch-clamp electrophysiological recordings. Although graphs can be interactive, the default mode is to output PNGs and generate flat file HTML indexes to allow data browsing through any browser on the network. 
-
-**Scope:** SWHLab is a collection of tools to provide easy access to ABF files containing patch-clamp electrophysiology data. NeoIO provides
-direct access to ABF data, and SWHLab makes it easy to perform high-level operations (such as event detection, action potential characterization, calculation of cell capacitance from voltage clamp or current clamp traces). SWHLab intended to be used as a tool for neurophysiology data exploration, rather than production or presentation. It can be easily incorporated into other projects where accessing ABF data is desired.
-plt.ylabel(abf.units)
+**Protocol detection and data inspection:** If an experiment has thousands of data files, was performed a long time ago, or was conducted by another researcher, it is often useful to quickly inspect the contents of the data. Manually inspecting electrophysiology data can be tedious. The SWHLab module has a _protocols_ sub-module and an _indexing_ sub-module which simplifies this task by:
+ 1. automatically determine how to analyze a file
+  * i.e., if it's current clamp and contains action potentials, analyze it as such
+ 2. perform the analysis without user input and save the result as a JPG
+ 3. after potentially thousands of files are analyzed, create a flat-file HTML report which can view the data in any browser
+Note that because this entire process can occur without user input, it can be performed automatically as new data is being recorded. This allows operators at the electrophysiology rig to view the results of complicated analysis routines immediately after the data is saved.
