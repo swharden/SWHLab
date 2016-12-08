@@ -14,16 +14,13 @@ import numpy as np
 
 ### Accessing Data
 _Display all recorded values from the first 5 sweeps._
-**Code:**
- > ```python
+```python
 abf=swhlab.ABF("16907055.abf")
 for sweep in range(5):
     abf.setsweep(sweep)
     print(abf.sweepY.astype('float'))
 ```
-
-**Output:**
- > ```
+```
 [-71.4722 -71.4722 -71.5027 ..., -69.7021 -69.7021 -69.7632]
 [-69.7327 -69.7327 -69.7327 ..., -64.1174 -64.1479 -64.1174]
 [-64.1174 -64.1479 -64.1174 ..., -70.282  -70.3125 -70.282 ]
@@ -34,7 +31,7 @@ for sweep in range(5):
 ### Plotting Data with MatPlotLib
 _Plot recorded data from the first 4 sweeps. Note that the ABF class can provide raw time points (abf.sweepX) or time-in-sweep points (abf.sweepX2). Also, deteciton of voltage-clamp vs. current-clamp is automatic, and abf.units2 will provide a name suitable for an axis label.
 **Code:**
- > ```python
+```python
 abf=swhlab.ABF("16907055.abf")
 for sweep in range(4):
     abf.setsweep(sweep)
@@ -42,9 +39,7 @@ for sweep in range(4):
 plt.ylabel(abf.units2)
 plt.show()
 ```
-
-**Output:**
- > ![](doc/screenshots/readme1.png)
+![](doc/screenshots/readme1.png)
 
 ### Accessing / Plotting Protocol
 ```python
@@ -54,12 +49,11 @@ plt.plot(abf.sweepX,abf.sweepY)
 plt.subplot(212)
 plt.plot(abf.protoX,abf.protoY,color='r')
 ```
- > ![](doc/screenshots/protocol.png)
+![](doc/screenshots/protocol.png)
 
 ### Action Potential Detection
 _Use the AP detection class to detect APs in all sweeps, then plot the median frequency (by sweep) of APs in the first 15 sweeps._
-**Code:**
- > ```python
+```python
 ap=swhlab.AP("16907055.abf")
 ap.detect()
 medFreq=[np.median(f) for f in ap.get_bySweep("freqs")]
@@ -68,9 +62,7 @@ plt.ylabel("Median AP Frequency (Hz)")
 plt.xlabel("sweep number")
 plt.show()
 ```
-
-**Output:**
- > ![](doc/screenshots/readme3.png)
+![](doc/screenshots/readme3.png)
 
 # Details
 
