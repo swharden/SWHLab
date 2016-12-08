@@ -17,9 +17,13 @@ This method is used in [02.py](02.py). In this demo, the drug (2 minutes of drug
 * create a 200-bin histogram of the points in the 2-second sweep and find its peak
  * if downward events dominate, the baseline average is pulled down, so the 0-centered line will "rest" slightly above 0pA. Therefore, the peak distribution will be slightly above 0pA, indicating net excitation. Call this value the 
 
+### Result
+![](distro.png)
+
+### Sample Traces
+
 baseline | drug
 ---|---
 ![](data-baseline-1.png) | ![](data-drug-1.png)
 ![](data-baseline-2.png) | ![](data-drug-2.png)
 notice how the red line shifts _below_ 0pA | note how the red line shifts _above_ 0pA
-![](distro.png)
