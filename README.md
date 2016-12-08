@@ -45,7 +45,7 @@ plt.plot(abf.sweepX2,abf.sweepY,alpha=.5,label="original")
 plt.plot(abf.sweepX2,abf.sweepYfiltered(),alpha=.5,lw=3,color='r',label="filtered")
 plt.legend()
 ```
-![](screenshots/lowpass.png)
+![](doc/screenshots/lowpass.png)
 
 ## Accessing / Plotting Protocol
 Plot the trace and protocol of the first sweep.
