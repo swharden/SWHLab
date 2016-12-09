@@ -20,6 +20,8 @@ warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
 def analyzeSweep(abf,plotToo=True,color=None,label=None):
     Y=abf.sweepYsmartbase()[abf.pointsPerSec*.5:]
+    #Y=abf.sweepY[abf.pointsPerSec*.5:]
+
     AV,SD=np.average(Y),np.std(Y)
     dev=5 # number of stdevs from the avg to set the range
     R1,R2=[(AV-SD)*dev,(AV+SD)*dev]
@@ -29,6 +31,10 @@ def analyzeSweep(abf,plotToo=True,color=None,label=None):
 
     peakI=np.where(histSmooth==max(histSmooth))[0][0]
     peakX=bins[peakI]
+
+    # center the peak at 0 pA
+    hist=np.roll(hist,int(nBins/2-peakI))
+    histSmooth=np.roll(histSmooth,int(nBins/2-peakI))
 
     hist,histSmooth=hist/max(histSmooth),histSmooth/max(histSmooth) # normalize height to 1
 
