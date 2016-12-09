@@ -31,13 +31,9 @@ def analyzeSweep(abf,plotColor=None):
     AV,SD=np.average(Y),np.std(Y)
     B1,B2=AV-SD*3,AV+SD*3
     nBins=1000
-    hist, bin_edges = np.histogram(Y, density=False, bins=nBins, range=(B1,B2))
-    histSmooth=np.convolve(hist,kernel_gaussian(nBins/5),mode='same')
-    histSmooth=histSmooth/max(histSmooth) # normalize to a peak of 1
-    
-    centerI=np.where(histSmooth==max(histSmooth))[0][0] # calculate center
-    histSmooth=np.roll(histSmooth,int(nBins/2-centerI)) # roll data so center is in middle
-    
+    hist, bin_edges = np.histogram(Y, density=True, bins=nBins, range=(B1,B2))
+    histSmooth=np.convolve(hist,kernel_gaussian(nBins/2),mode='same')
+        
     if plotColor:
         plt.plot(bin_edges[:-1],histSmooth,'-',alpha=.3,color=plotColor,lw=2)
     
@@ -55,23 +51,20 @@ if __name__=="__main__":
     plt.xlabel(abf.units2)
     plt.axhline(0,color='k')
     
-    nSweeps=10
-    
-    for sweep in [(5*60/abf.sweepLength)+x for x in range(nSweeps)]:
+    for sweep in [(5*60/abf.sweepLength)+x for x in range(10)]:
         print("plotting sweep",sweep)
         abf.setsweep(sweep)
         analyzeSweep(abf,plotColor='b')
         
-    for sweep in [(6.5*60/abf.sweepLength)+x for x in range(nSweeps)]:
+    for sweep in [(6.5*60/abf.sweepLength)+x for x in range(10)]:
         print("plotting sweep",sweep)
         abf.setsweep(sweep)
         analyzeSweep(abf,plotColor='r')
        
-    for sweep in [(12*60/abf.sweepLength)+x for x in range(nSweeps)]:
+    for sweep in [(12*60/abf.sweepLength)+x for x in range(12)]:
         print("plotting sweep",sweep)
         abf.setsweep(sweep)
         analyzeSweep(abf,plotColor='y')
-    plt.semilogy()
-    plt.axis([-15,15,.003,1])
+        
     plt.show()
     print("DONE")

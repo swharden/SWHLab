@@ -22,7 +22,7 @@ def kernel_gaussian(size=100, sigma=None):
     points=np.exp(-np.power(np.arange(size)-size/2,2)/(2*np.power(sigma,2)))
     return points/sum(points)
 
-def analyzeSweep(abf,plotColor=None):    
+def analyzeSweep(abf):    
     
     Y=abf.sweepYsmartbase()
     Y=Y[abf.pointsPerSec*.5:]
@@ -38,40 +38,42 @@ def analyzeSweep(abf,plotColor=None):
     centerI=np.where(histSmooth==max(histSmooth))[0][0] # calculate center
     histSmooth=np.roll(histSmooth,int(nBins/2-centerI)) # roll data so center is in middle
     
-    if plotColor:
-        plt.plot(bin_edges[:-1],histSmooth,'-',alpha=.3,color=plotColor,lw=2)
-    
-    return
+    centerVal=bin_edges[centerI]
+    EPSC=np.sum(histSmooth[:int(len(histSmooth)/2)])
+    IPSC=np.sum(histSmooth[int(len(histSmooth)/2):])
+    return [centerVal,EPSC,IPSC]
     
 if __name__=="__main__":
     abfFile=R"C:\Users\scott\Documents\important\demodata\abfs\16d07022.abf"
     abf=swhlab.ABF(abfFile)
     abf.kernel=abf.kernel_gaussian(sizeMS=500) # needed for smart base
     
-    plt.figure(figsize=(10,10))
-    plt.grid()
-    plt.title("10 sweeps baseline (blue), in drug (blue), and washout (yellow)")
-    plt.ylabel("power")
-    plt.xlabel(abf.units2)
-    plt.axhline(0,color='k')
+    Xs,centerVals,EPSCs,IPSCs=[],[],[],[]
     
-    nSweeps=10
-    
-    for sweep in [(5*60/abf.sweepLength)+x for x in range(nSweeps)]:
-        print("plotting sweep",sweep)
-        abf.setsweep(sweep)
-        analyzeSweep(abf,plotColor='b')
+    for sweep in abf.setsweeps():
+        print("analyzing sweep",sweep)
+        centerVal,EPSC,IPSC=analyzeSweep(abf)
+        Xs.append(abf.sweepStart/60.0)
+        centerVals.append(centerVal)
+        EPSCs.append(EPSC)
+        IPSCs.append(IPSC)
         
-    for sweep in [(6.5*60/abf.sweepLength)+x for x in range(nSweeps)]:
-        print("plotting sweep",sweep)
-        abf.setsweep(sweep)
-        analyzeSweep(abf,plotColor='r')
-       
-    for sweep in [(12*60/abf.sweepLength)+x for x in range(nSweeps)]:
-        print("plotting sweep",sweep)
-        abf.setsweep(sweep)
-        analyzeSweep(abf,plotColor='y')
-    plt.semilogy()
-    plt.axis([-15,15,.003,1])
-    plt.show()
+    plt.figure(figsize=(10,10))
+    plt.subplot(211)
+    plt.grid()
+    plt.plot(Xs,EPSCs,'r',alpha=.8,lw=2,label="excitation")
+    plt.plot(Xs,IPSCs,'b',alpha=.8,lw=2,label="inhibition")
+    plt.ylabel("power (sum norm half)")
+    plt.xlabel("experiment time (min)")
+    plt.margins(0,.1)
+    
+    plt.subplot(212)
+    plt.grid()
+    plt.plot(Xs,centerVals,'g',alpha=.8,lw=2)
+    plt.ylabel("shift WRT baseline")
+    plt.xlabel("experiment time (min)")
+    plt.axhline(0,color='k',ls='--')
+    plt.margins(0,.1)
+    plt.show()   
+    
     print("DONE")

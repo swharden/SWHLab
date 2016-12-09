@@ -161,8 +161,8 @@ class ABF:
 
         # sweep data
         self.sweepY = self.trace.magnitude # sweep data (mV or pA)
-        self.sweepT = self.trace.times.magnitude # actual sweep time (sec)
-        self.sweepStart = self.trace.t_start # time start of sweep (sec)
+        self.sweepT = self.trace.times.magnitude # actual sweep times (sec)
+        self.sweepStart = float(self.trace.t_start) # time start of sweep (sec)
         self.sweepX2 = self.sweepT-self.trace.t_start.magnitude # sweeps overlap
         self.sweepX = self.sweepX2+sweep*self.sweepInterval # assume no gaps
         if self.derivative:
