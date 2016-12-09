@@ -27,3 +27,23 @@ baseline | drug | washout
 
 ![](14.png)
  
+# Solution (now in SWHLab core class)
+```python
+abf=swhlab.ABF("16d07022.abf")
+for sweep in abf.setsweeps():
+    print("Sweep",sweep,"phasic current is",abf.phasicNet())
+```
+
+
+```
+Sweep 0 phasic current is -7.84370105278
+Sweep 1 phasic current is -3.92867583759
+Sweep 2 phasic current is -4.68253583272
+Sweep 3 phasic current is -7.2651550911
+Sweep 4 phasic current is -5.6990834645
+Sweep 5 phasic current is -3.04249607924
+Sweep 6 phasic current is -6.49318707287
+Sweep 7 phasic current is -4.33582645295
+Sweep 8 phasic current is -7.28951428466
+...
+```
