@@ -45,3 +45,4 @@ Note that the previous image was generated with the [numpy.histogram](https://do
 When the smoothed trace is normalized to 1, it makes more sense | ![](dist-ba3.png)
 using [numpy.roll](https://docs.scipy.org/doc/numpy/reference/generated/numpy.roll.html) to center it by its peak normalized value, things begin to line up a bit | ![](dist-ba4.png)
 the same data on a logY scale | ![](dist-ba5.png)
+Starting over with [05.py](05.py), it's clear that the curves change during drug app. IPSCs don't "shift the histogram to the right", but it "shifts the histogram to the right _relative to the peak_" | ![](05.png)
