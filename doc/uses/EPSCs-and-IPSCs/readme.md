@@ -15,7 +15,12 @@ Histograms are normalized to 1, then aligned to their peak. RMS noise is expecte
 ## Subtract positive from negative histogram
 - We expect RMS noise to be identical on both sides of 0, so it eliminates itself.
 - The difference is the _net phasic current_ which may be positive, net-neutral, or negative
+- this code is in (13.py)
 
 baseline | drug | washout
 ---|---|---
 ![](13a.png) | ![](13b.png) | ![](13c.png)
+
+## Plpt the difference with respect to time
+- this code is in (14.py)
+ ![](14.png)
