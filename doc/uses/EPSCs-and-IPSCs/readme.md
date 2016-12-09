@@ -21,7 +21,7 @@ baseline | drug | washout
 ---|---|---
 ![](13a.png) | ![](13b.png) | ![](13c.png)
 
-## Plpt the difference with respect to time
+## Plot the difference with respect to time
 - this code is in (14.py)
 
  ![](14.png)
