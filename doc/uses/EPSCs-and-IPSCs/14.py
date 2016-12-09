@@ -37,11 +37,7 @@ def analyzeSweep(abf,label=None,plot=True,biggestEvent=30):
 
     downward,upward=np.split(histSmooth,2)
     downward=downward[::-1]
-
-    if plot:
-        plt.plot(bins[-len(downward):],downward,lw=3,alpha=.5,color='g',ls='--',label='downward')
-        plt.plot(bins[-len(downward):],upward,lw=3,alpha=.5,color='g',ls=':',label='upward')
-        plt.plot(bins[-len(downward):],upward-downward,lw=3,alpha=.5,color='b',label='difference')
+    return(np.sum(upward-downward)) #TODO: should it not be normalized first?
 
 if __name__=="__main__":
     #abfFile=R"C:\Users\scott\Documents\important\demodata\abfs\16d07022.abf"
@@ -49,17 +45,26 @@ if __name__=="__main__":
     abf=swhlab.ABF(abfFile)
     abf.kernel=abf.kernel_gaussian(sizeMS=500) # kernel for smart baseline
 
-    for sweep in [175,200,375]:
-        print("Sweep",sweep)
-        abf.setsweep(sweep)
+    if os.path.exists("diffs.npy"):
+        diff=np.load("diffs.npy")
+    else:
+        diff=[]
+        for sweep in abf.setsweeps():
+            print("Sweep",sweep)
+            diff.append(analyzeSweep(abf,plot=True,label="sweep %d"%sweep))
+        np.save("diffs",diff)
 
-        plt.figure(figsize=(5,5))
-        plt.title("baseline (sweep 175)")
-        plt.grid()
-        analyzeSweep(abf,plot=True,label="sweep %d"%sweep)
-        plt.legend()
-        plt.ylabel("histogram bin density")
-        plt.xlabel(abf.units2)
-        plt.show()
+    Xs=np.arange(abf.sweeps)*abf.sweepLength/60.0
+    plt.figure(figsize=(10,10))
+    plt.grid()
+    plt.axhline(0,color='k',ls='--',lw=2,alpha=.5)
+    plt.axvspan(5.26,7.25,color='r',alpha=.1)
+    #plt.axvline(7.26,color='r',ls='--',lw=4,alpha=.5)
+    plt.plot(Xs,diff,'.',color='.7',alpha=.5,ms=20)
+    plt.plot(Xs,cm.lowpass(diff,10),color='b',lw=2,alpha=.7)
+    plt.ylabel("net phasic current (pA)")
+    plt.margins(0,.1)
+    plt.show()
+
 
     print("DONE")
