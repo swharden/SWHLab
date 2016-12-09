@@ -16,5 +16,6 @@ Histograms are normalized to 1, then aligned to their peak. RMS noise is expecte
 - We expect RMS noise to be identical on both sides of 0, so it eliminates itself.
 - The difference is the _net phasic current_ which may be positive, net-neutral, or negative
 baseline | drug | washout
+---|---|---
 ![](13a.png) | ![](13b.png) | ![](13c.png)
 ---|---|---
