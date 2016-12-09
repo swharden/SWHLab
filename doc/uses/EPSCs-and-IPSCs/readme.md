@@ -47,3 +47,4 @@ using [numpy.roll](https://docs.scipy.org/doc/numpy/reference/generated/numpy.ro
 the same data on a logY scale | ![](dist-ba5.png)
 Starting over with [05.py](05.py), it's clear that the curves change during drug app. IPSCs don't "shift the histogram to the right", but it "shifts the histogram to the right _relative to the peak_" | ![](05.png)
 [06.py](06.py) normalzies these histograms to the peak of the _smoothed_ trace (not the raw histogram data!). The spread becomes more ovcious. | ![](06.png)
+[06.py](07.py) centers all data by the peak of the _smoothed_ trace | ![](07.png)
