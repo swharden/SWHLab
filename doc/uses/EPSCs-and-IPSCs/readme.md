@@ -23,4 +23,5 @@ baseline | drug | washout
 
 ## Plpt the difference with respect to time
 - this code is in (14.py)
+
  ![](14.png)
