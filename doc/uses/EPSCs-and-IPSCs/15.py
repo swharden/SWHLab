@@ -18,14 +18,14 @@ import numpy as np
 import warnings # suppress VisibleDeprecationWarning warning
 warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
-def analyzeSweep(abf,label=None,plot=True,biggestEvent=30):
+def analyzeSweep(abf,label=None,plot=True,biggestEvent=50):
     # acquire the baseline-subtracted sweep
     Y=abf.sweepYsmartbase()[abf.pointsPerSec*.5:]
 
     # create the histogram
     nBins=1000
     hist,bins=np.histogram(Y,bins=nBins,range=[-biggestEvent,biggestEvent],density=True)
-    histSmooth=cm.lowpass(hist,nBins/5)
+    histSmooth=cm.lowpass(hist)
 
     # normalize height to 1
     hist,histSmooth=hist/max(histSmooth),histSmooth/max(histSmooth)
@@ -41,6 +41,13 @@ def analyzeSweep(abf,label=None,plot=True,biggestEvent=30):
 
     # convert our "pA/time" to "pA/sec"
     diff=diff/(len(Y)/abf.pointsPerSec)
+
+    if plot:
+        plt.figure(figsize=(5,5))
+        plt.title("sweep %d"%sweep)
+        plt.plot(bins[:-1],hist,'.',alpha=.2)
+        plt.plot(bins[:-1],histSmooth,alpha=.5,lw=2)
+        plt.show()
 
     return diff
 
