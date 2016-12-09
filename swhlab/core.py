@@ -339,35 +339,12 @@ class ABF:
         #TODO: standard deviation?
         return average
 
-    def kernel_gaussian(self,sizeMS=100, sigmaMS=None, forwardOnly=False):
-        """
-        return a 1d gassuan array of a given size and sigma.
-        If sigma isn't given, it will be 1/10 of the size, which is usually good.
-        Note that this is fully numpy, and doesn't use scipy.
-        """
-        if sigmaMS is None:
-            sigmaMS=sizeMS/10
+    def kernel_gaussian(self, sizeMS, sigmaMS=None, forwardOnly=False):
+        """create kernel based on this ABF info."""
+        sigmaMS=sizeMS/10 if sigmaMS is None else sigmaMS
         size,sigma=sizeMS*self.pointsPerMs,sigmaMS*self.pointsPerMs
-        points=np.exp(-np.power(np.arange(size)-size/2,2)/(2*np.power(sigma,2)))
-        if forwardOnly:
-            points[:int(len(points)/2)]=0
-        return points/sum(points)
-
-    def convolve(self,signal,kernel):
-        """
-        This applies a kernel to a signal through convolution and returns the result.
-
-        Some magic is done at the edges so the result doesn't apprach zero:
-            1. extend the signal's edges with len(kernel)/2 duplicated values
-            2. perform the convolution ('same' mode)
-            3. slice-off the ends we added
-            4. return the same number of points as the original
-        """
-        pad=np.ones(len(kernel)/2)
-        signal=np.concatenate((pad*signal[0],signal,pad*signal[-1]))
-        signal=np.convolve(signal,kernel,mode='same')
-        signal=signal[len(pad):-len(pad)]
-        return signal
+        self.kernel=swhlab.common.kernel_gaussian(size,sigma,forwardOnly)
+        return self.kernel
 
     def sweepYfiltered(self):
         """
@@ -375,15 +352,63 @@ class ABF:
         Only works if self.kernel has been generated.
         """
         if self.kernel is None:
-            print("WARNING: filtered Y requested but no kernel exists.")
-            return self.sweepY
-        else:
-            return self.convolve(self.sweepY,self.kernel)
+            self.kernel=self.kernel_gaussian(sizeMS=500)
+        return swhlab.common.convolve(self.sweepY,self.kernel)
 
     def sweepYsmartbase(self):
         """return the sweep with sweepYfiltered subtracted from it."""
         return self.sweepY-self.sweepYfiltered()
 
+    def phasicNet(self,biggestEvent=50,m1=.5,m2=None):
+        """
+        Calculates the net difference between positive/negative phasic events
+        Returns return the phasic difference value of the current sweep.
+
+        Arguments:
+            biggestEvent (int): the size of the largest event anticipated
+            m1 (int, optional): the time (sec) to start analyzing
+            m2 (int, optional): the time (sec) to end analyzing
+
+        Example:
+            abf=swhlab.ABF(abfFile)
+            abf.kernel=abf.kernel_gaussian(sizeMS=500) # kernel for smart baseline
+            diff=[]
+            for sweep in abf.setsweeps():
+                print("Sweep",sweep)
+                diff.append(analyzeSweep(abf,plot=True,label="sweep %d"%sweep))
+            print(diff)
+        """
+
+        # determine marks (between which we will analyze)
+        m1=0 if m1 is None else self.pointsPerSec*m1
+        m2=-1 if m2 is None else self.pointsPerSec*m2
+
+        # acquire the baseline-subtracted sweep
+        Y=self.sweepYsmartbase()[m1:m2]
+
+        # create the histogram
+        nBins=1000
+        hist,bins=np.histogram(Y,bins=nBins,range=[-biggestEvent,biggestEvent],density=True)
+        histSmooth=swhlab.common.lowpass(hist)
+
+        # normalize height to 1
+        #TODO: should it be normalized first or not?
+        hist,histSmooth=hist/max(histSmooth),histSmooth/max(histSmooth)
+
+        # center the peak at 0 pA
+        peakI=np.where(histSmooth==max(histSmooth))[0][0]
+        hist=np.roll(hist,int(nBins/2-peakI))
+        histSmooth=np.roll(histSmooth,int(nBins/2-peakI))
+
+        # calculate our mirrored difference
+        downward,upward=np.split(histSmooth,2)
+        downward=downward[::-1]
+        diff=np.sum(upward-downward)
+
+        # convert our "pA/time" to "pA/sec"
+        diff=diff/(len(Y)/self.pointsPerSec)
+
+        return diff
 
     ### file organization
 
@@ -419,12 +444,13 @@ class ABF:
 
 
 if __name__=="__main__":
+    import matplotlib.pyplot as plt
     abfFile=r"C:\Users\swharden\Desktop\2016-07-03\16703000.abf"
     abf=ABF(abfFile)
-
-    import matplotlib.pyplot as plt
+    #abf.kernel_gaussian(1)
     plt.subplot(211)
     plt.plot(abf.sweepX,abf.sweepY)
+    plt.plot(abf.sweepX,abf.sweepYfiltered())
     plt.margins(0,.1)
     plt.subplot(212)
     plt.plot(abf.protoX,abf.protoY,color='r')

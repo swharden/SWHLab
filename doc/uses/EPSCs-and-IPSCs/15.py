@@ -18,52 +18,19 @@ import numpy as np
 import warnings # suppress VisibleDeprecationWarning warning
 warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
-def analyzeSweep(abf,label=None,plot=True,biggestEvent=50):
-    # acquire the baseline-subtracted sweep
-    Y=abf.sweepYsmartbase()[abf.pointsPerSec*.5:]
-
-    # create the histogram
-    nBins=1000
-    hist,bins=np.histogram(Y,bins=nBins,range=[-biggestEvent,biggestEvent],density=True)
-    histSmooth=cm.lowpass(hist)
-
-    # normalize height to 1
-    hist,histSmooth=hist/max(histSmooth),histSmooth/max(histSmooth)
-
-    # center the peak at 0 pA
-    peakI=np.where(histSmooth==max(histSmooth))[0][0]
-    hist=np.roll(hist,int(nBins/2-peakI))
-    histSmooth=np.roll(histSmooth,int(nBins/2-peakI))
-
-    downward,upward=np.split(histSmooth,2)
-    downward=downward[::-1]
-    diff=np.sum(upward-downward) #TODO: should it be normalized first or not?
-
-    # convert our "pA/time" to "pA/sec"
-    diff=diff/(len(Y)/abf.pointsPerSec)
-
-    if plot:
-        plt.figure(figsize=(5,5))
-        plt.title("sweep %d"%sweep)
-        plt.plot(bins[:-1],hist,'.',alpha=.2)
-        plt.plot(bins[:-1],histSmooth,alpha=.5,lw=2)
-        plt.show()
-
-    return diff
-
 if __name__=="__main__":
     #abfFile=R"C:\Users\scott\Documents\important\demodata\abfs\16d07022.abf"
     abfFile=R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d07022.abf"
     abf=swhlab.ABF(abfFile)
     abf.kernel=abf.kernel_gaussian(sizeMS=500) # kernel for smart baseline
 
-    if os.path.exists("diffs.npy") and False:
+    if os.path.exists("diffs.npy"):
         diff=np.load("diffs.npy")
     else:
         diff=[]
         for sweep in abf.setsweeps():
             print("Sweep",sweep)
-            diff.append(analyzeSweep(abf,plot=True,label="sweep %d"%sweep))
+            diff.append(abf.phasicNet()) # it's now in the core class
         np.save("diffs",diff)
 
     Xs=np.arange(abf.sweeps)*abf.sweepLength/60.0
