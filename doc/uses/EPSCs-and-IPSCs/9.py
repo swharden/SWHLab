@@ -65,7 +65,22 @@ if __name__=="__main__":
 #    np.save("IPSCs",IPSCs)
 #    np.save("RATIOs",RATIOs)
 
-    plt.figure(figsize=(10,10))
+    plt.figure(figsize=(15,7))
+
+    plt.subplot(121)
+    plt.title("Raw Density (using sum of normalized)")
+    plt.grid()
+    plt.xlabel("time (minutes)")
+    plt.ylabel("excitation ratio")
+    plt.plot(Ts,EPSCs,'r.',ms=20,alpha=.2)
+    plt.plot(Ts,cm.lowpass(EPSCs,20),'r-',ms=20,alpha=.7,lw=4,label="EPSCs")
+    plt.plot(Ts,IPSCs,'b.',ms=20,alpha=.2)
+    plt.plot(Ts,cm.lowpass(IPSCs,20),'b-',ms=20,alpha=.7,lw=4,label="IPSCs")
+    plt.legend()
+    plt.margins(0,.1)
+
+    plt.subplot(122)
+    plt.title("Ratio")
     plt.grid()
     plt.xlabel("time (minutes)")
     plt.ylabel("excitation ratio")
@@ -73,7 +88,11 @@ if __name__=="__main__":
     plt.plot(Ts,RATIOs,'.',color='.7',ms=20,alpha=.5)
     plt.plot(Ts,cm.lowpass(RATIOs,20),'g-',ms=20,alpha=.7,lw=4)
     plt.margins(0,.1)
+
+
+    plt.tight_layout()
     plt.show()
+
 
 
     print("DONE")
