@@ -49,4 +49,4 @@ Starting over with [05.py](05.py), it's clear that the curves change during drug
 [06.py](06.py) normalzies these histograms to the peak of the _smoothed_ trace (not the raw histogram data!). The spread becomes more ovcious. | ![](06.png)
 [06.py](07.py) centers all data by the peak of the _smoothed_ trace | ![](07.png)
 [09.py](09.py) shows the sum of each half of the distribution split at its smooth peak. The ratio is pretty cool. | ![](09.png)
-[11.py](11.py) inspects 3 representative traces so you can see where the gaussian-like curves overlap well. Try to fit the regions that don't change during the course of an experiment. | ![](11.py)
+[11.py](11.py) inspects 3 representative traces so you can see where the gaussian-like curves overlap well. Try to fit the regions that don't change during the course of an experiment. | ![](11.png)
