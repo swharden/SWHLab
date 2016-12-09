@@ -40,7 +40,7 @@ def analyzeSweep(abf):
 
     # separate EPSC and IPSC by splitting data at the peak
     EPSC,IPSC=np.split(histSmooth,2)
-    return np.sum(EPSC),np.sum(IPSC),np.sum(EPSC)/np.sum(IPSC)
+    return np.average(EPSC)*2,np.average(IPSC)*2,np.average(EPSC)/np.average(IPSC)
 
 if __name__=="__main__":
     #abfFile=R"C:\Users\scott\Documents\important\demodata\abfs\16d07022.abf"
@@ -65,13 +65,18 @@ if __name__=="__main__":
 #    np.save("IPSCs",IPSCs)
 #    np.save("RATIOs",RATIOs)
 
+    # make things fraction of total
+    TOT=EPSCs+IPSCs
+    EPSCs=EPSCs/TOT
+    IPSCs=IPSCs/TOT
+
     plt.figure(figsize=(15,7))
 
-    plt.subplot(121)
-    plt.title("Raw Density (using sum of normalized)")
+    plt.subplot(131)
+    plt.title("Fractional Influence")
     plt.grid()
     plt.xlabel("time (minutes)")
-    plt.ylabel("excitation ratio")
+    plt.ylabel("fraction of histogram relative to peak")
     plt.plot(Ts,EPSCs,'r.',ms=20,alpha=.2)
     plt.plot(Ts,cm.lowpass(EPSCs,20),'r-',ms=20,alpha=.7,lw=4,label="EPSCs")
     plt.plot(Ts,IPSCs,'b.',ms=20,alpha=.2)
@@ -79,7 +84,16 @@ if __name__=="__main__":
     plt.legend()
     plt.margins(0,.1)
 
-    plt.subplot(122)
+    plt.subplot(132)
+    plt.title("Total Values")
+    plt.grid()
+    plt.xlabel("time (minutes)")
+    plt.ylabel("X_x")
+    plt.plot(Ts,TOT,'y.',ms=20,alpha=.2)
+    plt.plot(Ts,cm.lowpass(TOT,20),'y-',ms=20,alpha=.7,lw=4)
+    plt.margins(0,.1)
+
+    plt.subplot(133)
     plt.title("Ratio")
     plt.grid()
     plt.xlabel("time (minutes)")
