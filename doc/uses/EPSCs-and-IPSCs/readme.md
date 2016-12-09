@@ -22,6 +22,8 @@ baseline | drug | washout
 ![](13a.png) | ![](13b.png) | ![](13c.png)
 
 ## Plot the difference with respect to time
-see [15.py](15.py) | ![](14.png)
----|---
+- code is in [15.py](15.py)
+- Summed units (pA) are then divided by the length of data used to make the result, leaving the units as pA/sec. 
+
+![](14.png)
  
