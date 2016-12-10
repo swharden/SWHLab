@@ -393,7 +393,8 @@ class ABF:
 
         # normalize height to 1
         #TODO: should it be normalized first or not?
-        hist,histSmooth=hist/max(histSmooth),histSmooth/max(histSmooth)
+        #YES if reporting the ratio of the up/down area, NO if reporting the up-down difference
+        #hist,histSmooth=hist/max(histSmooth),histSmooth/max(histSmooth)
 
         # center the peak at 0 pA
         peakI=np.where(histSmooth==max(histSmooth))[0][0]
