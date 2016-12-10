@@ -384,7 +384,7 @@ class ABF:
         m2=-1 if m2 is None else self.pointsPerSec*m2
 
         # acquire the baseline-subtracted sweep
-        Y=self.sweepYsmartbase()[m1:m2]
+        Y=self.sweepYsmartbase()[int(m1):int(m2)]
 
         # create the histogram
         nBins=1000
