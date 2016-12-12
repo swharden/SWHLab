@@ -11,7 +11,7 @@ This method is used in [01.py](01.py)
 --- | ---
 
 ## Method 2: moving baseline derivative threshold detection
-This method is used in [02.py](02.py). In this demo, the drug (2 minutes of drug between the vertical red lines) increases upward events (IPSCs) and tips the balance from excitation to inhibition, then recovers. It may be over-simplistic to turn a distribution into a single point. I wonder if there's a better way. When one considers the shape of EPSCs and IPSCs, it becomes obvious that trying to fit a gaussian curve is not the best solution. What about an average and stardard deviation? Sort of like a weighted average...
+This method is used in [02.py](02.py). In this demo, the drug (2 minutes of drug between the vertical red lines) increases upward events (IPSCs) and tips the balance from excitation to inhibition, then recovers. It may be over-simplistic to turn a distribution into a single point. I wonder if there's a better way. When one considers the shape of EPSCs and IPSCs, it becomes obvious that trying to fit a gaussian curve is not the best solution. What about an average and standard deviation? Sort of like a weighted average...
 
 * take a wide moving gaussian filter average of each trace and subtract it from the original data, centering the trace around 0pA.
 * create a 200-bin histogram of the points in the 2-second sweep and find its peak
@@ -40,7 +40,7 @@ I start off with flat data centered at 0 | ![](flat.png)
 then I look at the distribution of all data points | ![](histo3.png)  
 taking fewer points doesn't help me any | ![](histo2.png)
 and on a log scale it isn't really fitting anything either | ![](log.png)
-It's definately changing its shape when drugs (which enhance spontaneous activity) go on. The wider and shorter it is, the more activity it has. It will always fit a gaussian, and if EPSCs and IPSCs increase similarly, the gassian center may or may not move. Actually, because EPSC and IPSC time dynamics differ, a doubling of frequency of both would probably cause the gaussian to shift toward the IPSCs since they are slower. This graph was made by [03b.py](03b.py) | ![](dist-ba.png)
+It's definitely changing its shape when drugs (which enhance spontaneous activity) go on. The wider and shorter it is, the more activity it has. It will always fit a gaussian, and if EPSCs and IPSCs increase similarly, the gassian center may or may not move. Actually, because EPSC and IPSC time dynamics differ, a doubling of frequency of both would probably cause the gaussian to shift toward the IPSCs since they are slower. This graph was made by [03b.py](03b.py) | ![](dist-ba.png)
 Note that the previous image was generated with the [numpy.histogram](https://docs.scipy.org/doc/numpy/reference/generated/numpy.histogram.html) setting `density=True` such that the integrated area of every cuve will equal 1. If I set `density=False`, this emerges | ![](dist-ba2.png)
 When the smoothed trace is normalized to 1, it makes more sense | ![](dist-ba3.png)
 using [numpy.roll](https://docs.scipy.org/doc/numpy/reference/generated/numpy.roll.html) to center it by its peak normalized value, things begin to line up a bit | ![](dist-ba4.png)
