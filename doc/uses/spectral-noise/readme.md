@@ -9,6 +9,10 @@ The code in [01.py](01.py) outlines how to take a noisy electrophysiological rec
 ### Result
 ![](done.png)
 
+---
+
+# Advanced Notes
+
 ## Frequency component of this signal
 Plotting the raw frequency component and highlighting 60 Hz and every third harmonic, it becomes evident that not every odd harmonic is an offender.
 
