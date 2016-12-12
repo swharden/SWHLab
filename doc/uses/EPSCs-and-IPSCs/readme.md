@@ -1,5 +1,5 @@
 # Challenge
-Quantify EPSCs and IPSCs at the sme time. Their overlapping and small nature makes them too difficult to reliably capture via traditional event detection methods. Lots of things were tried, many of which are [documented in the old readme](readme_old.md). This is a description of what seems to work the best.
+Quantify EPSCs and IPSCs at the same time. Their overlapping and small nature makes them too difficult to reliably capture via traditional event detection methods. Lots of things were tried, many of which are [documented in the old readme](readme_old.md). This is a description of what seems to work the best.
 
 ## Start with Smart Baseline Subtraction
 baseline (EPSCs) | drug (EPSCs and IPSCs)
