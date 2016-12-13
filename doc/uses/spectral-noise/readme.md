@@ -12,6 +12,13 @@ The code in [01.py](01.py) outlines how to take a noisy electrophysiological rec
 ---
 
 # Advanced Notes
+## Benchmark
+Benchmark tests ([02.py](02.py)) revealed that this FFT can be performed unnoticably fast. Analyzing every sweep of the above ABF using this method produced the following report. Note that the time an FFT and iFFT takes to complete increases exponentially with sweep length.
+```
+analyzing 60 sweeps (5.00 sec each)
+analysis took 6.47 +/- 1.71 ms per sweep
+```
+
 
 ## Frequency component of this signal
 Plotting the raw frequency component and highlighting 60 Hz and every third harmonic, it becomes evident that not every odd harmonic is an offender. I could selectively silence just the bad ones, but it doesn't make a huge difference as compared to just silencing all of them.
