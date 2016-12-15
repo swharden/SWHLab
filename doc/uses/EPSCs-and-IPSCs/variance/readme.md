@@ -1,0 +1,1 @@
+What if we make a histogram of all the data, then subtract-out the noise? Rather than trying to gaussian-fit partial data to infer what a noise curve should be, what if we just take the histogram of the data spanning the loewst _x_ percentile of variance?
