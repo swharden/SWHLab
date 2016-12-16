@@ -11,7 +11,7 @@ Previously noise has been estimated using a Gaussian fit of the center most data
  - **perform a histogram** on just the quiet data. The result will be assumed to be the noise floor, but requires creation of a curve.
 	 - since the noise is random, we can expect a normal distribution. 
 	 - This means no curve _fitting_ is required. We can generate this Gaussian curve because mu is the mean of the data, and sigma is the standard deviation of the data.
- - **Subtract** this histogram from the histogram of all the data. The difference will be phasic currents with noise removed, with inhibitory/excitatory currents on opposite sides of zero.
+ - **Subtract** this histogram from the histogram of all the data. The difference will be phasic currents with noise removed, with inhibitory/excitatory currents on opposite sides of the mean.
 
 # A Closer Look
 These are graphs I made when first trying to figure out if this method will be viable, and if so how to configure it. The code to generate these graphs is in this folder, but is often way more complicated than it needs to be just to generate this data. All color coding is the same (blue is quiet, red is noisy).
