@@ -47,6 +47,7 @@ def ndist(data,Xs):
 
 if __name__=="__main__":
     Y=np.load("sweepdata.npy")
+    Y=Y-swhlab.common.lowpass(Y,POINTS_PER_MS*250)
     
     # predict what our histogram will look like
     padding=50
@@ -79,7 +80,7 @@ if __name__=="__main__":
     plt.ylabel("normalized distribution")
     plt.xlabel("histogram data points (pA)")
     plt.title("normal distribution curves for data points in chunks with variance by percentile")
-    plt.savefig("2016-12-15-percentile-fit3.png")
+    plt.savefig("2016-12-15-percentile-fit3-baselined.png")
     plt.axis([histCenter-20,histCenter+20,0,2])
     plt.show()
     
