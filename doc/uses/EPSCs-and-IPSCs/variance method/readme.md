@@ -63,3 +63,4 @@ Original Data | Moving Baseline Subtraction
 ---|---
 ![](baseline.png)|![](baseline2.png)
 ![](2016-12-16-tryout-noSub.png)|![](2016-12-16-tryout-yesSub.png)
+![](2016-12-15-percentile-fit3-notbaselined.png)|![](2016-12-15-percentile-fit3-baselined.png)
