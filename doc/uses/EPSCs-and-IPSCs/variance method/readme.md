@@ -12,6 +12,7 @@ Previously noise has been estimated using a Gaussian fit of the center most data
 	 - since the noise is random, we can expect a normal distribution. 
 	 - This means no curve _fitting_ is required. We can generate this Gaussian curve because mu is the mean of the data, and sigma is the standard deviation of the data.
  - **Subtract** this histogram from the histogram of all the data. The difference will be phasic currents with noise removed, with inhibitory/excitatory currents on opposite sides of the mean.
+ 
  _Consider a tight moving window baseline subtraction. Since we are measuring things <5 pA, a <5pA shift over the course of a sweep will influence all these results! I don't do this here, but definately think about it._
  
 # A Closer Look
