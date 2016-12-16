@@ -52,7 +52,12 @@ Low Percentiles | Subtraction
 ![](2016-12-15-percentile-fitb.png)|![](2016-12-16-tryout.png)
 
 ## Smart Baseline Subtraction
-Since our output measurements are "area under the curve" of slight deviations from the sweep mean, the sweep mean is extremely important! A slightly unstable baseline (even a few pA over a few seconds) will dramatically change these sums. Therefore, it is essentially mandatory that a moving baseline be subtracted before you can really rely on this data (this applies to _all_ phasic analysis, not just this method). The "bulge" to the right that we see on the graphs above is most likely due to an upward shift in the mean over the course of the sweep rather than true phasic deviations.
+Since our output measurements are "area under the curve" of slight deviations from the sweep mean, the sweep mean is extremely important! A slightly unstable baseline (even a few pA over a few seconds) will dramatically change these sums. Therefore, it is essentially mandatory that a moving baseline be subtracted before you can really rely on this data (this applies to _all_ phasic analysis, not just this method). The "bulge" to the right that we see on the graphs above is most likely due to an upward shift in the mean over the course of the sweep rather than true phasic deviations. 
+
+Smart baseline subtraction (moving gaussian window with a 250ms width) was done with a single line:
+```python
+Y=Y-swhlab.common.lowpass(Y,POINTS_PER_MS*250)
+```
 
 Original Data | Moving Baseline Subtraction
 ---|---
