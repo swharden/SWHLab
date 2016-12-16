@@ -6,6 +6,8 @@ Problem|Solution
 Previously noise has been estimated using a Gaussian fit of the center most data points then subtracted out. **Here, I present a better way to create a Gaussian curve of the noise floor** suitable for subtraction to isolate positive/negative phasic currents. It doesn't use curve fitting or convolution, so it's extremely fast computationally.|![](2016-12-16-tryout.png)
 
 ## Programming Steps
+_Consider starting after applying a tight moving window baseline subtraction to the sweep. Since we are measuring things <5 pA, a <5pA shift over the course of a sweep will influence all these results! I don't do this here, but definately think about it._
+
  - **Break the data** into "chunks" 10ms in length
  - **Measure the variance** of each chunk and isolate data only from the quietest chunks (where the chunk variance is in the lower 10-percentile of all the chunks)
  - **perform a histogram** on just the quiet data. The result will be assumed to be the noise floor, but requires creation of a curve.
@@ -13,7 +15,7 @@ Previously noise has been estimated using a Gaussian fit of the center most data
 	 - This means no curve _fitting_ is required. We can generate this Gaussian curve because mu is the mean of the data, and sigma is the standard deviation of the data.
  - **Subtract** this histogram from the histogram of all the data. The difference will be phasic currents with noise removed, with inhibitory/excitatory currents on opposite sides of the mean.
  
-_Consider a tight moving window baseline subtraction. Since we are measuring things <5 pA, a <5pA shift over the course of a sweep will influence all these results! I don't do this here, but definately think about it._
+
  
 # A Closer Look
 These are graphs I made when first trying to figure out if this method will be viable, and if so how to configure it. The code to generate these graphs is in this folder, but is often way more complicated than it needs to be just to generate this data. All color coding is the same (blue is quiet, red is noisy).
