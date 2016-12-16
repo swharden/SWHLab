@@ -64,3 +64,8 @@ Original Data | Moving Baseline Subtraction
 ![](baseline.png)|![](baseline2.png)
 ![](2016-12-16-tryout-noSub.png)|![](2016-12-16-tryout-yesSub.png)
 ![](2016-12-15-percentile-fit3-notbaselined.png)|![](2016-12-15-percentile-fit3-baselined.png)
+
+## Implementation 
+I'm working toward putting this into the `SWHLab.ABF` class. It's coming together. I think we should blank-out 2*variance on each side of the median. See [2016-12-16 phasic.py](2016-12-16 phasic.py)
+
+![](2016-12-16.png)
