@@ -6,7 +6,7 @@ Problem|Solution
 Previously noise has been estimated using a Gaussian fit of the center most data points then subtracted out. **Here, I present a better way to create a Gaussian curve of the noise floor** suitable for subtraction to isolate positive/negative phasic currents. It doesn't use curve fitting or convolution, so it's extremely fast computationally.|![](2016-12-16-tryout.png)
 
 ## Programming Steps
-_Consider starting after applying a tight moving window baseline subtraction to the sweep. Since we are measuring things <5 pA, a <5pA shift over the course of a sweep will influence all these results! I don't do this here, but definately think about it._
+_Consider starting after applying a tight moving window baseline subtraction to the sweep. Since we are measuring things <5 pA, a <5pA shift over the course of a sweep will influence all these results! I don't do this here, but definitely think about it._ **Update:** I tested this idea and confirmed it is very important. Results are at the bottom.
 
  - **Break the data** into "chunks" 10ms in length
  - **Measure the variance** of each chunk and isolate data only from the quietest chunks (where the chunk variance is in the lower 10-percentile of all the chunks)
@@ -41,7 +41,7 @@ curve*=len(data)*HIST_RESOLUTION # correct vertical scale
 ```
 
 ## Percentile Range Histograms
-I found that there's little change in the curve below 20% even in noisy data like mine. It seems like a simple enough number. My rule from now on is to ***use the quietest 10% of a sweep to calculate the noise floor histogram***. Notice how the distribution curves begin to shift after you increase above 20% that value. 10% seems extremely safe. Regardless, it's _way_ better than attempting to fit a gaussian curve to a bunch of missing data!
+I found that there's little change in the curve below 20% even in noisy data like mine. It seems like a simple enough number. My rule from now on is to ***use the quietest 10% of a sweep to calculate the noise floor histogram***. Notice how the distribution curves begin to shift after you increase above 20% that value. 10% seems extremely safe. Regardless, it's _way_ better than attempting to fit a Gaussian curve to a bunch of missing data!
 
 Percentile Histograms | Distribution Curves
 ---|---
@@ -50,3 +50,11 @@ Percentile Histograms | Distribution Curves
 Low Percentiles | Subtraction
 ---|---
 ![](2016-12-15-percentile-fitb.png)|![](2016-12-16-tryout.png)
+
+## Smart Baseline Subtraction
+Since our output measurements are "area under the curve" of slight deviations from the sweep mean, the sweep mean is extremely important! A slightly unstable baseline (even a few pA over a few seconds) will dramatically change these sums. Therefore, it is essentially mandatory that a moving baseline be subtracted before you can really rely on this data (this applies to _all_ phasic analysis, not just this method). The "bulge" to the right that we see on the graphs above is most likely due to an upward shift in the mean over the course of the sweep rather than true phasic deviations.
+
+Original Data | Moving Baseline Subtraction
+---|---
+![](baseline.png)|![](baseline2.png)
+![](2016-12-16-tryout-noSub.png)|![](2016-12-16-tryout-yesSub.png)
