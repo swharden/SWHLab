@@ -37,7 +37,7 @@ curve*=len(data)*HIST_RESOLUTION # correct vertical scale
 ```
 
 ## Percentile Range Histograms
-I found that there's little change in the curve below 20% even in noisy data like mine. It seems like a simple enough number. My rule from now on is to ***use the quietest 20% of a sweep to calculate the noise floor histogram***.
+I found that there's little change in the curve below 20% even in noisy data like mine. It seems like a simple enough number. My rule from now on is to ***use the quietest 10% of a sweep to calculate the noise floor histogram***. Notice how the distribution curves begin to shift after you increase above 20% that value. 10% seems extremely safe. Regardless, it's _way_ better than attempting to fit a gaussian curve to a bunch of missing data!
 
 Percentile Histograms | Distribution Curves
 ---|---
