@@ -9,8 +9,8 @@ import time
 
 
 class ABF2(swhlab.ABF):
-    def phasicTonic(self,m1=None,m2=None,chunkMs=50,quietPercentile=10,
-                    histResolution=.5,plotToo=False,rmsExpected=5):
+    def phasicTonic(self,m1=None,m2=None,chunkMs=20,quietPercentile=20,
+                    histResolution=1,plotToo=False,rmsExpected=5):
         """ 
         chunkMs should be ~50 ms or greater.
         bin sizes must be equal to or multiples of the data resolution.
@@ -32,28 +32,23 @@ class ABF2(swhlab.ABF):
         Yoffset=bins[np.where(hist==max(hist))[0][0]]
         Y=Y-Yoffset # we don't have to, but PDF math is easier
         
-        # calculate all histogram
+        # create histogram for all data in the sweep
         nChunks=int(len(Y)/chunkPoints)
         hist,bins=np.histogram(Y,bins=histBins,range=(-padding,padding))
-        hist=hist/len(Y) # count as a fraction of total
         Xs=bins[1:]
 
-        # get baseline data from chunks with smallest variance
+        # create histogram for just the sweeps with the lowest variance
         chunks=np.reshape(Y[:nChunks*chunkPoints],(nChunks,chunkPoints))
         variances=np.var(chunks,axis=1)
         percentiles=np.empty(len(variances))
         for i,variance in enumerate(variances):
             percentiles[i]=sorted(variances).index(variance)/len(variances)*100
         blData=chunks[np.where(percentiles<=quietPercentile)[0]].flatten()
+        blHist,blBins=np.histogram(blData,bins=histBins,range=(-padding,padding))
+        blHist=blHist/max(blHist)*max(hist)
         
-        # generate the standard curve and pull it to the histogram height
-        sigma=np.sqrt(np.var(blData))
-        center=np.average(blData)+histResolution/2
-        blCurve=mlab.normpdf(Xs,center,sigma)
-        blCurve=blCurve*max(hist)/max(blCurve)
-                
         # determine the phasic current by subtracting-out the baseline
-        diff=hist-blCurve
+        diff=hist-blHist
         
         # manually zero-out data which we expect to be within the RMS range
         ignrCenter=len(Xs)/2
@@ -61,12 +56,37 @@ class ABF2(swhlab.ABF):
         ignr1,ignt2=int(ignrCenter-ignrPad),int(ignrCenter+ignrPad)
         diff[ignr1:ignt2]=0
             
+        # optionally graph all this
+        if plotToo:
+            plt.figure(figsize=(15,5))
+            plt.plot(Y)
+            plt.figure(figsize=(7,7))
+            ax1=plt.subplot(211)
+            plt.title(abf.ID+" phasic analysis")
+            plt.plot(Xs,hist,'-',alpha=.8,color='b',lw=3)
+            plt.plot(Xs,blHist,lw=3,alpha=.5,color='r')
+            plt.margins(0,.1)
+            plt.subplot(212,sharex=ax1)
+            plt.title("baseline subtracted")
+            plt.xlabel("data points (%s)"%abf.units)
+            plt.plot(Xs,diff,'-',alpha=.8,color='b',lw=3)
+            plt.axhline(0,lw=3,alpha=.5,color='r')
+            plt.axvline(0,lw=3,alpha=.5,color='k')
+            plt.margins(0,.1)
+            plt.axis([-50,50,None,None])
+            plt.tight_layout()
+            plt.show()
+        
         return diff/len(Y)*abf.pointsPerSec # charge/sec
 
 if __name__=="__main__":
     #abfPath=r"X:\Data\2P01\2016\2016-09-01 PIR TGOT"
     abfPath=r"C:\Users\scott\Documents\important\demodata"   
     abf=ABF2(os.path.join(abfPath,"16d14036.abf"))   
+    
+#    abf.setsweep(150)
+#    abf.phasicTonic(.75,plotToo=True)
+    
     
     t=time.perf_counter()
     Xs=np.arange(abf.sweeps)*abf.sweepLength
