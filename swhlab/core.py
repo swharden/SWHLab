@@ -351,8 +351,7 @@ class ABF:
         Get the filtered sweepY of the current sweep.
         Only works if self.kernel has been generated.
         """
-        if self.kernel is None:
-            self.kernel=self.kernel_gaussian(sizeMS=500)
+        assert self.kernel is not None
         return swhlab.common.convolve(self.sweepY,self.kernel)
 
     def sweepYsmartbase(self):

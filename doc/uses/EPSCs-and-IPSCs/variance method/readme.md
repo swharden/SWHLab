@@ -51,8 +51,10 @@ Low Percentiles | Subtraction
 ---|---
 ![](2016-12-15-percentile-fitb.png)|![](2016-12-16-tryout.png)
 
-## Smart Baseline Subtraction
-Since our output measurements are "area under the curve" of slight deviations from the sweep mean, the sweep mean is extremely important! A slightly unstable baseline (even a few pA over a few seconds) will dramatically change these sums. Therefore, it is essentially mandatory that a moving baseline be subtracted before you can really rely on this data (this applies to _all_ phasic analysis, not just this method). The "bulge" to the right that we see on the graphs above is most likely due to an upward shift in the mean over the course of the sweep rather than true phasic deviations. 
+## Smart Baseline Subtraction (bad idea)
+**update:** It turns out that a moving baseline automatically centers the entire trace (and centers IPSCs) at 0. The "mode" isn't at 0, the "mean" is still at zero! This is a fail and will produce bad data. Don't "smart baseline" subtract after all.
+
+_old text:_ Since our output measurements are "area under the curve" of slight deviations from the sweep mean, the sweep mean is extremely important! A slightly unstable baseline (even a few pA over a few seconds) will dramatically change these sums. Therefore, it is essentially mandatory that a moving baseline be subtracted before you can really rely on this data (this applies to _all_ phasic analysis, not just this method). The "bulge" to the right that we see on the graphs above is most likely due to an upward shift in the mean over the course of the sweep rather than true phasic deviations. 
 
 Smart baseline subtraction (moving gaussian window with a 250ms width) was done with a single line:
 ```python
@@ -65,9 +67,11 @@ Original Data | Moving Baseline Subtraction
 ![](2016-12-16-tryout-noSub.png)|![](2016-12-16-tryout-yesSub.png)
 ![](2016-12-15-percentile-fit3-notbaselined.png)|![](2016-12-15-percentile-fit3-baselined.png)
 
-## Eliminating Near-Mean Data
-At first I thought we should blank-out each side of the median by `np.var(data)` (the variance). On second thought, it seems like a bad idea to delete any data near the center of the histogram if the _amount_ of data varies as a function of data variance. A question remains of what to do with negative data. If negative data is really a problem, you could just delete points with negative data by `data[data<0]=np.nan` or something...
+## Eliminating Near-Mean Data (bad idea)
+**update:** This was only necessary if you have over-sampled your histogram. I don't do this anymore, and this step is not needed. Just pull the generated baseline curve up to the peak of the histogram, and you're done.
 
-delete mean+/- variance (bad) | keep all data (better)
+_old text:_ At first I thought we should blank-out each side of the median by `np.var(data)` (the variance). On second thought, it seems like a bad idea to delete any data near the center of the histogram if the _amount_ of data varies as a function of data variance. A question remains of what to do with negative data. If negative data is really a problem, you could just delete points with negative data by `data[data<0]=np.nan` or something...
+
+delete mean+/- variance (bad) | keep all data (better) | larger bins (best)
 ---|---
-![](2016-12-16.png)|![](2016-12-15-percentile-fit3-baselined2.png)
+![](2016-12-16.png)|![](2016-12-15-percentile-fit3-baselined2.png)|![](2016-12-16c.png)
