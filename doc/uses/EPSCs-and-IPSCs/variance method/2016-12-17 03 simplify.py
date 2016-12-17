@@ -35,7 +35,6 @@ class ABF2(swhlab.ABF):
         # create histogram for all data in the sweep
         nChunks=int(len(Y)/chunkPoints)
         hist,bins=np.histogram(Y,bins=histBins,range=(-padding,padding))
-        Xs=bins[1:]
 
         # create histogram for just the sweeps with the lowest variance
         chunks=np.reshape(Y[:nChunks*chunkPoints],(nChunks,chunkPoints))
@@ -49,44 +48,12 @@ class ABF2(swhlab.ABF):
         
         # determine the phasic current by subtracting-out the baseline
         diff=hist-blHist
-        
-        # manually zero-out data which we expect to be within the RMS range
-        ignrCenter=len(Xs)/2
-        ignrPad=rmsExpected/histResolution
-        ignr1,ignt2=int(ignrCenter-ignrPad),int(ignrCenter+ignrPad)
-        diff[ignr1:ignt2]=0
-            
-        # optionally graph all this
-        if plotToo:
-            plt.figure(figsize=(15,5))
-            plt.plot(Y)
-            plt.figure(figsize=(7,7))
-            ax1=plt.subplot(211)
-            plt.title(abf.ID+" phasic analysis")
-            plt.plot(Xs,hist,'-',alpha=.8,color='b',lw=3)
-            plt.plot(Xs,blHist,lw=3,alpha=.5,color='r')
-            plt.margins(0,.1)
-            plt.subplot(212,sharex=ax1)
-            plt.title("baseline subtracted")
-            plt.xlabel("data points (%s)"%abf.units)
-            plt.plot(Xs,diff,'-',alpha=.8,color='b',lw=3)
-            plt.axhline(0,lw=3,alpha=.5,color='r')
-            plt.axvline(0,lw=3,alpha=.5,color='k')
-            plt.margins(0,.1)
-            plt.axis([-50,50,None,None])
-            plt.tight_layout()
-            plt.show()
-        
         return diff/len(Y)*abf.pointsPerSec # charge/sec
 
 if __name__=="__main__":
     #abfPath=r"X:\Data\2P01\2016\2016-09-01 PIR TGOT"
     abfPath=r"C:\Users\scott\Documents\important\demodata"   
-    abf=ABF2(os.path.join(abfPath,"16d14036.abf"))   
-    
-#    abf.setsweep(150)
-#    abf.phasicTonic(.75,plotToo=True)
-    
+    abf=ABF2(os.path.join(abfPath,"16d14036.abf"))      
     
     t=time.perf_counter()
     Xs=np.arange(abf.sweeps)*abf.sweepLength
