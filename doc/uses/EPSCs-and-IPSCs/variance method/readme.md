@@ -68,5 +68,5 @@ Original Data | Moving Baseline Subtraction
 _old text:_ At first I thought we should blank-out each side of the median by `np.var(data)` (the variance). On second thought, it seems like a bad idea to delete any data near the center of the histogram if the _amount_ of data varies as a function of data variance. A question remains of what to do with negative data. If negative data is really a problem, you could just delete points with negative data by `data[data<0]=np.nan` or something...
 
 delete mean+/- variance (bad) | keep all data (better) | larger bins (best)
----|---
+---|---|---
 ![](2016-12-16.png)|![](2016-12-15-percentile-fit3-baselined2.png)|![](2016-12-16c.png)
