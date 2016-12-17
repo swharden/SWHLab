@@ -35,7 +35,8 @@ class ABF2(swhlab.ABF):
         # calculate all histogram
         nChunks=int(len(Y)/chunkPoints)
         hist,bins=np.histogram(Y,bins=histBins,range=(-padding,padding))
-        Xs=bins[1:]#-10
+        hist=hist/len(Y) # count as a fraction of total
+        Xs=bins[1:]
 
         # get baseline data from chunks with smallest variance
         chunks=np.reshape(Y[:nChunks*chunkPoints],(nChunks,chunkPoints))
@@ -51,22 +52,30 @@ class ABF2(swhlab.ABF):
         blCurve=mlab.normpdf(Xs,center,sigma)
         blCurve=blCurve*max(hist)/max(blCurve)
                 
-        # determine this sweep's negative, positive, and total phasic current
-        diff=hist-blCurve
+        # determine the phasic current by subtracting-out the baseline
+        #diff=hist-blCurve
+        diff=hist
+        
+        IGNORE_DISTANCE=5 # KEEP THIS FIXED, NOT A FUNCTION OF VARIANCE
+        ignrCenter=len(Xs)/2
+        ignrPad=IGNORE_DISTANCE/histResolution
+        ignr1,ignt2=int(ignrCenter-ignrPad),int(ignrCenter+ignrPad)
+        diff[ignr1:ignt2]=0
                
+        # optionally graph all this
         if plotToo:
             plt.figure(figsize=(15,5))
             plt.plot(Y)
             plt.figure(figsize=(7,7))
             ax1=plt.subplot(211)
             plt.title(abf.ID+" phasic analysis")
-            plt.ylabel("bin counts")
+            plt.ylabel("fraction")
             plt.plot(Xs,hist,'-',alpha=.8,color='b',lw=3)
             plt.plot(Xs,blCurve,lw=3,alpha=.5,color='r')
             plt.margins(0,.1)
             plt.subplot(212,sharex=ax1)
             plt.title("baseline subtracted")
-            plt.ylabel("bin counts")
+            plt.ylabel("fraction")
             plt.xlabel("data points (%s)"%abf.units)
             plt.plot(Xs,diff,'-',alpha=.8,color='b',lw=3)
             plt.axhline(0,lw=3,alpha=.5,color='r')
@@ -76,25 +85,45 @@ class ABF2(swhlab.ABF):
             plt.tight_layout()
             plt.show()
             
-        return [Xs,diff]
+            print(np.sum(np.split(diff,2),1))
+            
+        return diff/len(Y)*abf.pointsPerSec # charge/sec
 
 if __name__=="__main__":
     #abfPath=r"X:\Data\2P01\2016\2016-09-01 PIR TGOT"
     abfPath=r"C:\Users\scott\Documents\important\demodata"   
     abf=ABF2(os.path.join(abfPath,"16d16007.abf"))   
-            
+    
+    histPoints=len(abf.phasicTonic(.75))
+    nSweeps=25
+    
     plt.figure(figsize=(10,5))
-    plt.title("excitation / inhibition")
-    plt.axhline(0,color='k')
-    plt.axvline(0,color='k')
     plt.grid()
-    for sweep,label in [[200,"baseline"],[220,"drug"],[350,"wash"]]:
-        abf.setsweep(sweep)        
-        Xs,Ys=abf.phasicTonic(m1=.5)
-        plt.plot(Xs,Ys,alpha=.5,lw=3,label="sw%d (%s)"%(sweep,label))
-    plt.legend(fontsize=10,loc='upper left',shadow=True)
-    plt.margins(0,.1)
-    plt.axis([-20,20,None,None])
+    for title,sweep1 in [["baseline",200],["baseline",240],["baseline",350]]:
+        hists=np.zeros((nSweeps,histPoints))
+        for i in range(nSweeps):
+            sweep=sweep1+i
+            abf.setsweep(sweep)
+            hists[i]=abf.phasicTonic(.75)
+        AV=np.average(hists,axis=0)
+        plt.plot(AV,lw=5,alpha=.5,label=title)
+    plt.legend()
+    
+#    for sweep in abf.setsweeps():
+#        phasic=abf.phasicTonic(.75)
+#        neg[sweep],pos[sweep]=np.sum(np.split(phasic,2),1)
+#        
+#    plt.plot(pos,'.',color='b',alpha=.5)
+#    plt.plot(swhlab.common.lowpass(pos),'-',color='b',alpha=.5,lw=5,label="upward")
+#    plt.plot(neg,'.',color='r',alpha=.5)
+#    plt.plot(swhlab.common.lowpass(neg),'-',color='r',alpha=.5,lw=5,label="downward")
+#    for sweep in abf.comment_sweeps:
+#        plt.axvline(sweep,lw=5,alpha=.5,color='g',ls='--')
+#    plt.axhline(0,color='k',lw=3,alpha=.5)
+    plt.xlabel("sweep number")
+    plt.ylabel("ms * pA / sec")
+#    plt.legend(loc='upper left',shadow=True)
     plt.show()
+        
     
     print("DONE")
