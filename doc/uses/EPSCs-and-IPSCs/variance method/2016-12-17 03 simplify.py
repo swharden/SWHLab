@@ -38,7 +38,8 @@ class ABF2(swhlab.ABF):
 
         # create histogram for just the sweeps with the lowest variance
         chunks=np.reshape(Y[:nChunks*chunkPoints],(nChunks,chunkPoints))
-        variances=np.var(chunks,axis=1)
+        #variances=np.var(chunks,axis=1)
+        variances=np.ptp(chunks,axis=1)
         percentiles=np.empty(len(variances))
         for i,variance in enumerate(variances):
             percentiles[i]=sorted(variances).index(variance)/len(variances)*100
