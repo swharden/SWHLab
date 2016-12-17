@@ -71,3 +71,15 @@ At first I thought we should blank-out each side of the median by `np.var(data)`
 delete mean+/- variance (bad) | keep all data (better)
 ---|---
 ![](2016-12-16.png)|![](2016-12-15-percentile-fit3-baselined2.png)
+
+### Using the mean around the center
+Here I force the peak of the Gaussian to match the average point value of the spanning 1pA (0.5 pA on either side) around the center. This was made from [2016-12-17 01 nodelete.py](2016-12-17 01 nodelete.py) and the important code is:
+
+```python
+centerI=int(histBins/2)-histResolution
+nPointsAvg=(1/histResolution)*.5 # .5 pA on each side of center
+blPeak=np.average(hist[centerI-nPointsAvg:centerI+nPointsAvg])
+blCurve=blCurve*blPeak/max(blCurve) # blCurve height to blPeak
+```
+
+![](2016-12-16b.png)
