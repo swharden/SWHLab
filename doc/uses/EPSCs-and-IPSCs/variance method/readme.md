@@ -76,5 +76,6 @@ Here I try an even simpler variant. No Gaussian anything. [2016-12-17 03 simplif
 - collect all data points from 50ms bins of the lowest 10-percentile variance
 - create a histogram with 1pA bin sizes and call this baseline
 - create a histogram of all the data and subtract the baseline
+- Zero-out (set to zero) the 5pA on each side of the mean. This _will_ cause loss of small events, but isn't that okay? Small events will be riding on the RMS noise anyway.
 
 ![](2016-12-17 03 simplify.png)
