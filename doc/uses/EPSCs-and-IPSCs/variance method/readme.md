@@ -78,3 +78,12 @@ Here I try an even simpler variant. No Gaussian anything. [2016-12-17 03 simplif
 - create a histogram of all the data and subtract the baseline
 
 ![](2016-12-17 03 simplify.png)
+
+## PTP better than Variances?
+Everything up until this point sorts chunks by "quietness" using their variance. However, is variance really the best measurement? I tried "p2p" which is the peak to peak value. Consider this swap:
+```python
+variances=np.var(chunks,axis=1) # <-- old
+variances=np.ptp(chunks,axis=1) # <-- new
+```
+Everything above this point uses actual variances, but this image uses the range:
+![](2016-12-17 03 simplify2.png)
