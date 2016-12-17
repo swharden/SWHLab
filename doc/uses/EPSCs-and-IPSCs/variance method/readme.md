@@ -67,5 +67,5 @@ Original Data | Moving Baseline Subtraction
 
 ## Implementation 
 Idea | Results
---|--
+---|---
 I'm working toward putting this into the `SWHLab.ABF` class. It's coming together. I think we should blank-out 2*variance on each side of the median. See [2016-12-16 phasic.py](2016-12-16 phasic.py). On second thought though, it seems like a **bad idea** to delete any data near the center of the histogram if the _amount_ of data varies as a function of data variance. This type of thing wouldn't affect the ratios of the areas under each curve, but it could influence the sum. Let's nix this final step, and accept a little bit of negative data. If negative data is really a problem, you could just delete points with negative data by `data[data<0]=np.nan` | ![](2016-12-16.png)
