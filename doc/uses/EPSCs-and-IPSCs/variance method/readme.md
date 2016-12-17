@@ -71,6 +71,3 @@ At first I thought we should blank-out each side of the median by `np.var(data)`
 delete mean+/- variance (bad) | keep all data (better)
 ---|---
 ![](2016-12-16.png)|![](2016-12-15-percentile-fit3-baselined2.png)
-
-## Implementation 
-I'm working toward putting this into the `SWHLab.ABF` class. It's coming together. See [2016-12-16 phasic.py](2016-12-16 phasic.py).
