@@ -70,3 +70,11 @@ _old text:_ At first I thought we should blank-out each side of the median by `n
 delete mean+/- variance (bad) | keep all data (better) | larger bins (best)
 ---|---|---
 ![](2016-12-16.png)|![](2016-12-15-percentile-fit3-baselined2.png)|![](2016-12-16c.png)
+
+## Simplifying Everything
+Here I try an even simpler variant. No Gaussian anything. [2016-12-17 03 simplify.py](2016-12-17 03 simplify.py)
+- collect all data points from 50ms bins of the lowest 10-percentile variance
+- create a histogram with 1pA bin sizes and call this baseline
+- create a histogram of all the data and subtract the baseline
+
+![](2016-12-17 03 simplify.png)
