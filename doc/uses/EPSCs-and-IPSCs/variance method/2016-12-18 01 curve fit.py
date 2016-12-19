@@ -1,3 +1,13 @@
+"""
+let's just graph mean and mode with time.
+also graph variance with time.
+
+as mode moves around mean, it shows EPSC/IPSC balance.
+
+Could the ratio be multiplied by the variance to return it to original magnitude?
+
+"""
+
 import os
 import sys
 sys.path.append("../../../../")
@@ -9,6 +19,18 @@ import time
 
 
 class ABF2(swhlab.ABF):
+    
+    def sweepYfilteredHisto(self):
+        chunkSize=100 #ms
+        pad=int(abf.pointsPerMs*chunkSize)
+        smooth=np.empty(len(self.sweepY))
+        smooth[:]=np.nan
+        for chunk in range(int(len(self.sweepY)/pad)):
+            I1,I2=int(chunk*pad),int((chunk+1)*pad)
+            smooth[I1:I2]=np.median(self.sweepY[I1:I2])
+        #smooth=swhlab.common.lowpass(smooth)
+        return self.sweepY-smooth
+        
     def phasicTonic(self,m1=None,m2=None,chunkMs=50,
                     quietPercentile=10,histResolution=1):
         """ 
@@ -27,10 +49,11 @@ class ABF2(swhlab.ABF):
         histBins=int((padding*2)/histResolution)
         
         # center the data at 0 using peak histogram, not the mean
-        Y=self.sweepY[m1:m2]
+        #Y=self.sweepY[m1:m2]
+        Y=self.sweepYfilteredHisto()[m1:m2]
         hist,bins=np.histogram(Y,bins=2*padding)
-        Yoffset=bins[np.where(hist==max(hist))[0][0]]
-        Y=Y-Yoffset # we don't have to, but PDF math is easier
+        #Yoffset=bins[np.where(hist==max(hist))[0][0]]
+        #Y=Y-Yoffset # we don't have to, but PDF math is easier
         
         # create histogram for all data in the sweep
         nChunks=int(len(Y)/chunkPoints)
@@ -54,15 +77,20 @@ class ABF2(swhlab.ABF):
 if __name__=="__main__":
     #abfPath=r"X:\Data\2P01\2016\2016-09-01 PIR TGOT"
     abfPath=r"C:\Users\scott\Documents\important\demodata"   
-    #abf=ABF2(os.path.join(abfPath,"16d14036.abf"))      
-    abf=ABF2(os.path.join(abfPath,"16d16007.abf"))
+    abf=ABF2(os.path.join(abfPath,"16d14036.abf"))      
+    #abf=ABF2(os.path.join(abfPath,"16d16007.abf"))
     
     t=time.perf_counter()
     Xs=np.arange(abf.sweeps)*abf.sweepLength
     pos,neg=np.zeros(len(Xs)),np.zeros(len(Xs))
     for sweep in abf.setsweeps():
+        print("on sweep %d of %d"%(sweep,abf.sweeps))
         phasic=abf.phasicTonic(.5)
         neg[sweep],pos[sweep]=np.sum(np.split(phasic,2),1)
+        
+    np.save("neg.npy",neg)
+    np.save("pos.npy",pos)
+        
     t=time.perf_counter()-t
         
     plt.figure(figsize=(10,5))
