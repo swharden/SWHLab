@@ -23,7 +23,7 @@ def tagInspect(abf,saveToo=False): #TODO: put in ABF class?
     plt.figure(figsize=(15,10))
     for i in range(nSweeps):
 
-        abf.setsweep(int(S1-i))
+        abf.setsweep(S1-i*2)
         Y=swhlab.common.lowpass(abf.sweepY,abf.pointsPerMs*5)
         Y=Y-np.nanmean(Y)+i*vertOffset
         Y[:int(.5*abf.pointsPerSec)]=np.nan
@@ -31,7 +31,7 @@ def tagInspect(abf,saveToo=False): #TODO: put in ABF class?
         plt.text(abf.sweepX2[.5*abf.pointsPerSec],i*vertOffset,
                  "%s "%str(abf.sweep),ha='right')
 
-        abf.setsweep(int(S1-i+120/abf.sweepLength))
+        abf.setsweep(S2-i*2)
         Y=swhlab.common.lowpass(abf.sweepY,abf.pointsPerMs*5)
         Y=Y-np.nanmean(Y)+i*vertOffset
         Y[:int(.5*abf.pointsPerSec)]=np.nan
@@ -45,12 +45,12 @@ def tagInspect(abf,saveToo=False): #TODO: put in ABF class?
     plt.title("[%s] sw %d (%s) - sw %d (%s)"%(abf.ID,S1,abf.comment_tags[-2],S2,abf.comment_tags[-1]))
     plt.tight_layout()
     if saveToo:
-        plt.savefig(R"X:\Data Analysis\SCOTT\SWHLab development\phasic\%s.png"%abf.ID)
+        plt.savefig(R"X:\Data Analysis\SCOTT\SWHLab development\phasic2\%s.png"%abf.ID)
     plt.show()
     print()
     return
 
-def picpage(path=R"X:\Data Analysis\SCOTT\SWHLab development\phasic"):
+def picpage(path=R"X:\Data Analysis\SCOTT\SWHLab development\phasic2"):
     html="<html><body>"
     for fname in [x for x in sorted(os.listdir(path)) if x.endswith(".png") or x.endswith(".jpg")]:
         html+='<a name="%s" href="#%s"><h1>%s</h1></a>'%(fname,fname,fname)
@@ -62,28 +62,40 @@ def picpage(path=R"X:\Data Analysis\SCOTT\SWHLab development\phasic"):
 
 if __name__=="__main__":
     abfs=[]
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14019.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14027.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14032.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14036.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14040.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14044.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14048.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14052.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14056.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14060.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14064.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16003.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16007.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16011.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16016.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16020.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16024.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16030.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16034.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16038.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16042.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16046.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14019.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14027.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14032.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14036.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14040.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14044.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14048.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14052.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14056.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14060.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14064.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16003.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16007.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16011.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16016.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16020.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16024.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16030.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16034.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16038.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16042.abf")
+#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16046.abf")
+
+
+    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13012.abf")
+    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13017.abf")
+    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13022.abf")
+    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13026.abf")
+    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13030.abf")
+    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13035.abf")
+    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13039.abf")
+    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13043.abf")
+    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13047.abf")
+    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13052.abf")
 
     for abf in abfs:
         abf=swhlab.ABF(abf)
