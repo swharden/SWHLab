@@ -52,3 +52,41 @@ dPhasicPos=dPhasicPos*sRate/(dNumPtsInRange*sRate)
 vecNeg.Sum(dPhasicNeg);
 dPhasicNeg=dPhasicNeg*sRate/(dNumPtsInRange*sRate)
 ```
+
+## All cells (not just eyeball responders)
+```
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14015.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14019.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14027.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14032.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14036.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14040.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14044.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14048.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14052.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14056.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14060.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14064.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16003.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16007.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16011.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16016.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16020.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16024.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16030.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16034.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16038.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16042.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16046.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20003.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20008.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20012.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20016.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20020.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20024.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20028.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20032.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20036.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20040.abf";  getstats;
+setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20044.abf";  getstats;
+```
