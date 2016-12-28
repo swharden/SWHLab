@@ -103,5 +103,5 @@ all cells (responders and nonresponders) averaged together | ![](analysis_all.pn
 responders were defined as those whose upward currents increased >0.1pA during drug as compared to baseline. 12/34 met this criteria. | ![](analysis_best2.png)
 only the best respnoders averaged together | ![](analysis_best.png)
 
-![](analysis.png)
+![](analysis2.png)
 
