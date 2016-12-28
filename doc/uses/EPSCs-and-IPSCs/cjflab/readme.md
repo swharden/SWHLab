@@ -8,9 +8,9 @@
 ## Output as a function of Autobase Method
 description | output
 ---|---
-.1 pA bin, rolling SD autobase|~[](demo_sd.png)
-.1 pA bin, gaussian LPF + gaussian autobase|~[](demo_point.png)
-1.0 pA bin, gaussian LPF + gaussian autobase|~[](demo_whole.png)
+.1 pA bin, rolling SD autobase|![](demo_sd.png)
+.1 pA bin, gaussian LPF + gaussian autobase|![](demo_point.png)
+1.0 pA bin, gaussian LPF + gaussian autobase|![](demo_whole.png)
 
 ## Unusual Data Points
 - `X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20028.abf`
