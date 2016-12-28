@@ -13,6 +13,9 @@ setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20028.abf";  getstats;
 runonsheets _mStats "sc tagTime";
 sc getcols _mStats Time PhasicNeg; sc onex; ccave; wks.name$ = PhasicNeg;
 sc getcols _mStats Time PhasicPos; sc onex; ccave; wks.name$ = PhasicPos;
+
+cjfloop 1 34 "bandpass # -10 0"; ccave;
+cjfloop 1 34 "vstats #; bandpass # -5*vstats.sd 0"; ccave;
 ```
 
 ## Unusual Data Points
