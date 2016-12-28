@@ -1,10 +1,3 @@
-## Unit Considerations
-- assuming 20kHz each point is .05ms
-- the phasic value of _each data point_ is ```pA * .05 ms```
-- the phasic value of a _range of data_ is the the sum of all points values divided by the time span
- - getting ```sum(points)``` will still yield lots of pA * lots of ms
- - ```(lots of pA) * (lots of ms) / (total ms)```  leaves only pA
-
 ## Output as a function of Autobase Method
 description | output
 ---|---
@@ -34,4 +27,29 @@ runonsheets _mStats "sc tagTime";
 sc getcols _mStats Time PhasicNeg; sc onex; ccave; wks.name$ = PhasicNeg
 sc getcols _mStats Time PhasicPos; sc onex; ccave; wks.name$ = PhasicPos
 sc autoxy; ccave;
+```
+
+## Unit Considerations
+- assuming 20kHz each point is .05ms
+- the phasic value of _each data point_ is ```pA * .05 ms```
+- the phasic value of a _range of data_ is the the sum of all points values divided by the time span
+ - getting ```sum(points)``` will still yield lots of pA * lots of ms
+ - ```(lots of pA) * (lots of ms) / (total ms)```  leaves only pA
+
+### CJF_PCLAMPSWEEP.C code change
+NO CODE CHANGE IS NEEDED! Time units are _already_ cancelled out.
+**current:**
+```C
+vecPos.Sum(dPhasicPos);
+dPhasicPos/=dNumPtsInRange;
+vecNeg.Sum(dPhasicNeg);
+dPhasicNeg/=dNumPtsInRange;	
+```
+
+**logical:**
+```C
+vecPos.Sum(dPhasicPos);
+dPhasicPos=dPhasicPos*sRate/(dNumPtsInRange*sRate)
+vecNeg.Sum(dPhasicNeg);
+dPhasicNeg=dPhasicNeg*sRate/(dNumPtsInRange*sRate)
 ```
