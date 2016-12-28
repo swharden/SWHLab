@@ -93,3 +93,13 @@ setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20036.abf";  getstats;
 setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20040.abf";  getstats;
 setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d20044.abf";  getstats;
 ```
+
+# Reanalysis
+
+## Numerical Identification of "Responders"
+summary | figure
+---|---
+all cells (responders and nonresponders) averaged together | ![](analysis_all.png)
+responders were defined as those whose upward currents increased >0.1pA during drug as compared to baseline. 12/34 met this criteria. | ![](analysis_best2.png)
+only the best respnoders averaged together | ![](analysis_best.png)
+
