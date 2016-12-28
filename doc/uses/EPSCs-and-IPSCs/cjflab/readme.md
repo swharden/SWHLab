@@ -1,4 +1,4 @@
-## Typical Analysis of responsive cells (via inspection)
+## Typical Analysis of Responsive Cells (via inspection)
 ```
 setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14036.abf";  getstats;
 setpath "X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14052.abf";  getstats; 
