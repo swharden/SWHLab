@@ -7,16 +7,19 @@ All output data should be named:
     * 12345678_micro_thing.jpg (anything copied, likely a micrograph)
     * 12345678_data_aps.npy (data stored in a numpy array)
     * 12345678_data_IVfast.npy (data stored in a numpy array)
-    
-    
+
+
 INFORMAL GOAL: make all figures SQUARESIZE in height. Width is variable.
 """
 
 import os
+import sys
+if not os.path.abspath('../../') in sys.path:
+    sys.path.append('../../')
+
 import glob
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
 
 import swhlab
 from swhlab import ABF
@@ -48,7 +51,7 @@ def proto_unknown(theABF):
     plot.figure_chronological()
     plt.gca().set_axis_bgcolor('#AAAAAA') # different background if unknown protocol
     frameAndSave(abf,"UNKNOWN")
-        
+
 def proto_0101(theABF):
     abf=ABF(theABF)
     abf.log.info("analyzing as an IC tau")
@@ -68,26 +71,26 @@ def proto_0101(theABF):
     plt.axvspan(m1,m2,color='r',ec=None,alpha=.1)
     plt.axhline(0,color='r',ls="--",alpha=.5,lw=2)
     plt.margins(0,.1)
-    
+
     # save it
     plt.tight_layout()
     frameAndSave(abf,"IC tau")
     plt.close('all')
-    
+
 
 def proto_0111(theABF):
     """protocol: IC ramp for AP shape analysis."""
     abf=ABF(theABF)
     abf.log.info("analyzing as an IC ramp")
-    
+
     # AP detection
-    ap=AP(abf) 
+    ap=AP(abf)
     ap.detect()
     firstAP=ap.APs[0]["T"]
-    
+
     # also calculate derivative for each sweep
-    abf.derivative=True 
-    
+    abf.derivative=True
+
     # create the multi-plot figure
     plt.figure(figsize=(SQUARESIZE,SQUARESIZE))
     ax1=plt.subplot(221)
@@ -95,20 +98,20 @@ def proto_0111(theABF):
     ax2=plt.subplot(222,sharey=ax1)
     ax3=plt.subplot(223)
     plt.ylabel(abf.unitsD2)
-    ax4=plt.subplot(224,sharey=ax3)  
+    ax4=plt.subplot(224,sharey=ax3)
 
-    # put data in each subplot    
+    # put data in each subplot
     for sweep in range(abf.sweeps):
         abf.setsweep(sweep)
         ax1.plot(abf.sweepX,abf.sweepY,color='b',lw=.25)
-        ax2.plot(abf.sweepX,abf.sweepY,color='b')  
-        ax3.plot(abf.sweepX,abf.sweepD,color='r',lw=.25)   
-        ax4.plot(abf.sweepX,abf.sweepD,color='r')   
+        ax2.plot(abf.sweepX,abf.sweepY,color='b')
+        ax3.plot(abf.sweepX,abf.sweepD,color='r',lw=.25)
+        ax4.plot(abf.sweepX,abf.sweepD,color='r')
 
     # modify axis
     for ax in [ax1,ax2,ax3,ax4]: # everything
         ax.margins(0,.1)
-        ax.grid(alpha=.5)        
+        ax.grid(alpha=.5)
     for ax in [ax3,ax4]: # only derivative APs
         ax.axhline(-100,color='r',alpha=.5,ls="--",lw=2)
     for ax in [ax2,ax4]: # only zoomed in APs
@@ -118,10 +121,10 @@ def proto_0111(theABF):
 
     # show message from first AP
     firstAP=ap.APs[0]
-    msg="\n".join(["%s = %s"%(x,str(firstAP[x])) for x in sorted(firstAP.keys()) if not "I" in x[-2:]])               
+    msg="\n".join(["%s = %s"%(x,str(firstAP[x])) for x in sorted(firstAP.keys()) if not "I" in x[-2:]])
     plt.subplot(221)
     plt.gca().text(0.02, 0.98, msg, transform= plt.gca().transAxes, fontsize=10, verticalalignment='top', family='monospace')
-    
+
     # save it
     plt.tight_layout()
     frameAndSave(abf,"AP shape")
@@ -135,28 +138,28 @@ def proto_gain(theABF,stepSize=25,startAt=-100):
     plot.kwargs["lw"]=.5
     plot.title=""
     currents=np.arange(abf.sweeps)*stepSize-startAt
-    
+
     # AP detection
-    ap=AP(abf) 
+    ap=AP(abf)
     ap.detect_time1=.1
     ap.detect_time2=.7
     ap.detect()
-       
+
     # stacked plot
     plt.figure(figsize=(SQUARESIZE,SQUARESIZE))
-    
+
     ax1=plt.subplot(221)
     plot.figure_sweeps()
-    
+
     ax2=plt.subplot(222)
     ax2.get_yaxis().set_visible(False)
-    plot.figure_sweeps(offsetY=150)   
-    
+    plot.figure_sweeps(offsetY=150)
+
     # add vertical marks to graphs:
     for ax in [ax1,ax2]:
         for limit in [ap.detect_time1,ap.detect_time2]:
             ax.axvline(limit,color='r',ls='--',alpha=.5,lw=2)
-    
+
     # make stacked gain function
     ax4=plt.subplot(223)
     plt.ylabel("frequency (Hz)")
@@ -168,7 +171,7 @@ def proto_gain(theABF,stepSize=25,startAt=-100):
         if len(freqs[i]):
             plt.plot(times[i][:-1],freqs[i],'-',alpha=.5,lw=2,
                      color=plot.getColor(i/abf.sweeps))
-                
+
     # make gain function graph
     ax4=plt.subplot(224)
     ax4.grid(alpha=.5)
@@ -178,21 +181,21 @@ def proto_gain(theABF,stepSize=25,startAt=-100):
     plt.legend(loc=2,fontsize=10)
     plt.axhline(40,color='r',alpha=.5,ls="--",lw=2)
     plt.margins(.02,.1)
-    
+
     # save it
     plt.tight_layout()
     frameAndSave(abf,"AP Gain %d_%d"%(startAt,stepSize))
     plt.close('all')
-    
+
 def proto_0112(theABF):
     proto_gain(theABF,10,-50)
-    
+
 def proto_0113(theABF):
     proto_gain(theABF,25)
-    
+
 def proto_0114(theABF):
     proto_gain(theABF,100)
-    
+
 def proto_0201(theABF):
     """protocol: membrane test."""
     abf=ABF(theABF)
@@ -200,12 +203,12 @@ def proto_0201(theABF):
     plot=ABFplot(abf)
     plot.figure_height,plot.figure_width=SQUARESIZE/2,SQUARESIZE/2
     plot.figure_sweeps()
-        
+
     # save it
     plt.tight_layout()
     frameAndSave(abf,"membrane test")
     plt.close('all')
-                
+
 def proto_0202(theABF):
     """protocol: MTIV."""
     abf=ABF(theABF)
@@ -215,18 +218,18 @@ def proto_0202(theABF):
     plot.title=""
     plot.kwargs["alpha"]=.6
     plot.figure_sweeps()
-    
+
     # frame to uppwer/lower bounds, ignoring peaks from capacitive transients
     abf.setsweep(0)
     plt.axis([None,None,abf.average(.9,1)-100,None])
     abf.setsweep(-1)
     plt.axis([None,None,None,abf.average(.9,1)+100])
-    
+
     # save it
     plt.tight_layout()
     frameAndSave(abf,"MTIV")
     plt.close('all')
-    
+
 def proto_0203(theABF):
     """protocol: vast IV."""
     abf=ABF(theABF)
@@ -252,32 +255,81 @@ def proto_0203(theABF):
     plt.axhline(0,color='r',ls='--',lw=2,alpha=.5)
     plt.margins(.1,.1)
     plt.xlabel("membrane potential (mV)")
-        
+
     # save it
     plt.tight_layout()
     frameAndSave(abf,"fast IV")
     plt.close('all')
-    
+
 def proto_0401(theABF):
     proto_avgRange(theABF,.5,2.0)
-    
+
 def proto_0404(theABF):
     proto_avgRange(theABF,1.0,1.1)
-    
-    
+
+def proto_0501(theABF):
+    BLS_average_stack(theABF)
+def proto_0502(theABF):
+    BLS_average_stack(theABF)
+
+def BLS_average_stack(theABF):
+    abf=ABF(theABF)
+    T1,T2=abf.epochTimes(2)
+    padding=.1
+    if abf.units=="mV":
+        padding=.25
+    Tdiff=max([T2-T1,padding])
+    Tdiff=min([T1,padding])
+    X1,X2=T1-Tdiff,T2+Tdiff
+    I1,I2=X1*abf.pointsPerSec,X2*abf.pointsPerSec
+
+    plt.figure(figsize=(10,10))
+    chunks=np.empty((abf.sweeps,I2-I1))
+    Xs=np.array(abf.sweepX2[I1:I2])
+    for sweep in abf.setsweeps():
+        chunks[sweep]=abf.sweepY[I1:I2]
+        plt.subplot(211)
+        plt.plot(Xs,chunks[sweep],alpha=.2,color='.5',lw=2)
+        plt.subplot(212)
+        if abf.units=='pA':
+            plt.plot(Xs,chunks[sweep]+100*(abf.sweeps-sweep),alpha=.5,color='b',lw=2) # if VC, focus on BLS
+        else:
+            plt.plot(abf.sweepX2,abf.sweepY+100*(abf.sweeps-sweep),alpha=.5,color='b',lw=2) # if IC, show full sweep
+
+    plt.subplot(211)
+    plt.plot(Xs,np.average(chunks,axis=0),alpha=.5,lw=2)
+    plt.title("%s.abf - BLS - average of %d sweeps"%(abf.ID,abf.sweeps))
+    plt.ylabel(abf.units2)
+    plt.axvspan(T1,T2,alpha=.2,color='y',lw=0)
+    plt.margins(0,.1)
+
+    plt.subplot(212)
+    plt.xlabel("time (sec)")
+    plt.ylabel("stacked sweeps")
+    plt.axvspan(T1,T2,alpha=.2,color='y',lw=0)
+    if abf.units=='mV':
+        plt.axvline(T1,color='r',alpha=.2,lw=3)
+#        plt.axvline(T2,color='r',alpha=.2,lw=3)
+    plt.margins(0,.1)
+
+    plt.tight_layout()
+    frameAndSave(abf,"BLS","experiment")
+    plt.close('all')
+
+
 def proto_avgRange(theABF,m1=1.0,m2=1.1):
     """experiment: generic VC time course experiment."""
     abf=ABF(theABF)
     abf.log.info("analyzing as a fast IV")
     plot=ABFplot(abf)
-           
+
     plt.figure(figsize=(SQUARESIZE*2,SQUARESIZE/2))
-    
+
     plt.subplot(121)
     plot.title="first sweep"
     plot.figure_sweep()
     plt.axvspan(m1,m2,color='r',ec=None,alpha=.1)
-    
+
     plt.subplot(122)
     plt.grid(alpha=.5)
     Ts=np.arange(abf.sweeps)*abf.sweepInterval
@@ -290,11 +342,11 @@ def proto_avgRange(theABF,m1=1.0,m2=1.1):
     plt.title(str(abf.comment_tags))
     plt.ylabel(abf.units2)
     plt.xlabel("minutes")
-        
+
     plt.tight_layout()
     frameAndSave(abf,"sweep vs average","experiment")
     plt.close('all')
-    
+
 def analyze(fname=False,save=True,show=None):
     """given a filename or ABF object, try to analyze it."""
     swhlab.plotting.core.IMAGE_SAVE=save
@@ -319,4 +371,5 @@ def analyze(fname=False,save=True,show=None):
 
 if __name__=="__main__":
     print("DONT RUN THIS DIRECTLY. Call analyze() externally.")
-    
+    fname=r"X:\Data\2P01\2016\2017-01-09 AT1\17109013.abf"
+    analyze(fname)

@@ -12,8 +12,12 @@ All output data should be named:
 """
 
 # start out this way so tests will import the local swhlab module
-import sys
+
 import os
+import sys
+if not os.path.abspath('../../../') in sys.path:
+    sys.path.append('../../../')
+
 sys.path.insert(0,os.path.abspath('../../'))
 import swhlab
 
@@ -21,23 +25,23 @@ import swhlab
 
 import logging
 import shutil
-import numpy as np   
+import numpy as np
 import swhlab.analysis.protocols as protocols
-import imaging
+import swhlab.indexing.imaging as imaging
+import swhlab.indexing.style as style
 import swhlab.common as cm
-import style
 
 class INDEX:
     def __init__(self,ABFfolder):
         """
         The SWHLab INDEX class allows a web-browsable index of ABF data.
-        
+
         This is intended to allow:
           * Automatic analysis of ABF files and output of data images
           * Watching of directories and automatic analysis of new ABFs
           * Manipulation and enhancement of micrographs (even multichannel)
           * creation of individual HTML pages for ABFs, cells, and folders
-          
+
         General sequence:
           * convert folder1 TIFs to JPGs
           * analyze data for cells that need it
@@ -52,8 +56,8 @@ class INDEX:
             return
         else:
             self.log.info("Indexing [%s] ...",ABFfolder)
-        
-            
+
+
         # determine file paths
         self.folder1=os.path.abspath(ABFfolder) # folder of ABF files
         self.folder2=os.path.abspath(ABFfolder+"/swhlab/") # web output folder
@@ -63,7 +67,7 @@ class INDEX:
 
         # scan the folders for files
         self.scan()
-        
+
         # figure out parent/children ABF, ID, and file groups
         self.groups=cm.abfGroups(self.folder1) # keys are a list of parents
         self.log.debug("identified %d cells",len(self.groups))
@@ -72,7 +76,7 @@ class INDEX:
         self.groupFiles=cm.abfGroupFiles(self.groups,self.folder2)
         nChildrenFiles=[len(x) for x in self.groupFiles.values()]
         self.log.debug("average parent has %.02f ./swhlab/ files",np.average(nChildrenFiles))
-        
+
     def scan(self):
         """
         scan folder1 and folder2 into files1 and files2.
@@ -92,14 +96,14 @@ class INDEX:
         self.log.debug("scanning folders took %s",cm.timeit(t1)) # ~200ms
 
     ### DATA ANALYSIS AND CONVERSION
-        
+
     def convertImages(self):
         """
         run this to turn all folder1 TIFs and JPGs into folder2 data.
         TIFs will be treated as micrographs and converted to JPG with enhanced
         contrast. JPGs will simply be copied over.
         """
-        
+
         # copy over JPGs (and such)
         exts=['.jpg','.png']
         for fname in [x for x in self.files1 if cm.ext(x) in exts]:
@@ -112,7 +116,7 @@ class INDEX:
                 shutil.copy(os.path.join(self.folder1,fname),os.path.join(self.folder2,fname2))
             if not fname[:8]+".abf" in self.files1:
                 self.log.error("orphan image: %s",fname)
-                
+
         # convert TIFs (and such) to JPGs
         exts=['.tif','.tiff']
         for fname in [x for x in self.files1 if cm.ext(x) in exts]:
@@ -125,7 +129,7 @@ class INDEX:
                 imaging.TIF_to_jpg(os.path.join(self.folder1,fname),saveAs=os.path.join(self.folder2,fname2))
             if not fname[:8]+".abf" in self.files1:
                 self.log.error("orphan image: %s",fname)
-                
+
     def analyzeAll(self):
         """analyze every unanalyzed ABF in the folder."""
         searchableData=str(self.files2)
@@ -139,10 +143,10 @@ class INDEX:
             else:
                 self.log.debug("%s has existing analysis, not overwriting",ID)
         self.log.debug("verified analysis of %d ABFs",len(self.IDs))
-            
+
     def analyzeABF(self,ID):
         """
-        Analye a single ABF: make data, index it. 
+        Analye a single ABF: make data, index it.
         If called directly, will delete all ID_data_ and recreate it.
         """
         for fname in self.files2:
@@ -151,9 +155,9 @@ class INDEX:
                 os.remove(os.path.join(self.folder2,fname))
         self.log.info("analyzing (with overwrite) [%s]",ID)
         protocols.analyze(os.path.join(self.folder1,ID+".abf"))
-        
+
     ### HTML GENERATION
-    
+
     def htmlFor(self,fname):
         """return appropriate HTML determined by file extension."""
         if os.path.splitext(fname)[1].lower() in ['.jpg','.png']:
@@ -169,10 +173,10 @@ class INDEX:
         else:
             html='<br>Not sure how to show: [%s]</br>'%fname
         return html
-    
+
     def html_single_basic(self,abfID,launch=False,overwrite=False):
         """
-        generate a generic flat file html for an ABF parent. You could give 
+        generate a generic flat file html for an ABF parent. You could give
         this a single ABF ID, its parent ID, or a list of ABF IDs.
         If a child ABF is given, the parent will automatically be used.
         """
@@ -209,7 +213,7 @@ class INDEX:
                 html+='<br>'*3
             print("creating",saveAs,'...')
             style.save(html,saveAs,launch=launch)
-            
+
     def html_single_plot(self,abfID,launch=False,overwrite=False):
         """create ID_plot.html of just intrinsic properties."""
         if type(abfID) is str:
@@ -229,11 +233,12 @@ class INDEX:
                 html+=self.htmlFor(fname)
             print("creating",saveAs,'...')
             style.save(html,saveAs,launch=launch)
-            
-            
+
+
     def html_index(self):
         html="<h1>MENU</h1>"
-        for htmlFile in [x for x in self.files2 if x.endswith(".html")]:
+        htmlFiles=[x for x in self.files2 if x.endswith(".html")]
+        for htmlFile in cm.abfSort(htmlFiles):
             if not htmlFile.endswith('_basic.html'):
                 continue
             name=htmlFile.split("_")[0]
@@ -250,21 +255,23 @@ class INDEX:
         return
 
 ### TODO: streamline from here down #########################################
-        
+
 def doStuff(ABFfolder,analyze=False,convert=False,index=True,overwrite=True):
     """Inelegant for now, but lets you manually analyze every ABF in a folder."""
     IN=INDEX(ABFfolder)
     if analyze:
-        IN.analyzeAll()    
+        IN.analyzeAll()
     if convert:
         IN.convertImages()
+    if analyze or convert:
+        IN=INDEX(ABFfolder) # rescan needed
     if index:
         IN.scan() # scanning is slow, so don't do it often
         IN.html_single_basic(IN.groups.keys(),overwrite=overwrite)
         IN.html_single_plot(IN.groups.keys(),overwrite=overwrite)
         IN.scan() # scanning is slow, so don't do it often
         IN.html_index() # generate master
-    
+
 def analyzeSingle(abfFname):
     """Reanalyze data for a single ABF. Also remakes child and parent html."""
     assert os.path.exists(abfFname) and abfFname.endswith(".abf")
@@ -277,22 +284,22 @@ def analyzeSingle(abfFname):
     IN.html_single_plot([abfID],overwrite=True)
     IN.scan()
     IN.html_index()
-    
+
     return
-            
+
 if __name__=="__main__":
     swhlab.loglevel=swhlab.loglevel_QUIET
     ABFfolder=None
     for maybe in [
-                  r"X:\Data\2P01\2016\2016-09-01 PIR TGOT",
-                  r"C:\Users\scott\Documents\important\abfs",
+                  #r"X:\Data\2P01\2016\2016-09-01 PIR TGOT",
+                  #r"C:\Users\scott\Documents\important\abfs",
+                  r"X:\Data\2P01\2016\2017-01-09 AT1",
                   ]:
         if os.path.isdir(maybe):
-            ABFfolder=maybe    
+            ABFfolder=maybe
     print("using ABF folder:",ABFfolder)
-    
+
     doStuff(ABFfolder,analyze=True,convert=True,index=True,overwrite=True)
-    
-    #analyzeSingle(ABFfolder+'/16o14048.abf')
+    doStuff(ABFfolder,analyze=True,convert=True,index=True,overwrite=True)
 
     print("DONE")

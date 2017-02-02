@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import warnings
 import time
+import webbrowser
+
+OUTPUT_PATH=R"X:\Data Analysis\SCOTT\SWHLab development\phasic2"
 
 def tagInspect(abf,saveToo=False): #TODO: put in ABF class?
     if len(abf.comment_tags)<2:
@@ -50,57 +53,34 @@ def tagInspect(abf,saveToo=False): #TODO: put in ABF class?
     print()
     return
 
-def picpage(path=R"X:\Data Analysis\SCOTT\SWHLab development\phasic2"):
+def picpage():
     html="<html><body>"
-    for fname in [x for x in sorted(os.listdir(path)) if x.endswith(".png") or x.endswith(".jpg")]:
+    for fname in [x for x in sorted(os.listdir(OUTPUT_PATH)) if x.endswith(".png") or x.endswith(".jpg")]:
         html+='<a name="%s" href="#%s"><h1>%s</h1></a>'%(fname,fname,fname)
-        fname=os.path.abspath(os.path.join(path,fname))
+        fname=os.path.abspath(os.path.join(OUTPUT_PATH,fname))
         html+='<a href="%s"><img src="%s"></a>'%(fname,fname)
     html+="</body></html>"
-    with open(os.path.join(path,"index.html"),'w') as f:
+    htmlFname=os.path.join(OUTPUT_PATH,"index.html")
+    with open(htmlFname,'w') as f:
         f.write(html)
+    webbrowser.open(htmlFname)
 
 if __name__=="__main__":
-    abfs=[]
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14019.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14027.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14032.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14036.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14040.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14044.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14048.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14052.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14056.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14060.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d14064.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16003.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16007.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16011.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16016.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16020.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16024.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16030.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16034.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16038.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16042.abf")
-#    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d16046.abf")
-
-
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13012.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13017.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13022.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13026.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13030.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13035.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13039.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13043.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13047.abf")
-    abfs.append(R"X:\Data\2P01\2016\2016-09-01 PIR TGOT\16d13052.abf")
-
-    for abf in abfs:
-        abf=swhlab.ABF(abf)
-        tagInspect(abf,saveToo=True)
-
+    abfPath=R"X:\Data\2P01\2016\2016-09-01 PIR TGOT"
+    good=[]
+    for fname in sorted(os.listdir(abfPath)):
+        if not fname.endswith(".abf"):
+            continue
+        if fname[:5] in ["16831","16906","16907","16909"]:
+            fname=os.path.join(abfPath,fname)
+            if os.stat(fname).st_size/10**6>10: # only do files > ~10MB
+                abf=swhlab.ABF(fname)
+                if len(abf.comment_sweeps)<2:
+                    print("SKIP:",fname)
+                else:
+                    good.append(fname)
+                tagInspect(abf,saveToo=True)
     picpage()
+    print("\n".join(good))
 
     print("DONE")

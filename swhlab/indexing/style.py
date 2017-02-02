@@ -11,7 +11,7 @@ import swhlab
 # now import things regularly
 import tempfile
 import webbrowser
-import common
+#import common
 
 stylesheet="""
 
@@ -32,11 +32,11 @@ a:hover {text-decoration: underline;}
     border: 1px solid black;
     box-shadow: 5px 5px 10px grey;
     }
-    
+
 .experiment{
     box-shadow: 5px 5px 10px rgba(255, 0, 0, 0.5);;
 }
-    
+
 .intrinsic{
     height:200px;
     box-shadow: 5px 5px 10px rgba(0, 255, 0, 0.5);;
@@ -46,7 +46,7 @@ a:hover {text-decoration: underline;}
     height:200px;
     box-shadow: 5px 5px 10px rgba(0, 0, 255, 0.5);;
 }
-    
+
 """
 
 html_top="""<html>
@@ -80,14 +80,14 @@ def frames(fname=None,menuWidth=200,launch=False):
 def save(html,fname=None,launch=False):
     """wrap HTML in a top and bottom (with css) and save to disk."""
     html=html_top+html+html_bot
-    html=html.replace("~GENAT~",common.datetimeToString())
+    html=html.replace("~GENAT~",swhlab.common.datetimeToString())
     if fname is None:
         fname = tempfile.gettempdir()+"/temp.html"
         launch=True
     fname=os.path.abspath(fname)
     with open(fname,'w') as f:
         f.write(html)
-    
+
     global stylesheetSaved
     stylesheetPath=os.path.join(os.path.dirname(fname),"style.css")
     if not os.path.exists(stylesheetPath) or stylesheetSaved is False:

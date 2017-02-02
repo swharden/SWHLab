@@ -7,11 +7,13 @@ browser on the network. Direct ABF access was provided by the NeoIO module.
 
 * if a site-packages warning is thrown, force use of developmental version by:
       sys.path.insert(0,'../')
-      
+
 """
 import logging
 import sys
 import os
+if not os.path.abspath('../') in sys.path:
+    sys.path.append('../')
 import swhlab
 
 def tryLoadingFrom(tryPath,moduleName='swhlab'):
@@ -46,3 +48,4 @@ from swhlab.version import __version__
 from swhlab.core import ABF
 from swhlab.plotting.core import ABFplot as PLOT
 from swhlab.analysis.ap import AP
+from swhlab.indexing import imaging

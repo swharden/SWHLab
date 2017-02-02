@@ -208,7 +208,21 @@ class ABF:
         Recreate the command stimulus (protocol) for the current sweep.
         It's not stored point by point (that's a waste of time and memory!)
         Instead it's stored as a few (x,y) points which can be easily graphed.
+
+        TODO: THIS
+        for segment in abf.ABFreader.read_protocol():
+            for analogsignal in segment.analogsignals:
+                print(analogsignal)
+                plt.plot(analogsignal)
+                plt.show()
+                plt.close('all')
+
         """
+        # TODO: elegantly read the protocol like this:
+            #abf.ABFreader.read_protocol()[0].analogsignals()[sigNum]
+
+
+
         # TODO: right now this works only for the first channel
 
         # correct for weird recording/protocol misalignment
@@ -303,6 +317,26 @@ class ABF:
         """
         print("proto_clamp_at_time NOT YET IMPLIMENTED") #TODO:
         return 0
+
+    def epochTimes(self,nEpoch=2):
+        """
+        alternative to the existing abf protocol stuff
+        return the start/stop time of an epoch.
+        Epoch start at zero.
+        A=0, B=1, C=2, D=3, ...
+        """
+        times=[]
+        durations=[]
+        for epoch in self.header['dictEpochInfoPerDAC'][self.channel].values():
+            print(epoch['lEpochInitDuration']/self.pointsPerSec)
+            times.append(sum(durations))
+            durations.append(epoch['lEpochInitDuration']/self.pointsPerSec)
+        times.append(sum(durations))
+        times=np.array(times)+self.offsetX/self.pointsPerSec # WHY?!?
+        if nEpoch:
+            return times[nEpoch],times[nEpoch+1]
+        else:
+            return times
 
     ### advanced data access
 
@@ -431,16 +465,19 @@ class ABF:
         Generate HTML containing information about NeoIO objects.
         This is useful when trying to figure out how to extract data from ABFs.
         """
-        webinspect.blacklist=[] # clears the blacklist
-        webinspect.launch(self.ABFblock.segments[0].eventarrays[0],'self.ABFblock.segments[0].eventarrays[0]')
-        webinspect.blacklist=['parents'] # prevents parents() from being executed
-        webinspect.launch(self.ABFblock.segments[5].analogsignals[0],'self.ABFblock.segments[5].analogsignals[0]')
-        webinspect.blacklist=['t_start','t_stop'] # prevents t_start() and t_stop() from beeing executed
-        webinspect.launch(self.ABFblock.segments[5],'self.ABFblock.segments[5]')
-        webinspect.blacklist=[] # clears the blacklist
-        webinspect.launch(self.ABFblock,'self.ABFblock')
-        webinspect.blacklist=[] # clears the blacklist
-        webinspect.launch(self.ABFreader,'self.ABFreader')
+#        webinspect.blacklist=[] # clears the blacklist
+#        webinspect.launch(self.ABFblock.segments[0].eventarrays[0],'self.ABFblock.segments[0].eventarrays[0]')
+#        webinspect.blacklist=['parents'] # prevents parents() from being executed
+#        webinspect.launch(self.ABFblock.segments[0].analogsignals[0],'self.ABFblock.segments[0].analogsignals[0]')
+#        webinspect.blacklist=['t_start','t_stop'] # prevents t_start() and t_stop() from beeing executed
+#        webinspect.launch(self.ABFblock.segments[0],'self.ABFblock.segments[0]')
+#        webinspect.blacklist=[] # clears the blacklist
+#        webinspect.launch(self.ABFblock,'self.ABFblock')
+#        webinspect.blacklist=[] # clears the blacklist
+#        webinspect.launch(self.ABFreader,'self.ABFreader')
+        headerFile=r"C:\Users\swharden\Documents\temp\header.html"
+        headerHTML(self.header,headerFile)
+
 
 
 if __name__=="__main__":
