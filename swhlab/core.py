@@ -34,7 +34,7 @@ def abfProtocol(fname):
     This is done by reading the binary contents of the header.
     """
     f=open(fname,'rb')
-    raw=f.read(5000) #it should be in the first 5k of the file
+    raw=f.read(20*1000) #it should be in the first 20k of the file
     f.close()
     protoComment="unknown"
     raw=raw.replace(b"SWHLab4[",b"SWH[")
@@ -482,13 +482,15 @@ class ABF:
 
 if __name__=="__main__":
     import matplotlib.pyplot as plt
-    abfFile=r"C:\Users\swharden\Desktop\2016-07-03\16703000.abf"
+    abfFile=r"X:\Data\SCOTT\2017-01-09 AT1 NTS\17503041.abf"
     abf=ABF(abfFile)
-    #abf.kernel_gaussian(1)
-    plt.subplot(211)
-    plt.plot(abf.sweepX,abf.sweepY)
-    plt.plot(abf.sweepX,abf.sweepYfiltered())
-    plt.margins(0,.1)
-    plt.subplot(212)
-    plt.plot(abf.protoX,abf.protoY,color='r')
-    plt.margins(0,.1)
+    print(abf.protocomment)
+    print("DONE")
+#    #abf.kernel_gaussian(1)
+#    plt.subplot(211)
+#    plt.plot(abf.sweepX,abf.sweepY)
+#    plt.plot(abf.sweepX,abf.sweepYfiltered())
+#    plt.margins(0,.1)
+#    plt.subplot(212)
+#    plt.plot(abf.protoX,abf.protoY,color='r')
+#    plt.margins(0,.1)

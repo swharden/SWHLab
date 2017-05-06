@@ -20,7 +20,7 @@ if not os.path.abspath('../../../') in sys.path:
 
 sys.path.insert(0,os.path.abspath('../../'))
 import swhlab
-
+import time
 # now import things regularly
 
 import logging
@@ -135,11 +135,12 @@ class INDEX:
         searchableData=str(self.files2)
         self.log.debug("considering analysis for %d ABFs",len(self.IDs))
         for ID in self.IDs:
-            if not ID+"_data_" in searchableData:
+            if not ID+"_" in searchableData:
                 self.log.debug("%s needs analysis",ID)
-                self.analyzeABF(ID)
-                #print("BREAKING EARLY.")
-                #return
+                try:
+                    self.analyzeABF(ID)
+                except:
+                    print("EXCEPTION! "*100)
             else:
                 self.log.debug("%s has existing analysis, not overwriting",ID)
         self.log.debug("verified analysis of %d ABFs",len(self.IDs))
@@ -235,7 +236,7 @@ class INDEX:
             style.save(html,saveAs,launch=launch)
 
 
-    def html_index(self):
+    def html_index(self,launch=True):
         html="<h1>MENU</h1>"
         htmlFiles=[x for x in self.files2 if x.endswith(".html")]
         for htmlFile in cm.abfSort(htmlFiles):
@@ -251,12 +252,13 @@ class INDEX:
         style.save(html,os.path.abspath(self.folder2+"/index_menu.html"))
         html="<h1>SPLASH</h1>"
         style.save(html,os.path.abspath(self.folder2+"/index_splash.html"))
-        style.frames(os.path.abspath(self.folder2+"/index.html"),launch=True)
+        style.frames(os.path.abspath(self.folder2+"/index.html"),launch=launch)
         return
 
 ### TODO: streamline from here down #########################################
 
-def doStuff(ABFfolder,analyze=False,convert=False,index=True,overwrite=True):
+def doStuff(ABFfolder,analyze=False,convert=False,index=True,overwrite=True,
+            launch=True):
     """Inelegant for now, but lets you manually analyze every ABF in a folder."""
     IN=INDEX(ABFfolder)
     if analyze:
@@ -270,7 +272,7 @@ def doStuff(ABFfolder,analyze=False,convert=False,index=True,overwrite=True):
         IN.html_single_basic(IN.groups.keys(),overwrite=overwrite)
         IN.html_single_plot(IN.groups.keys(),overwrite=overwrite)
         IN.scan() # scanning is slow, so don't do it often
-        IN.html_index() # generate master
+        IN.html_index(launch=launch) # generate master
 
 def analyzeSingle(abfFname):
     """Reanalyze data for a single ABF. Also remakes child and parent html."""
@@ -290,16 +292,22 @@ def analyzeSingle(abfFname):
 if __name__=="__main__":
     swhlab.loglevel=swhlab.loglevel_QUIET
     ABFfolder=None
-    for maybe in [
-                  #r"X:\Data\2P01\2016\2016-09-01 PIR TGOT",
-                  #r"C:\Users\scott\Documents\important\abfs",
-                  r"X:\Data\2P01\2016\2017-01-09 AT1",
-                  ]:
-        if os.path.isdir(maybe):
-            ABFfolder=maybe
-    print("using ABF folder:",ABFfolder)
 
-    doStuff(ABFfolder,analyze=True,convert=True,index=True,overwrite=True)
-    doStuff(ABFfolder,analyze=True,convert=True,index=True,overwrite=True)
+    while True:
+
+        for maybe in [
+                      r"X:\Data\SCOTT\2017-01-09 AT1 NTS",
+                      #r"X:\Data\SCOTT\2017-04-24 aging BLA",
+                      #r"X:\Data\SCOTT\2017-04-19 OT ChR2",
+                      ]:
+            if os.path.isdir(maybe):
+                ABFfolder=maybe
+        print("using ABF folder:",ABFfolder)
+
+        doStuff(ABFfolder,analyze=True,convert=True,index=True,overwrite=True,launch=False)
+        #doStuff(ABFfolder,analyze=True,convert=True,index=True,overwrite=True)
+        for i in range(10):
+            time.sleep(1)
+            print("waiting",i)
 
     print("DONE")

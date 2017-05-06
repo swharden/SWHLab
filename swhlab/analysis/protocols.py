@@ -357,6 +357,7 @@ def analyze(fname=False,save=True,show=None):
             swhlab.plotting.core.IMAGE_SHOW=False
     #swhlab.plotting.core.IMAGE_SHOW=show
     abf=ABF(fname) # ensure it's a class
+    print(">>>>> PROTOCOL >>>>>",abf.protocomment)
     runFunction="proto_unknown"
     if "proto_"+abf.protocomment in globals():
         runFunction="proto_"+abf.protocomment
@@ -371,5 +372,5 @@ def analyze(fname=False,save=True,show=None):
 
 if __name__=="__main__":
     print("DONT RUN THIS DIRECTLY. Call analyze() externally.")
-    fname=r"X:\Data\2P01\2016\2017-01-09 AT1\17109013.abf"
+    fname=r"X:\Data\SCOTT\2017-01-09 AT1 NTS\17503052.abf"
     analyze(fname)
