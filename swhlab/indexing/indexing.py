@@ -265,14 +265,16 @@ def doStuff(ABFfolder,analyze=False,convert=False,index=True,overwrite=True,
         IN.analyzeAll()
     if convert:
         IN.convertImages()
-    if analyze or convert:
-        IN=INDEX(ABFfolder) # rescan needed
-    if index:
-        IN.scan() # scanning is slow, so don't do it often
-        IN.html_single_basic(IN.groups.keys(),overwrite=overwrite)
-        IN.html_single_plot(IN.groups.keys(),overwrite=overwrite)
-        IN.scan() # scanning is slow, so don't do it often
-        IN.html_index(launch=launch) # generate master
+#    if analyze or convert:
+#        IN=INDEX(ABFfolder) # rescan needed
+
+    #INDEXING IS DONE BY PHP NOW SO THIS ISN'T NEEDED
+#    if index:
+#        IN.scan() # scanning is slow, so don't do it often
+#        IN.html_single_basic(IN.groups.keys(),overwrite=overwrite)
+#        IN.html_single_plot(IN.groups.keys(),overwrite=overwrite)
+#        IN.scan() # scanning is slow, so don't do it often
+#        IN.html_index(launch=launch) # generate master
 
 def analyzeSingle(abfFname):
     """Reanalyze data for a single ABF. Also remakes child and parent html."""
@@ -290,14 +292,18 @@ def analyzeSingle(abfFname):
     return
 
 if __name__=="__main__":
+
+    print(sys.argv)
+
     swhlab.loglevel=swhlab.loglevel_QUIET
     ABFfolder=None
 
     while True:
 
         for maybe in [
-                      r"X:\Data\SCOTT\2017-01-09 AT1 NTS",
-                      #r"X:\Data\SCOTT\2017-04-24 aging BLA",
+                      #r"X:\Data\SCOTT\2017-01-09 AT1 NTS",
+#                      r"X:\Data\SCOTT\2017-05-15 LHA TGOT",
+                      r"X:\Data\SCOTT\2017-04-24 aging BLA",
                       #r"X:\Data\SCOTT\2017-04-19 OT ChR2",
                       ]:
             if os.path.isdir(maybe):

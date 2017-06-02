@@ -14,9 +14,9 @@ INFORMAL GOAL: make all figures SQUARESIZE in height. Width is variable.
 
 import os
 import sys
+sys.path.append(r"C:\Users\swharden\Documents\GitHub\SWHLab") # for local run
 if not os.path.abspath('../../') in sys.path:
     sys.path.append('../../')
-
 import glob
 import matplotlib.pyplot as plt
 import numpy as np
@@ -368,9 +368,29 @@ def analyze(fname=False,save=True,show=None):
     except:
         abf.log.error("EXCEPTION DURING PROTOCOL FUNCTION")
         abf.log.error(sys.exc_info()[0])
+        return "ERROR"
     plt.close('all') # clean up
+    return "SUCCESS"
 
 if __name__=="__main__":
-    print("DONT RUN THIS DIRECTLY. Call analyze() externally.")
-    fname=r"X:\Data\SCOTT\2017-01-09 AT1 NTS\17503052.abf"
-    analyze(fname)
+
+    #testPath=r"\\Spike\X_Drive\Data\SCOTT\2017-01-09 AT1 NTS\17505014.abf"
+    #analyze(testPath)
+
+    if len(sys.argv)==2:
+        print("protocols.py is getting a path...")
+        abfPath=os.path.abspath(sys.argv[1])
+        if not os.path.exists(abfPath):
+            print(abfPath,"does not exist")
+        elif not abfPath.endswith(".abf"):
+            print(abfPath,"needs to be an ABF file")
+        else:
+            try:
+                print(analyze(abfPath))
+            except:
+                print("something went wrong.")
+
+
+    #print("DONT RUN THIS DIRECTLY. Call analyze() externally.")
+    #fname=r"X:\Data\SCOTT\2017-01-09 AT1 NTS\17503052.abf"
+    #analyze(fname)
