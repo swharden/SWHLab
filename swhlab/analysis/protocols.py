@@ -319,29 +319,53 @@ def BLS_average_stack(theABF):
 
 def proto_avgRange(theABF,m1=1.0,m2=1.1):
     """experiment: generic VC time course experiment."""
+
     abf=ABF(theABF)
     abf.log.info("analyzing as a fast IV")
-    plot=ABFplot(abf)
 
+    I1=int(abf.pointsPerSec*m1)
+    I2=int(abf.pointsPerSec*m2)
+
+    Ts=np.arange(abf.sweeps)*abf.sweepInterval
+    Yav=np.empty(abf.sweeps)*np.nan # average
+    Ysd=np.empty(abf.sweeps)*np.nan # standard deviation
+    #Yar=np.empty(abf.sweeps)*np.nan # area
+
+    for sweep in abf.setsweeps():
+        Yav[sweep]=np.average(abf.sweepY[I1:I2])
+        Ysd[sweep]=np.std(abf.sweepY[I1:I2])
+        #Yar[sweep]=np.sum(abf.sweepY[I1:I2])/(I2*I1)-Yav[sweep]
+
+    plot=ABFplot(abf)
     plt.figure(figsize=(SQUARESIZE*2,SQUARESIZE/2))
 
-    plt.subplot(121)
+    plt.subplot(131)
     plot.title="first sweep"
-    plot.figure_sweep()
+    plot.figure_sweep(0)
+    plt.title("First Sweep\n(shaded measurement range)")
     plt.axvspan(m1,m2,color='r',ec=None,alpha=.1)
 
-    plt.subplot(122)
+    plt.subplot(132)
     plt.grid(alpha=.5)
-    Ts=np.arange(abf.sweeps)*abf.sweepInterval
-    Ys=np.empty(abf.sweeps)*np.nan
-    for sweep in range(abf.sweeps):
-        Ys[sweep]=abf.average(m1,m2,setsweep=sweep)
     for i,t in enumerate(abf.comment_times):
         plt.axvline(t/60,color='r',alpha=.5,lw=2,ls='--')
-    plt.plot(Ts/60,Ys,'.')
-    plt.title(str(abf.comment_tags))
+    plt.plot(Ts/60,Yav,'.',alpha=.75)
+    plt.title("Range Average\nTAGS: %s"%(", ".join(abf.comment_tags)))
     plt.ylabel(abf.units2)
     plt.xlabel("minutes")
+    plt.margins(0,.1)
+
+    plt.subplot(133)
+    plt.grid(alpha=.5)
+    for i,t in enumerate(abf.comment_times):
+        plt.axvline(t/60,color='r',alpha=.5,lw=2,ls='--')
+    plt.plot(Ts/60,Ysd,'.',alpha=.5,color='g',ms=15,mew=0)
+    #plt.fill_between(Ts/60,Ysd*0,Ysd,lw=0,alpha=.5,color='g')
+    plt.title("Range Standard Deviation\nTAGS: %s"%(", ".join(abf.comment_tags)))
+    plt.ylabel(abf.units2)
+    plt.xlabel("minutes")
+    plt.margins(0,.1)
+    plt.axis([None,None,0,np.percentile(Ysd,99)*1.25])
 
     plt.tight_layout()
     frameAndSave(abf,"sweep vs average","experiment")
@@ -374,8 +398,10 @@ def analyze(fname=False,save=True,show=None):
 
 if __name__=="__main__":
 
-    #testPath=r"\\Spike\X_Drive\Data\SCOTT\2017-01-09 AT1 NTS\17505014.abf"
-    #analyze(testPath)
+    testPath=r"X:\Data\SCOTT\2017-05-15 LHA TGOT\17602027.abf"
+
+    if len(sys.argv)==1:
+        sys.argv.append(testPath)
 
     if len(sys.argv)==2:
         print("protocols.py is getting a path...")
