@@ -38,6 +38,7 @@ def frameAndSave(abf,tag="",dataType="plot",saveAsFname=False):
     plt.annotate(msgBot,(.01,.01),xycoords='figure fraction',ha='left',va='bottom',family='monospace',size=10,alpha=.5)
     fname=tag.lower().replace(" ",'_')+".jpg"
     fname=dataType+"_"+fname
+    plt.tight_layout()
     if IMAGE_SAVE:
         abf.log.info("saving [%s]",fname)
         try:
