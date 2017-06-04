@@ -264,6 +264,9 @@ def proto_0203(theABF):
 def proto_0401(theABF):
     proto_avgRange(theABF,.5,2.0)
 
+def proto_0402(theABF):
+    proto_avgRange(theABF,.5,2.0)
+
 def proto_0404(theABF):
     proto_avgRange(theABF,1.0,1.1)
 
