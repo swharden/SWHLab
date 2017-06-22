@@ -46,9 +46,12 @@ def frameAndSave(abf,tag="",dataType="plot",saveAsFname=False):
                 saveAs=os.path.abspath(saveAsFname)
             else:
                 saveAs=os.path.abspath(abf.outPre+fname)
+            if not os.path.exists(abf.outFolder):
+                os.mkdir(abf.outFolder)
             plt.savefig(saveAs)
-        except:
+        except Exception as E:
             abf.log.error("saving [%s] failed! 'pip install pillow'?",fname)
+            print(E)
     if IMAGE_SHOW:
         abf.log.info("showing [%s]",fname)
         plt.show()
@@ -119,6 +122,8 @@ class ABFplot:
             fname=self.abf.outPre+"plot_"+callit+".jpg"
         else:
             fname=callit
+        if not os.path.exists(os.path.dirname(fname)):
+            os.mkdir(os.path.dirname(fname))
         plt.savefig(fname)
         self.log.info("saved [%s]",os.path.basename(fname))
         if closeToo:

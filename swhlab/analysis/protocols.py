@@ -28,6 +28,7 @@ from swhlab.plotting.core import frameAndSave
 from swhlab.analysis.ap import AP
 import swhlab.plotting.core
 import swhlab.common as cm
+import swhlab.indexing.imaging as imaging
 
 #from swhlab.swh_abf import ABF
 #import swhlab.swh_index as index
@@ -270,6 +271,9 @@ def proto_0402(theABF):
 def proto_0404(theABF):
     proto_avgRange(theABF,1.0,1.1)
 
+def proto_0405(theABF):
+    proto_avgRange(theABF,1.0,None)
+
 def proto_0501(theABF):
     BLS_average_stack(theABF)
 def proto_0502(theABF):
@@ -320,11 +324,15 @@ def BLS_average_stack(theABF):
     plt.close('all')
 
 
-def proto_avgRange(theABF,m1=1.0,m2=1.1):
+def proto_avgRange(theABF,m1=None,m2=None):
     """experiment: generic VC time course experiment."""
 
     abf=ABF(theABF)
     abf.log.info("analyzing as a fast IV")
+    if m1 is None:
+        m1=abf.sweepLength
+    if m2 is None:
+        m2=abf.sweepLength
 
     I1=int(abf.pointsPerSec*m1)
     I2=int(abf.pointsPerSec*m2)
@@ -399,12 +407,26 @@ def analyze(fname=False,save=True,show=None):
     plt.close('all') # clean up
     return "SUCCESS"
 
+def analyzeFolder(folder, convertTifs=True):
+    for fname in sorted(glob.glob(folder+"/*.abf")):
+        analyze(fname)
+    if convertTifs:
+        imaging.TIF_to_jpg_all(folder)
+    if not os.path.exists(folder+"/swhlab"):
+        os.mkdir(folder+"/swhlab")
+    for fname in glob.glob(folder+"/*.tif.jpg"):
+        path1=os.path.abspath(fname)
+        path2=os.path.abspath(folder+"/swhlab/"+os.path.basename(fname))
+        os.rename(path1,path2)
+
+
+
 if __name__=="__main__":
 
-    testPath=r"X:\Data\SCOTT\2017-05-15 LHA TGOT\17602027.abf"
-
     if len(sys.argv)==1:
-        sys.argv.append(testPath)
+        analyze(r"\\Spike\X_Drive\Data\SCOTT\2017-04-24 aging BLA\17524008.abf")
+        #analyzeFolder(r"X:\Data\SCOTT\2017-05-10 GCaMP6f\2017-05-10 GCaMP6f PFC OXTR cre\2017-06-02 cell1\ephys")
+        print("DONE")
 
     if len(sys.argv)==2:
         print("protocols.py is getting a path...")

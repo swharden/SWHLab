@@ -191,9 +191,19 @@ class ABF:
         self.comment_times,self.comment_sweeps,self.comment_tags=[],[],[]
         self.comments=0 # will be >0 if comments exist
         self.comment_text=""
-        self.comment_tags = list(self.ABFblock.segments[0].eventarrays[0].annotations['comments'])
-        self.comment_times = list(self.ABFblock.segments[0].eventarrays[0].times/self.trace.itemsize)
-        self.comment_sweeps = list(self.comment_times)
+
+        try:
+            # this used to work
+            self.comment_tags = list(self.ABFblock.segments[0].eventarrays[0].annotations['comments'])
+            self.comment_times = list(self.ABFblock.segments[0].eventarrays[0].times/self.trace.itemsize)
+            self.comment_sweeps = list(self.comment_times)
+        except:
+            # now this notation seems to work
+            for event in self.ABFblock.segments[0].events:
+                self.comment_tags.append(event.annotations['comments'][0])
+                self.comment_times.append(event.times/self.trace.itemsize)
+                self.comment_sweeps.append(event.times/self.trace.itemsize)
+
         for i in range(len(self.comment_tags)):
             self.comment_tags[i]=self.comment_tags[i].decode("utf-8")
             self.comment_sweeps[i]=int(self.comment_times[i]/self.sweepInterval)
@@ -482,7 +492,7 @@ class ABF:
 
 if __name__=="__main__":
     import matplotlib.pyplot as plt
-    abfFile=r"X:\Data\SCOTT\2017-01-09 AT1 NTS\17503041.abf"
+    abfFile=r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-06-21 NAC GLU\17621050.abf"
     abf=ABF(abfFile)
     print(abf.protocomment)
     print("DONE")
