@@ -497,7 +497,7 @@ class ABF:
 
 if __name__=="__main__":
     import matplotlib.pyplot as plt
-    abfFile=r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-06-21 NAC GLU\17621050.abf"
+    abfFile=r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-06-21 NAC GLU\17621000.abf"
     abf=ABF(abfFile)
     print(abf.protocomment)
     print("DONE")

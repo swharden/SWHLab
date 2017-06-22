@@ -87,10 +87,6 @@ def proto_0111(theABF):
     # AP detection
     ap=AP(abf)
     ap.detect()
-    if not len(ap.APs):
-        print("NO APS DETECTED")
-        return
-    firstAP=ap.APs[0]["T"]
 
     # also calculate derivative for each sweep
     abf.derivative=True
@@ -120,14 +116,17 @@ def proto_0111(theABF):
         ax.axhline(-100,color='r',alpha=.5,ls="--",lw=2)
     for ax in [ax2,ax4]: # only zoomed in APs
         ax.get_yaxis().set_visible(False)
-    ax2.axis([firstAP-.25,firstAP+.25,None,None])
-    ax4.axis([firstAP-.01,firstAP+.01,None,None])
+    if len(ap.APs):
+        firstAP=ap.APs[0]["T"]
+        ax2.axis([firstAP-.25,firstAP+.25,None,None])
+        ax4.axis([firstAP-.01,firstAP+.01,None,None])
 
     # show message from first AP
-    firstAP=ap.APs[0]
-    msg="\n".join(["%s = %s"%(x,str(firstAP[x])) for x in sorted(firstAP.keys()) if not "I" in x[-2:]])
-    plt.subplot(221)
-    plt.gca().text(0.02, 0.98, msg, transform= plt.gca().transAxes, fontsize=10, verticalalignment='top', family='monospace')
+    if len(ap.APs):
+        firstAP=ap.APs[0]
+        msg="\n".join(["%s = %s"%(x,str(firstAP[x])) for x in sorted(firstAP.keys()) if not "I" in x[-2:]])
+        plt.subplot(221)
+        plt.gca().text(0.02, 0.98, msg, transform= plt.gca().transAxes, fontsize=10, verticalalignment='top', family='monospace')
 
     # save it
     plt.tight_layout()
@@ -428,7 +427,7 @@ def analyzeFolder(folder, convertTifs=True):
 if __name__=="__main__":
 
     if len(sys.argv)==1:
-        analyze(r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-06-21 NAC GLU\17621046.abf")
+        analyze(r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-06-21 NAC GLU\17621000.abf")
         #analyzeFolder(r"X:\Data\SCOTT\2017-05-10 GCaMP6f\2017-05-10 GCaMP6f PFC OXTR cre\2017-06-02 cell1\ephys")
         print("DONE")
 
