@@ -12,7 +12,8 @@ There's a potential that an AP may be lost within a few ms from an edge.
 
 import logging
 import numpy as np
-
+import sys
+sys.path.append(r'C:\Users\swharden\Documents\GitHub\SWHLab')
 import swhlab
 from swhlab.core import ABF
 import swhlab.common as cm
@@ -279,11 +280,10 @@ class AP:
 
 if __name__=="__main__":
     #abfFile=r"C:\Users\scott\Documents\important\2016-07-01 newprotos\16701009.abf"
-    abfFile=r"C:\Users\scott\Documents\important\abfs\16o14018.abf"
+    abfFile=r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-06-21 NAC GLU\17621032.abf"
     ap=AP(abfFile)
-    ap.detect_time2=1
     ap.detect()
-    #print(ap.get_times())
+    print(ap.get_times())
     print(ap.get_bySweep("count"))
 
     print("DONE")

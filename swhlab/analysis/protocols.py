@@ -87,6 +87,9 @@ def proto_0111(theABF):
     # AP detection
     ap=AP(abf)
     ap.detect()
+    if not len(ap.APs):
+        print("NO APS DETECTED")
+        return
     firstAP=ap.APs[0]["T"]
 
     # also calculate derivative for each sweep
@@ -398,6 +401,7 @@ def analyze(fname=False,save=True,show=None):
         runFunction="proto_"+abf.protocomment
     abf.log.debug("running %s()"%(runFunction))
     plt.close('all') # get ready
+    globals()[runFunction](abf) # run that function
     try:
         globals()[runFunction](abf) # run that function
     except:
@@ -424,7 +428,7 @@ def analyzeFolder(folder, convertTifs=True):
 if __name__=="__main__":
 
     if len(sys.argv)==1:
-        analyze(r"\\Spike\X_Drive\Data\SCOTT\2017-04-24 aging BLA\17524008.abf")
+        analyze(r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-06-21 NAC GLU\17621046.abf")
         #analyzeFolder(r"X:\Data\SCOTT\2017-05-10 GCaMP6f\2017-05-10 GCaMP6f PFC OXTR cre\2017-06-02 cell1\ephys")
         print("DONE")
 

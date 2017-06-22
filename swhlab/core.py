@@ -167,7 +167,8 @@ class ABF:
         self.sweepX = self.sweepX2+sweep*self.sweepInterval # assume no gaps
         if self.derivative:
             self.log.debug("taking derivative")
-            self.sweepD=np.diff(self.sweepY) # take derivative
+            #self.sweepD=np.diff(self.sweepY) # take derivative
+            self.sweepD=self.sweepY[1:]-self.sweepY[:-1] # better?
             self.sweepD=np.insert(self.sweepD,0,self.sweepD[0]) # add a point
             self.sweepD/=(self.period*1000) # correct for sample rate
         else:
@@ -200,6 +201,9 @@ class ABF:
         except:
             # now this notation seems to work
             for event in self.ABFblock.segments[0].events:
+                if not len(event.annotations['comments']):
+                    print("SKIPPING COMMENT")
+                    continue
                 self.comment_tags.append(event.annotations['comments'][0])
                 self.comment_times.append(event.times/self.trace.itemsize)
                 self.comment_sweeps.append(event.times/self.trace.itemsize)
@@ -210,6 +214,7 @@ class ABF:
             self.comments+=1
             msg="sweep %d (%s) %s"%(self.comment_sweeps[i],self.comment_times[i],self.comment_tags[i])
             self.log.debug("COMMENT: %s",msg)
+            print(msg)
             self.comment_text+=msg+"\n"
 
 
