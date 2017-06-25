@@ -23,3 +23,17 @@ copying a HUGE file: X:\...\2017-05-11 cell3_annotated.tif
 (5/5) copy took 24.775 seconds (17.722 MB/s)
 Average time for 5 runs: 17.994 seconds
 ```
+
+# Powershell Script
+Alternatively, copy/paste this text into the powershell:
+
+```PowerShell
+$SourcePath = "X:\"
+$TargetPath = 'C:\'
+
+For ($i=0; $i<100; $i++){
+  Write-Output "Needs Work"
+}
+```
+
+![](powershell.png)
