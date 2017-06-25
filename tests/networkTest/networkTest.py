@@ -1,7 +1,6 @@
 # script to stress test the X-Drive
 import os
 import time
-import shutil
 
 path_big_file=R"X:\Data\SCOTT\2017-05-10 GCaMP6f\GCaMP6f PFC GABA cre\2017-05-10-23 misc\2017-05-11 cell3_annotated.tif"
 path_path_to_walk=R"X:\Data\DIC2\2014"
@@ -31,8 +30,7 @@ def test_copying(path,runs=5):
     times=[]
     for run in range(runs):
         t1=timeIt()
-        shutil.copy(path,'./test.data')
-        time.sleep(1)
+        os.system('echo f | xcopy /f /y "%s" "%s"'%(path, './test.data'))
         times.append(timeIt(t1))
         mbs=os.stat('./test.data').st_size/times[-1]/1024/1024
         os.remove('./test.data')
@@ -42,5 +40,5 @@ def test_copying(path,runs=5):
 
 if __name__=="__main__":
     test_listing(path_path_to_walk)
-    #test_copying(path_big_file)
+    test_copying(path_big_file)
     print("DONE")
