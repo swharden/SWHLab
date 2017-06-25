@@ -42,5 +42,5 @@ def test_copying(path,runs=5):
 
 if __name__=="__main__":
     test_listing(path_path_to_walk)
-    #test_copying(path_big_file)
+    test_copying(path_big_file)
     print("DONE")
