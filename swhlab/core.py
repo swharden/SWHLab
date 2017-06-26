@@ -200,23 +200,13 @@ class ABF:
             self.comment_sweeps = list(self.comment_times)
         except:
             # now this notation seems to work
-            for event in self.ABFblock.segments[0].events:
-                if not len(event.annotations['comments']):
-                    print("SKIPPING COMMENT")
-                    continue
-                self.comment_tags.append(event.annotations['comments'][0])
-                self.comment_times.append(event.times/self.trace.itemsize)
-                self.comment_sweeps.append(event.times/self.trace.itemsize)
+            for events in self.ABFblock.segments[0].events: # this should only happen once actually
+                self.comment_tags = events.annotations['comments'].tolist()
+                self.comment_times = np.array(events.times.magnitude/self.trace.itemsize)
+                self.comment_sweeps = self.comment_times/self.sweepInterval
 
-        for i in range(len(self.comment_tags)):
-            self.comment_tags[i]=self.comment_tags[i].decode("utf-8")
-            self.comment_sweeps[i]=int(self.comment_times[i]/self.sweepInterval)
-            self.comments+=1
-            msg="sweep %d (%s) %s"%(self.comment_sweeps[i],self.comment_times[i],self.comment_tags[i])
-            self.log.debug("COMMENT: %s",msg)
-            print(msg)
-            self.comment_text+=msg+"\n"
-
+        for i,c in enumerate(self.comment_tags):
+            self.comment_tags[i]=c.decode("utf-8")
 
     def generate_protocol(self):
         """
@@ -497,7 +487,7 @@ class ABF:
 
 if __name__=="__main__":
     import matplotlib.pyplot as plt
-    abfFile=r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-06-21 NAC GLU\17621000.abf"
+    abfFile=r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-05-15 LHA TGOT\17622011.abf"
     abf=ABF(abfFile)
     print(abf.protocomment)
     print("DONE")
