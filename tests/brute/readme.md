@@ -15,3 +15,4 @@ plt.ylabel("membrane potential (mV)")
 plt.xlabel("experiment duration (sec)")
 ```
 
+![](brute.png)
