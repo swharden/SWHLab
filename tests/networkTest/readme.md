@@ -37,11 +37,14 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Unrestricted
 
 **networkTest:**
 ```PowerShell
-$SourcePath = "J:\"
-$TargetPath = 'C:\Users\cjfraz\Desktop\bench\'
+$SourcePath = "X:\"
+#$SourcePath = "X:\Data\SCOTT\2017-05-10 GCaMP6f\GCaMP6f PFC GABA cre\2017-05-10-23 misc\"
+$SourcePath = "\\192.168.1.100\X_Mirror"
+$TargetPath = "D:\zTemp"
 $FileName = "bench2"
+#$FileName = "2017-05-11 cell3_annotated.tif"
 $FileSize = (Get-ChildItem $SourcePath\$FileName -ErrorAction Stop).Length
-$OutputFile = 'C:\Users\cjfraz\Desktop\bench\out222.txt'
+$OutputFile = 'D:\zTemp\bench.txt'
 $iNumTrials = 5
 $AveDown=$AveUp=0
 
@@ -60,5 +63,23 @@ For ($i=0;$i -lt $iNumTrials-1; $i++){
  Write-Output "   AveDown: $AveDown   AveUp: $AveUp"
 ```
 
+# Scott's computer - X-Drive as source
+```
+PS C:\Users\swharden> X:\Users_Public\Frazier\Teagan Science Fair\Bandwidth Test 2.ps1
+   MbpsDown: 399.04    MbpsUp: 197.79
+   MbpsDown: 400.71    MbpsUp: 199.32
+   MbpsDown: 400.15    MbpsUp: 197.74
+   MbpsDown: 389.55    MbpsUp: 208.32
+   AveDown: 317.89   AveUp: 160.634
+```
+# Scott's computer - X-Mirror as source
+```
+PS C:\Users\swharden> X:\Users_Public\Frazier\Teagan Science Fair\Bandwidth Test 2.ps1
+   MbpsDown: 214.76    MbpsUp: 607.99
+   MbpsDown: 886.3    MbpsUp: 700.08
+   MbpsDown: 889.1    MbpsUp: 796.86
+   MbpsDown: 887.18    MbpsUp: 786.2
+   AveDown: 575.468   AveUp: 578.226
+```
 #### Output
 ![](powershell.png)
