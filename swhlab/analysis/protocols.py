@@ -427,8 +427,8 @@ def analyzeFolder(folder, convertTifs=True):
 if __name__=="__main__":
 
     if len(sys.argv)==1:
-        analyze(r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-06-21 NAC GLU\17621000.abf")
-        #analyzeFolder(r"X:\Data\SCOTT\2017-05-10 GCaMP6f\2017-05-10 GCaMP6f PFC OXTR cre\2017-06-02 cell1\ephys")
+        #analyze(r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-07-03 OXT-Tom SON OXT\17703000.abf")
+        analyzeFolder(r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-07-03 OXT-Tom SON OXT")
         print("DONE")
 
     if len(sys.argv)==2:
