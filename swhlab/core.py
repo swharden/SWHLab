@@ -373,7 +373,7 @@ class ABF:
         self.log.debug("averaging sweep %d to %d",sweepFirst,sweepLast)
         for sweep in np.arange(nSweeps)+sweepFirst:
             self.setsweep(sweep)
-            runningSum+=self.sweepY
+            runningSum+=self.sweepY.flatten()
         average=runningSum/nSweeps
         #TODO: standard deviation?
         return average
