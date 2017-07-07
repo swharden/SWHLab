@@ -293,10 +293,10 @@ def BLS_average_stack(theABF):
     I1,I2=X1*abf.pointsPerSec,X2*abf.pointsPerSec
 
     plt.figure(figsize=(10,10))
-    chunks=np.empty((abf.sweeps,I2-I1))
-    Xs=np.array(abf.sweepX2[I1:I2])
+    chunks=np.empty((int(abf.sweeps),int(I2-I1)))
+    Xs=np.array(abf.sweepX2[int(I1):int(I2)])
     for sweep in abf.setsweeps():
-        chunks[sweep]=abf.sweepY[I1:I2]
+        chunks[sweep]=abf.sweepY[int(I1):int(I2)]
         plt.subplot(211)
         plt.plot(Xs,chunks[sweep],alpha=.2,color='.5',lw=2)
         plt.subplot(212)
@@ -439,10 +439,8 @@ if __name__=="__main__":
         elif not abfPath.endswith(".abf"):
             print(abfPath,"needs to be an ABF file")
         else:
-            try:
-                print(analyze(abfPath))
-            except:
-                print("something went wrong.")
+            analyze(abfPath)
+
 
 
     #print("DONT RUN THIS DIRECTLY. Call analyze() externally.")
