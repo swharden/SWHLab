@@ -29,3 +29,7 @@ A protocol was devised to apply 2nA pulses for an ascending series of widths in 
 ![](demo.png)
 The first several sweeps depolarize the cell but do not produce an AP. This is evident in the phase plot as purple circles which do not have a sharp rise at the threshold voltage. Once threshold is reached, the AP height no longer changes. The only thing that changes is the location of the negative dV artifact caused by the -2nA current change.
 ![](phase_17713016.png)
+
+## Cell Studied
+All examples in this document (unless otherwise indicated) were studied in a mouse PVN OT+ MCN.
+![](cell.png)
