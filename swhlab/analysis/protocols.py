@@ -268,12 +268,12 @@ def proto_0203(theABF):
 def proto_0303(theABF):
     abf=ABF(theABF)
     abf.log.info("analyzing as a halorhodopsin (2s pulse)")
-    plot=ABFplot(abf)
-    plot.figure_height,plot.figure_width=SQUARESIZE,SQUARESIZE
+    plt.figure(figsize=(8,8))
     for sweep in abf.setsweeps():
         plt.plot(abf.sweepX2,abf.sweepY+100*sweep,color='b',alpha=.5)
-    plt.tight_layout()
     plt.axvspan(4,6,alpha=.2,color='g');
+    plt.margins(0,.01)
+    plt.tight_layout()
     frameAndSave(abf,"halo")
     plt.close('all')
 
