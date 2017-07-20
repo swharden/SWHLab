@@ -21,7 +21,7 @@ from swhlab.core import ABF
 IMAGE_SAVE=True
 IMAGE_SHOW=True
 
-def frameAndSave(abf,tag="",dataType="plot",saveAsFname=False):
+def frameAndSave(abf,tag="",dataType="plot",saveAsFname=False,closeWhenDone=True):
     """
     frame the current matplotlib plot with ABF info, and optionally save it.
     Note that this is entirely independent of the ABFplot class object.
@@ -31,6 +31,7 @@ def frameAndSave(abf,tag="",dataType="plot",saveAsFname=False):
         * plot
         * experiment
     """
+    print("closeWhenDone",closeWhenDone)
     plt.tight_layout()
     plt.subplots_adjust(top=.93,bottom =.07)
     plt.annotate(tag,(.01,.99),xycoords='figure fraction',ha='left',va='top',family='monospace',size=10,alpha=.5)
@@ -52,10 +53,15 @@ def frameAndSave(abf,tag="",dataType="plot",saveAsFname=False):
         except Exception as E:
             abf.log.error("saving [%s] failed! 'pip install pillow'?",fname)
             print(E)
-    if IMAGE_SHOW:
-        abf.log.info("showing [%s]",fname)
-        plt.show()
-    plt.close('all')
+    if IMAGE_SHOW==True:
+        if closeWhenDone==False:
+            print("NOT SHOWING (because closeWhenDone==True and showing would mess things up)")
+        else:
+            abf.log.info("showing [%s]",fname)
+            plt.show()
+    if closeWhenDone:
+        print("closing figure")
+        plt.close('all')
 
 class ABFplot:
     def __init__(self,abf):
