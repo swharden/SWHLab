@@ -209,7 +209,6 @@ def proto_gain(theABF,stepSize=25,startAt=-100):
     plt.axis([1.5,2.5,None,None])
     plt.title("%d pA Steps from %d pA"%(stepSize,startAt))
     frameAndSave(abf,"voltage response hyperpol",closeWhenDone=False)
-    plt.show()
     plt.close('all')
 
 
