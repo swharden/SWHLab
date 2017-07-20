@@ -191,6 +191,30 @@ def proto_gain(theABF,stepSize=25,startAt=-100):
     frameAndSave(abf,"AP Gain %d_%d"%(startAt,stepSize))
     plt.close('all')
 
+    # make a second figure that just shows every sweep up to the first AP
+    plt.figure(figsize=(SQUARESIZE,SQUARESIZE))
+    plt.grid(alpha=.5)
+    plt.ylabel("Membrane Potential (mV)")
+    plt.xlabel("Time (seconds)")
+    for sweep in abf.setsweeps():
+        plt.plot(abf.sweepX2,abf.sweepY,color='b',alpha=.5)
+        if np.max(abf.sweepY>0):
+            break
+    plt.tight_layout()
+    plt.margins(0,.1)
+
+    plt.axis([0,1,None,None])
+    plt.title("%d pA Steps from Rest"%stepSize)
+    frameAndSave(abf,"voltage response fromRest",closeWhenDone=False)
+    plt.axis([1.5,2.5,None,None])
+    plt.title("%d pA Steps from %d pA"%(stepSize,startAt))
+    frameAndSave(abf,"voltage response hyperpol",closeWhenDone=False)
+    plt.show()
+    plt.close('all')
+
+
+
+
 def proto_0112(theABF):
     proto_gain(theABF,10,-50)
 
@@ -456,7 +480,7 @@ def analyzeFolder(folder, convertTifs=True):
 if __name__=="__main__":
 
     if len(sys.argv)==1:
-        analyze(r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-07-17 BLA halo\17717014.abf")
+        analyze(r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-07-17 BLA halo\17718031.abf")
         #analyzeFolder(r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-07-03 OXT-Tom SON OXT")
         print("DONE")
 
