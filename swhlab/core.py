@@ -29,24 +29,15 @@ def abfIDfromFname(fname):
     return os.path.splitext(basename)[0]
 
 def abfProtocol(fname):
-    """
-    determine the comment cooked in the protocol.
-    This is done by reading the binary contents of the header.
-    """
+    """Determine the protocol used to record an ABF file"""
     f=open(fname,'rb')
-    raw=f.read(20*1000) #it should be in the first 20k of the file
+    raw=f.read(30*1000) #it should be in the first 30k of the file
     f.close()
-    protoComment="unknown"
-    raw=raw.replace(b"SWHLab4[",b"SWH[")
-    raw=raw.replace(b"SWHLab5[",b"SWH[")
-    raw=raw.replace(b"SWHLab[",b"SWH[")
-    if b"SWH[" in raw:
-        protoComment=raw.split(b"SWH[")[1].split(b"]",1)[0]
-    else:
-        protoComment="?"
-    if not type(protoComment) is str:
-        protoComment=protoComment.decode("utf-8")
-    return protoComment
+    raw=raw.decode("utf-8","ignore")
+    raw=raw.split("Clampex")[1].split(".pro")[0]
+    protocol = os.path.basename(raw) # the whole protocol filename
+    protocolID = protocol.split(" ")[0] # just the first number
+    return protocolID
 
 def headerHTML(header,fname):
         """given the bytestring ABF header, make and launch HTML."""
@@ -486,11 +477,12 @@ class ABF:
 
 
 if __name__=="__main__":
-    import matplotlib.pyplot as plt
-    abfFile=r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-05-15 LHA TGOT\17622011.abf"
-    abf=ABF(abfFile)
-    print(abf.protocomment)
-    print("DONE")
+    print(abfProtocol(R"X:\Data\SCOTT\2017-07-31 CRH-Tom intrinsics\17810013.abf"))
+#    import matplotlib.pyplot as plt
+#    abfFile=r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-05-15 LHA TGOT\17622011.abf"
+#    abf=ABF(abfFile)
+#    print(abf.protocomment)
+#    print("DONE")
 #    #abf.kernel_gaussian(1)
 #    plt.subplot(211)
 #    plt.plot(abf.sweepX,abf.sweepY)
