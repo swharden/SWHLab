@@ -37,17 +37,21 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Unrestricted
 
 **networkTest:**
 ```PowerShell
-$SourcePath = "X:\"
-#$SourcePath = "X:\Data\SCOTT\2017-05-10 GCaMP6f\GCaMP6f PFC GABA cre\2017-05-10-23 misc\"
-$SourcePath = "\\192.168.1.100\X_Mirror"
+# SET THE SOURCE NETWORK
+#$SourcePath = "X:\"
+#$SourcePath = "\\192.168.1.100\X_Mirror"
+$SourcePath = "\\10.15.132.121\X_Mirror"
+
+# INDICATE WHICH FILE TO COPY
+$FileName = "benchBig"
+#$FileName = "benchSmall"
+
+# THIS LOCAL PATH MUST EXIST
 $TargetPath = "D:\zTemp"
-$FileName = "bench2"
-#$FileName = "2017-05-11 cell3_annotated.tif"
 $FileSize = (Get-ChildItem $SourcePath\$FileName -ErrorAction Stop).Length
 $OutputFile = 'D:\zTemp\bench.txt'
 $iNumTrials = 5
 $AveDown=$AveUp=0
-
 For ($i=0;$i -lt $iNumTrials-1; $i++){
    $TimeDown = Measure-Command { Copy-Item $SourcePath\$FileName $TargetPath\$FileName }
    $TimeUp = Measure-Command { Copy-Item $TargetPath\$FileName $SourcePath\$FileName }
@@ -58,8 +62,8 @@ For ($i=0;$i -lt $iNumTrials-1; $i++){
    $AveDown+=$MbpsDown
    $AveUp+=$MbpsUp
 }
- $AveDown/=$iNumTrials
- $AveUp/=$iNumTrials
+ $AveDown/=($iNumTrials-1)
+ $AveUp/=($iNumTrials-1)
  Write-Output "   AveDown: $AveDown   AveUp: $AveUp"
 ```
 
@@ -87,6 +91,18 @@ PS C:\Users\swharden> X:\Users_Public\Frazier\Teagan Science Fair\Bandwidth Test
 # Comparison of LAN (192.x) vs Shands (10.x) on 2017-08-31
 The above script was run comparing the local gigabit LAN vs. the shands lan accessing the same file on the same shared drive. Be sure to disable the network card you don't intend to test in the network adapter manager.
 
-## Large File Transfer (163 MV)
-* ***Shands LAN:*** `AveDown: 11.81   AveUp: 44.88`
-* ***Internal LAN:*** `AveDown: 437.115   AveUp: 342.005`
+## Large File Transfer (163 MB)
+### ***Internal LAN:*** 
+```
+   MbpsDown: 858.69    MbpsUp: 593.06
+   MbpsDown: 872.56    MbpsUp: 777.98
+   MbpsDown: 843.37    MbpsUp: 739.14
+   MbpsDown: 874.46    MbpsUp: 501.51
+   AveDown: 862.27   AveUp: 652.9225
+```
+
+### ***Shands LAN:*** 
+```
+   MbpsDown: 25.95    MbpsUp: 89.82
+   AveDown: 25.95   AveUp: 89.82
+```
