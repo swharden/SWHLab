@@ -85,33 +85,8 @@ PS C:\Users\swharden> X:\Users_Public\Frazier\Teagan Science Fair\Bandwidth Test
 ![](powershell.png)
 
 # Comparison of LAN (192.x) vs Shands (10.x) on 2017-08-31
-The above script was run comparing the local gigabit LAN vs. the shands lan accessing the same file on the same shared drive.
+The above script was run comparing the local gigabit LAN vs. the shands lan accessing the same file on the same shared drive. Be sure to disable the network card you don't intend to test in the network adapter manager.
 
-### Shands Lan
-```
-   MbpsDown: 349.56    MbpsUp: 755.4
-   MbpsDown: 871.18    MbpsUp: 764.35
-   MbpsDown: 826.58    MbpsUp: 873.26
-   MbpsDown: 869.66    MbpsUp: 879.47
-   MbpsDown: 870.88    MbpsUp: 884.53
-   MbpsDown: 812.69    MbpsUp: 884.45
-   MbpsDown: 875.03    MbpsUp: 728.03
-   MbpsDown: 874.73    MbpsUp: 816.55
-   MbpsDown: 873.22    MbpsUp: 880.07
-   AveDown: 722.353   AveUp: 746.611
-```
-
-### Internal Lan
-```
-   MbpsDown: 873.30    MbpsUp: 776.04
-   MbpsDown: 869.92    MbpsUp: 803.27
-   MbpsDown: 845.80    MbpsUp: 740.48
-   MbpsDown: 863.95    MbpsUp: 678.61
-   MbpsDown: 861.17    MbpsUp: 591.79
-   MbpsDown: 873.58    MbpsUp: 690.44
-   MbpsDown: 841.66    MbpsUp: 617.85
-   MbpsDown: 872.97    MbpsUp: 576.85
-   MbpsDown: 874.87    MbpsUp: 773.14
-   AveDown: 777.722   AveUp: 624.847
-```
-
+## Large File Transfer (163 MV)
+* ***Shands LAN:*** `AveDown: 11.81   AveUp: 44.88`
+* ***Internal LAN:*** `AveDown: 437.115   AveUp: 342.005`
