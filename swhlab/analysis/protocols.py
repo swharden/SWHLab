@@ -16,8 +16,7 @@ import os
 import sys
 sys.path.append(r"C:\Users\swharden\Documents\GitHub\SWHLab") # for local run
 sys.path.append(r"C:\Users\LabAdmin\Documents\GitHub\SWHLab") # for local run
-if not os.path.abspath('../../') in sys.path:
-    sys.path.append('../../')
+sys.path.append(os.path.abspath(os.path.dirname(__file__)+'/../../'))
 import glob
 import matplotlib.pyplot as plt
 import numpy as np
