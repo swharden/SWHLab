@@ -15,7 +15,7 @@ import swhlab
 
 # now import things regularly
 import logging
-import webinspect
+#import webinspect
 from neo import io
 import glob
 import pprint
