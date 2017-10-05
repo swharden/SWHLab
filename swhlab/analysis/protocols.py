@@ -302,7 +302,7 @@ def proto_0303(theABF):
     plt.tight_layout()
     frameAndSave(abf,"halo")
     plt.close('all')
-	
+
     plt.figure(figsize=(8,8))
     for sweep in abf.setsweeps():
         plt.plot(abf.sweepX2,abf.sweepY,color='b',alpha=.2)
@@ -347,7 +347,7 @@ def BLS_average_stack(theABF):
     chunks=np.empty((int(abf.sweeps),int(I2-I1)))
     Xs=np.array(abf.sweepX2[int(I1):int(I2)])
     for sweep in abf.setsweeps():
-        chunks[sweep]=abf.sweepY[int(I1):int(I2)]
+        chunks[sweep]=abf.sweepY[int(I1):int(I2)].flatten()
         plt.subplot(211)
         plt.plot(Xs,chunks[sweep],alpha=.2,color='.5',lw=2)
         plt.subplot(212)
@@ -478,7 +478,8 @@ def analyzeFolder(folder, convertTifs=True):
 if __name__=="__main__":
 
     if len(sys.argv)==1:
-        analyze(r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-07-17 BLA halo\17718031.abf")
+        print("YOU MUST BE TESTING OR DEBUGGING!")
+        analyze(r"X:\Data\SCOTT\2017-01-09 AT1 NTS\17o05001.abf")
         #analyzeFolder(r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-07-03 OXT-Tom SON OXT")
         print("DONE")
 
