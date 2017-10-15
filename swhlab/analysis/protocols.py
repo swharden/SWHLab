@@ -437,6 +437,9 @@ def proto_avgRange(theABF,m1=None,m2=None):
 
 def analyze(fname=False,save=True,show=None):
     """given a filename or ABF object, try to analyze it."""
+    if fname and os.path.exists(fname.replace(".abf",".rst")):
+        print("SKIPPING DUE TO RST FILE")
+        return
     swhlab.plotting.core.IMAGE_SAVE=save
     if show is None:
         if cm.isIpython():
