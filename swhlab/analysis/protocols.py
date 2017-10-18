@@ -329,8 +329,139 @@ def proto_0405(theABF):
 
 def proto_0501(theABF):
     BLS_average_stack(theABF)
+
 def proto_0502(theABF):
     BLS_average_stack(theABF)
+
+def proto_0911(theABF):
+    abf=ABF(theABF)
+    abf.log.info("analyzing as paired pulse stimulation with various increasing ISIs")
+    plt.figure(figsize=(8,8))
+    M1,M2=2.2,2.4
+    I1,I2=int(M1*abf.pointsPerSec),int(M2*abf.pointsPerSec)
+    Ip1=int(2.23440*abf.pointsPerSec) # time of first pulse in the sweep
+    pw=int(1.5/1000*abf.pointsPerSec) # pulse width in ms
+    B1,B2=1,2 # baseline time in seconds
+    plt.axhline(0,alpha=.5,ls='--',lw=2,color='k')
+    for sweep in range(abf.sweeps):
+        abf.setsweep(sweep)
+        Xs=abf.sweepX2[I1:I2]*1000
+        baseline=np.average(abf.sweepY[int(B1*abf.pointsPerSec):int(B2*abf.pointsPerSec)])
+        Ys=abf.sweepY[I1:I2]-baseline
+        Ys[Ip1-I1:Ip1-I1+pw]=np.nan # erase the first pulse
+        isi=int(10+sweep*10) # interspike interval (ms)
+        Ip2d = int(isi/1000*abf.pointsPerSec)
+        Ys[Ip1-I1+Ip2d:Ip1-I1+pw+Ip2d]=np.nan # erase the second pulse
+        plt.plot(Xs-Xs[0],Ys,alpha=.8,label="%d ms"%isi)
+    plt.margins(0,.1)
+    plt.legend()
+    plt.grid(alpha=.4,ls='--')
+    plt.title("Paired Pulse Stimuation (varied ISIs)")
+    plt.ylabel("clamp current (pA) [artifacts removed]")
+    plt.xlabel("time (ms) [offset by %.02f s]"%M1)
+    plt.tight_layout()
+    frameAndSave(abf,"pp_varied")
+    plt.close('all')
+
+def proto_0912(theABF):
+    abf=ABF(theABF)
+    if abf.sweeps<10:
+        abf.log.info("skipping due to small number of sweeps")
+        return
+    abf.log.info("analyzing as 40ms PPS experiment")
+
+    BL1,BL2=1,2 # area for baseline
+    ISI=40 # inter-stimulus-interval in ms
+    Ip1=int(2.31255*abf.pointsPerSec) # time of first pulse in the sweep
+    Ip2=int(Ip1+(ISI/1000)*abf.pointsPerSec) # second pulse is 40ms later
+    Ip3=Ip2+(Ip2-Ip1) # distance after Ip2 to scan for the second peak
+    pw=int(1.5/1000*abf.pointsPerSec) # pulse width in ms
+    peakTimes,peak1heights,peak2heights,peakRatios,baselines=[],[],[],[],[]
+    ROI=None
+    ROIpad=int(.02*abf.pointsPerSec)
+
+    # calculate peak ratios and all that
+    for sweep in range(abf.sweeps):
+        abf.setsweep(sweep)
+        baseline=np.average(abf.sweepY[int(BL1*abf.pointsPerSec):int(BL2*abf.pointsPerSec)])
+        abf.sweepY=abf.sweepY-baseline
+        for I in [Ip1,Ip2]:
+            abf.sweepY[I:I+pw]=np.nan # blank out each pulse
+        abf.sweepY[:Ip1-int(.05*abf.pointsPerSec)]=np.nan #blank out 50ms before P1
+        abf.sweepY[Ip1+int(.15*abf.pointsPerSec):]=np.nan #blank out 15ms after P1
+        peak1=abf.sweepY[int(Ip1):int(Ip2)]
+        peak2=abf.sweepY[int(Ip2):int(Ip3)]
+        peakTimes.append(abf.sweepStart)
+        peak1heights.append(np.nanmin(peak1))
+        peak2heights.append(np.nanmin(peak2))
+        baselines.append(baseline)
+        peakRatios.append(peak2heights[-1]/peak1heights[-1])
+        thisROI=abf.sweepY[int(Ip1)-ROIpad:int(Ip3)+ROIpad]
+        if ROI is None:
+            ROI=thisROI.flatten()
+        else:
+            ROI=np.vstack((ROI,thisROI.flatten()))
+    peakTimes=np.array(peakTimes)/60 # seconds to minutes
+
+    # figure showing the averaged evoked response for certain time ranges
+    avgSweeps=3*5 # 3 sweeps/minute, 5 minutes
+    avgLocations=[10*3,20*3,30*3] # the end of the area for averaging
+    plt.figure(figsize=(8,8))
+    plt.grid(alpha=.4,ls='--')
+    plt.axhline(0,alpha=.5,ls='--',lw=2,color='k')
+    for S2 in avgLocations:
+        S1=S2-avgSweeps
+        AV=np.average(ROI[S1:S2],axis=0)
+        ER=np.std(ROI[S1:S2],axis=0)#/np.sqrt(len(ROI))
+        Xs=abf.sweepX[:len(AV)]
+        plt.fill_between(Xs,AV-ER,AV+ER,alpha=.1)
+        plt.plot(Xs,AV,label="sweeps %d-%d"%(S1,S2))
+    plt.legend()
+    plt.tight_layout()
+    frameAndSave(abf,"pp_avg")
+    plt.close('all')
+
+    # figure showing peak height and ratio over time
+    plt.figure(figsize=(8,8))
+    plt.subplot(211)
+    comment_lines(abf)
+    plt.grid(alpha=.4,ls='--')
+    plt.plot(peakTimes,peak1heights,'g.',ms=15,alpha=.6,label='pulse1')
+    plt.plot(peakTimes,peak2heights,'m.',ms=15,alpha=.6,label='pulse2')
+    plt.legend()
+    plt.title("Paired Pulse Stimuation")
+    plt.ylabel("Peak Amplitude (pA)")
+    plt.subplot(212)
+    comment_lines(abf)
+    plt.grid(alpha=.4,ls='--')
+    plt.axhline(100,alpha=.5,ls='--',lw=2,color='k')
+    plt.plot(peakTimes,np.array(peakRatios)*100,'r.',ms=15,alpha=.6)
+    plt.axis([None,None,0,None])
+    plt.ylabel("Paired Pulse Ratio (%)")
+    plt.xlabel("Experiment Duration (minutes)")
+    plt.tight_layout()
+    frameAndSave(abf,"pp_experiment")
+    plt.close('all')
+
+    # figure showing baseline over time (Ih)
+    plt.figure(figsize=(8,8))
+    plt.grid(alpha=.4,ls='--')
+    plt.plot(peakTimes,baselines,'b.',ms=15,alpha=.6)
+    comment_lines(abf)
+    plt.title("Holding Current (pulse baseline)")
+    plt.ylabel("Clamp Current (pA)")
+    plt.xlabel("Experiment Duration (minutes)")
+    plt.tight_layout()
+    frameAndSave(abf,"pp_baselines")
+    plt.close('all')
+
+def comment_lines(abf,label=True):
+    for i,t in enumerate(abf.comment_times):
+        if label:
+            label=abf.comment_tags[i]
+        plt.axvline(t/60,alpha=.5,lw=2,ls=':',color='r',label=label)
+    if label:
+        plt.legend()
 
 def BLS_average_stack(theABF):
     abf=ABF(theABF)
@@ -482,8 +613,7 @@ if __name__=="__main__":
 
     if len(sys.argv)==1:
         print("YOU MUST BE TESTING OR DEBUGGING!")
-        analyze(r"X:\Data\SCOTT\2017-01-09 AT1 NTS\17o05001.abf")
-        #analyzeFolder(r"\\SPIKE\X_DRIVE\Data\SCOTT\2017-07-03 OXT-Tom SON OXT")
+        analyze(r"X:\Data\projects\2017-10-10 aging BLA round 2\171018ts_0004.abf")
         print("DONE")
 
     if len(sys.argv)==2:
