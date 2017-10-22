@@ -365,9 +365,6 @@ def proto_0911(theABF):
 
 def proto_0912(theABF):
     abf=ABF(theABF)
-    if abf.sweeps<10:
-        abf.log.info("skipping due to small number of sweeps")
-        return
     abf.log.info("analyzing as 40ms PPS experiment")
 
     BL1,BL2=1,2 # area for baseline
@@ -376,7 +373,7 @@ def proto_0912(theABF):
     Ip2=int(Ip1+(ISI/1000)*abf.pointsPerSec) # second pulse is 40ms later
     Ip3=Ip2+(Ip2-Ip1) # distance after Ip2 to scan for the second peak
     pw=int(1.5/1000*abf.pointsPerSec) # pulse width in ms
-    peakTimes,peak1heights,peak2heights,peakRatios,baselines=[],[],[],[],[]
+    peakTimes,peak1heights,peak2heights,peakRatios,baselines,peakTransient=[],[],[],[],[],[]
     ROI=None
     ROIpad=int(.02*abf.pointsPerSec)
 
@@ -384,6 +381,8 @@ def proto_0912(theABF):
     for sweep in range(abf.sweeps):
         abf.setsweep(sweep)
         baseline=np.average(abf.sweepY[int(BL1*abf.pointsPerSec):int(BL2*abf.pointsPerSec)])
+        Ra=np.max(abf.sweepY[int(.51*abf.pointsPerSec):int(.52*abf.pointsPerSec)])
+        peakTransient.append(Ra-baseline)
         abf.sweepY=abf.sweepY-baseline
         for I in [Ip1,Ip2]:
             abf.sweepY[I:I+pw]=np.nan # blank out each pulse
@@ -445,12 +444,29 @@ def proto_0912(theABF):
 
     # figure showing baseline over time (Ih)
     plt.figure(figsize=(8,8))
+
+    plt.subplot(211)
     plt.grid(alpha=.4,ls='--')
     plt.plot(peakTimes,baselines,'b.',ms=15,alpha=.6)
+    plt.margins(0,.1)
+    plt.axis([None,None,plt.axis()[2]-100,plt.axis()[3]+100])
     comment_lines(abf)
     plt.title("Holding Current (pulse baseline)")
     plt.ylabel("Clamp Current (pA)")
+    #plt.xlabel("Experiment Duration (minutes)")
+
+    plt.subplot(212)
+    plt.grid(alpha=.4,ls='--')
+    access=np.array(peakTransient)/peakTransient[0]*100
+    plt.plot(peakTimes,access,'r.',ms=15,alpha=.6)
+    plt.axhspan(75,125,alpha=.1,color='k',label='+/- 25%')
+    plt.margins(0,.5)
+    plt.axis([None,None,0,None])
+    comment_lines(abf)
+    plt.title("Access Resistance")
+    plt.ylabel("Peak Transient Current (% of first)")
     plt.xlabel("Experiment Duration (minutes)")
+
     plt.tight_layout()
     frameAndSave(abf,"pp_baselines")
     plt.close('all')
