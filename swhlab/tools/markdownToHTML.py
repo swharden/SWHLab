@@ -1,6 +1,6 @@
 """
 The goal of this script is to provide a portable python module to allow markdown-to-html conversion
-without and dependencies outside the python standard librar.
+without and dependencies outside the python standard library.
 """
 
 import os
