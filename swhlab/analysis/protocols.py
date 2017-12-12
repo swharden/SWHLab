@@ -287,6 +287,29 @@ def proto_0203(theABF):
     frameAndSave(abf,"fast IV")
     plt.close('all')
 
+def proto_0204(theABF):
+    """protocol: Cm ramp."""
+    abf=ABF(theABF)
+    abf.log.info("analyzing as Cm ramp")
+    plot=ABFplot(abf)
+    plot.figure_height,plot.figure_width=SQUARESIZE/2,SQUARESIZE/2
+    plot.figure_sweeps()
+    plt.tight_layout()
+    frameAndSave(abf,"Cm ramp")
+    plt.close('all')
+
+
+def proto_0222(theABF):
+    """protocol: VC sine sweep."""
+    abf=ABF(theABF)
+    abf.log.info("analyzing as VC sine sweep")
+    plot=ABFplot(abf)
+    plot.figure_height,plot.figure_width=SQUARESIZE/2,SQUARESIZE/2
+    plot.figure_sweeps()
+    plt.tight_layout()
+    frameAndSave(abf,"VC sine sweep")
+    plt.close('all')
+
 def proto_0303(theABF):
     m1=4.15625
     abf=ABF(theABF)
@@ -325,6 +348,9 @@ def proto_0404(theABF):
     proto_avgRange(theABF,1.0,1.1)
 
 def proto_0405(theABF):
+    proto_avgRange(theABF,1.0,None)
+
+def proto_0406(theABF):
     proto_avgRange(theABF,1.0,None)
 
 def proto_0501(theABF):
@@ -372,7 +398,7 @@ def proto_0912(theABF):
     Ip1=int(2.31255*abf.pointsPerSec) # time of first pulse in the sweep
     Ip2=int(Ip1+(ISI/1000)*abf.pointsPerSec) # second pulse is 40ms later
     Ip3=Ip2+(Ip2-Ip1) # distance after Ip2 to scan for the second peak
-    pw=int(1.5/1000*abf.pointsPerSec) # pulse width in ms
+    pw=int(3/1000*abf.pointsPerSec) # pulse width in ms
     peakTimes,peak1heights,peak2heights,peakRatios,baselines,peakTransient=[],[],[],[],[],[]
     ROI=None
     ROIpad=int(.02*abf.pointsPerSec)
@@ -427,6 +453,7 @@ def proto_0912(theABF):
     plt.grid(alpha=.4,ls='--')
     plt.plot(peakTimes,peak1heights,'g.',ms=15,alpha=.6,label='pulse1')
     plt.plot(peakTimes,peak2heights,'m.',ms=15,alpha=.6,label='pulse2')
+    plt.axis([None,None,None,0])
     plt.legend()
     plt.title("Paired Pulse Stimuation")
     plt.ylabel("Peak Amplitude (pA)")
@@ -629,7 +656,7 @@ if __name__=="__main__":
 
     if len(sys.argv)==1:
         print("YOU MUST BE TESTING OR DEBUGGING!")
-        analyze(r"X:\Data\projects\2017-10-10 aging BLA round 2\171018ts_0004.abf")
+        analyze(r"X:\Data\projects\2017-06-16 OT-Cre mice\data\2017-10-23 PVN stim\MCNs\2017_10_30_0002.abf")
         print("DONE")
 
     if len(sys.argv)==2:
