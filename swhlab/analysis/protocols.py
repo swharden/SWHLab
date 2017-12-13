@@ -312,20 +312,46 @@ def proto_0222(theABF):
 
 def proto_0303(theABF):
     """protocol: repeated IC ramps."""
-    proto_avgRange(theABF,0.2,1.2)
 
     abf=ABF(theABF)
     abf.log.info("analyzing as a halorhodopsin (2s pulse)")
+
+    # show average voltage
+    proto_avgRange(theABF,0.2,1.2)
+    plt.close('all')
+
+    # show stacked sweeps
     plt.figure(figsize=(8,8))
     for sweep in abf.setsweeps():
         color='b'
-        if sweep in abf.comment_sweeps:
+        if sweep in np.array(abf.comment_sweeps,dtype=int):
             color='r'
         plt.plot(abf.sweepX2,abf.sweepY+100*sweep,color=color,alpha=.5)
     plt.margins(0,.01)
     plt.tight_layout()
     frameAndSave(abf,"IC ramps")
     plt.close('all')
+
+    # do AP event detection
+    ap=AP(abf)
+    ap.detect_time1=2.3
+    ap.detect_time2=8.3
+    ap.detect()
+    apCount=[]
+
+    for sweepNumber,times in enumerate(ap.get_bySweep("times")):
+        apCount.append(len(times))
+
+    # plot AP frequency vs time
+    plt.figure(figsize=(8,8))
+    plt.plot(np.arange(len(apCount))*abf.sweepLength/60,apCount,'.-')
+    comment_lines(abf)
+    plt.ylabel("AP Count")
+    plt.xlabel("Experiment Duration (minutes)")
+    plt.tight_layout()
+    frameAndSave(abf,"IC ramp freq")
+    plt.close('all')
+
 
 def proto_0401(theABF):
     proto_avgRange(theABF,.5,2.0)
@@ -645,7 +671,7 @@ if __name__=="__main__":
 
     if len(sys.argv)==1:
         print("YOU MUST BE TESTING OR DEBUGGING!")
-        analyze(r"X:\Data\projects\2017-12-11 OTR-Cre mice\2017-12-11 PFC resp to OXT\data\171213sh_0009.abf")
+        analyze(r"X:\Data\projects\2017-12-11 OTR-Cre mice\2017-12-11 PFC resp to OXT\data\171213sh_0010.abf")
         print("DONE")
 
     if len(sys.argv)==2:
