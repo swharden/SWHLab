@@ -310,6 +310,9 @@ def proto_0222(theABF):
     frameAndSave(abf,"VC sine sweep")
     plt.close('all')
 
+def proto_0302(theABF):
+    proto_0303(theABF)
+
 def proto_0303(theABF):
     """protocol: repeated IC ramps."""
 
