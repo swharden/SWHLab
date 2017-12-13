@@ -311,31 +311,20 @@ def proto_0222(theABF):
     plt.close('all')
 
 def proto_0303(theABF):
-    m1=4.15625
+    """protocol: repeated IC ramps."""
+    proto_avgRange(theABF,0.2,1.2)
+
     abf=ABF(theABF)
     abf.log.info("analyzing as a halorhodopsin (2s pulse)")
     plt.figure(figsize=(8,8))
     for sweep in abf.setsweeps():
-        plt.plot(abf.sweepX2,abf.sweepY+100*sweep,color='b',alpha=.5)
-    if abf.ID.startswith("17717"):
-        plt.axvspan(m1,m1+2,alpha=.2,color='g');
-    else:
-        plt.axvspan(m1,m1+1,alpha=.2,color='g');
+        color='b'
+        if sweep in abf.comment_sweeps:
+            color='r'
+        plt.plot(abf.sweepX2,abf.sweepY+100*sweep,color=color,alpha=.5)
     plt.margins(0,.01)
     plt.tight_layout()
-    frameAndSave(abf,"halo")
-    plt.close('all')
-
-    plt.figure(figsize=(8,8))
-    for sweep in abf.setsweeps():
-        plt.plot(abf.sweepX2,abf.sweepY,color='b',alpha=.2)
-    if abf.ID.startswith("17717"):
-        plt.axvspan(m1,m1+2,alpha=.2,color='g');
-    else:
-        plt.axvspan(m1,m1+1,alpha=.2,color='g');
-    plt.margins(0,.01)
-    plt.tight_layout()
-    frameAndSave(abf,"halo2")
+    frameAndSave(abf,"IC ramps")
     plt.close('all')
 
 def proto_0401(theABF):
@@ -656,7 +645,7 @@ if __name__=="__main__":
 
     if len(sys.argv)==1:
         print("YOU MUST BE TESTING OR DEBUGGING!")
-        analyze(r"X:\Data\projects\2017-06-16 OT-Cre mice\data\2017-10-23 PVN stim\MCNs\2017_10_30_0002.abf")
+        analyze(r"X:\Data\projects\2017-12-11 OTR-Cre mice\2017-12-11 PFC resp to OXT\data\171213sh_0009.abf")
         print("DONE")
 
     if len(sys.argv)==2:
