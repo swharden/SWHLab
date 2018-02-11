@@ -1,3 +1,9 @@
+### SWHLab is slowly being replaced by [The pyABF Project](https://github.com/swharden/pyABF) ###
+* [pyABF](https://github.com/swharden/pyABF) focuses on providing a simple Python interface to access ABF data
+* This repository is focused on more specific analysis routines developed for my specific laboratory needs.
+
+---
+
 # SWHLab
 SWHLab is a python module designed to ***facilitate exploratory analysis of electrophysiological data*** by providing a simple object model through which to interact with it. It is intended to be used as a tool for neurophysiology data exploration, rather than production or presentation. The primary goal of this project is to lower the effort barrier required to implement experimental analysis methods, with the hope of facilitating scientific discovery by promoting the development of novel analysis techniques. 
 
