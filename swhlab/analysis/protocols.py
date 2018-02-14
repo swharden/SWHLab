@@ -369,6 +369,82 @@ def proto_0303(theABF):
     frameAndSave(abf,"IC ramp freq")
     plt.close('all')
 
+def proto_0314(theABF):
+    abf=ABF(theABF)
+    abf.log.info("analyzing a cosine + ramp protocol")
+
+    if len(abf.comment_sweeps>0):
+        # comments exist, so graph the average sweep before/after the first comment
+        sweepsToAverage=10
+        baselineSweep1=max(0, abf.comment_sweeps[0]-sweepsToAverage)
+        baselineSweep2=abf.comment_sweeps[0]
+        drugSweep1=abf.comment_sweeps[0]+1
+        drugSweep2=min(abf.sweeps-1,abf.comment_sweeps[0]+1+sweepsToAverage)
+
+        plt.figure(figsize=(16,4))
+        plt.grid(ls='--',alpha=.5)
+        plt.plot(abf.sweepX2,abf.averageSweep(baselineSweep1, baselineSweep2),
+                 label="baseline (%d-%d)"%(baselineSweep1,baselineSweep2), alpha=.8)
+        plt.plot(abf.sweepX2,abf.averageSweep(drugSweep1, drugSweep2),
+                 label="drug (%d-%d)"%(drugSweep1,drugSweep2), alpha=.8)
+        plt.margins(0,.05)
+        plt.legend()
+        plt.tight_layout()
+        frameAndSave(abf,"cos ramp avg",closeWhenDone=False)
+        plt.axis([2.25,4.5,None,None])
+        frameAndSave(abf,"cos ramp avgSine",closeWhenDone=False)
+        plt.axis([9,12.5,None,None])
+        frameAndSave(abf,"cos ramp avgRamp")
+
+    # prepare for AP analysis
+    ap=AP(abf)
+
+    # calculate rest potential
+    avgVoltagePerSweep = [];
+    times = []
+    for sweep in abf.setsweeps():
+        avgVoltagePerSweep.append(abf.average(0,2.25))
+        times.append(abf.sweepStart/60)
+
+    # detect only cos APs
+    M1,M2=2.25,4.5
+    ap.detect_time1, ap.detect_time2 = M1,M2
+    ap.detect()
+    apsPerSweepCos=[len(x) for x in ap.get_bySweep()]
+
+    # detect only ramp APs
+    M1,M2=9,12.5
+    ap.detect_time1, ap.detect_time2 = M1,M2
+    ap.detect()
+    apsPerSweepRamp=[len(x) for x in ap.get_bySweep()]
+
+    # make the plot of APs and stuff
+    plt.figure(figsize=(8,8))
+
+    plt.subplot(311)
+    plt.grid(ls='--',alpha=.5)
+    plt.plot(times,avgVoltagePerSweep,'.-')
+    plt.ylabel("Rest Potential (mV)")
+    comment_lines(abf)
+
+    plt.subplot(312)
+    plt.grid(ls='--',alpha=.5)
+    plt.plot(times,apsPerSweepCos,'.-')
+    plt.ylabel("APs in Cos (#)")
+    comment_lines(abf)
+
+    plt.subplot(313)
+    plt.grid(ls='--',alpha=.5)
+    plt.plot(times,apsPerSweepRamp,'.-')
+    plt.ylabel("APs in Ramp (#)")
+    comment_lines(abf)
+
+    plt.tight_layout()
+
+    frameAndSave(abf,"cos ramp")
+    plt.close('all')
+
+
 
 def proto_0401(theABF):
     proto_avgRange(theABF,.5,2.0)
@@ -688,7 +764,7 @@ if __name__=="__main__":
 
     if len(sys.argv)==1:
         print("YOU MUST BE TESTING OR DEBUGGING!")
-        analyze(r"X:\Data\projects\2017-12-11 OTR-Cre mice\2017-12-11 PFC resp to OXT\data\171213sh_0010.abf")
+        analyze(r"X:\Data\SD\Piriform Oxytocin\pilot experiments\2018-01-25 sine pyr oxt\2018_02_07_0049.abf")
         print("DONE")
 
     if len(sys.argv)==2:
