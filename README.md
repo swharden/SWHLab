@@ -1,4 +1,4 @@
-### SWHLab is slowly being replaced by [The pyABF Project](https://github.com/swharden/pyABF) ###
+### UPDATE: SWHLab has been replaced by [The pyABF Project](https://github.com/swharden/pyABF) ###
 * [pyABF](https://github.com/swharden/pyABF) focuses on providing a simple Python interface to access ABF data
 * This repository is focused on more specific analysis routines developed for my specific laboratory needs.
 
